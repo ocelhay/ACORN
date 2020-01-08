@@ -1,0 +1,36 @@
+---
+title: "AMR Report"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+Report generated the `r Sys.time()`.
+
+Report will include several metrics at patient and specimen levels.
+
+# Profile of Patients
+
+## Total Patients per Type of Ward
+
+```{r fig.width = 6, fig.height = 4}
+patient_filter() %>%
+  group_by(ward) %>%
+  summarise(patients = n()) %>%
+  mutate(ward = replace_na(ward, "Unknown Ward")) %>%
+           ggplot(aes(x = ward, weight = patients)) + 
+           geom_bar() +
+           geom_label(aes(y = patients, label = patients)) +
+           coord_flip() +
+           labs(x = NULL, y = "Total Patients", x = "Ward") +
+           theme_minimal()
+
+```
+
+# Patients Follow-up
+
+# Microbiology
+
+# AMR
