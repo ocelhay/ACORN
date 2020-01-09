@@ -570,7 +570,7 @@ server <- function(input, output, session) {
   
   # Process on "Download ACORN Data" ----
   output$download_data <- downloadHandler(
-    filename = paste0("ACORN_Data_", Sys.time(), ".RData"),
+    filename = paste0("ACORN_Data_", Sys.Date(), ".RData"),
     content = function(file) {
       patient <- generation_status$patient
       microbio <- generation_status$microbio

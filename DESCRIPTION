@@ -10,7 +10,7 @@ License: GNU General Public License
 Encoding: UTF-8
 LazyData: true
 Depends:
-    R (>= 3.6.0),
+    R (>= 3.6.2),
     bsplus, data.table, DiagrammeR, digest, DT, flexdashboard, foreign, highcharter, 
     jsonlite, lubridate, markdown, openssl, purrr, pushbar, RColorBrewer, readxl, shiny, 
     shinyBS, shinycssloaders, shinyhelper, shinythemes, shinyWidgets, tidyverse, tools, timevis, vov
