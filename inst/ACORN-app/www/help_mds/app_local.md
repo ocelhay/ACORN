@@ -6,14 +6,14 @@ To install ACORN Local App:
 2. Open R
 3. Install the devtools package by typing `install.packages("devtools")` (+ Enter)
 4. Load the devtools package by typing `library(devtools)` (+ Enter)
-5. Install the ACORN package by typing `install_github("ocelhay/ACORNapp")` (+ Enter) (NOT YET IMPLEMENTED)
+5. Install the ACORN package by typing `install_github("ocelhay/ACORN")` (+ Enter) (NOT YET IMPLEMENTED)
 
 
 To run ACORN local App:
 
 1. Open R
-2. Load the ACORN package  by typing `library(ACORNapp)` (+ Enter)
-3. Launch ACORN App local version by typing `start_ACORNapp()`
+2. Load the ACORN package  by typing `library(ACORN)` (+ Enter)
+3. Launch ACORN App local version by typing `runACORN()`
 
 
 
