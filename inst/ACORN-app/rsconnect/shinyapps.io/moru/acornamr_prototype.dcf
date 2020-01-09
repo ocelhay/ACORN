@@ -5,8 +5,8 @@ account: moru
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 1169816
-bundleId: 2717597
+bundleId: 2718019
 url: https://moru.shinyapps.io/acornamr_prototype/
-when: 1578594484.1159
+when: 1578606149.12433
 asMultiple: FALSE
 asStatic: FALSE
