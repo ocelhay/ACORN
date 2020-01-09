@@ -1,11 +1,17 @@
 Package: ACORN
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Data Visualisation of ACORN Data
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Author: Olivier Celhay
+Maintainer: Olivier Celhay <olivier.celhay@gmail.com>
+Description: This is essentially the source code for the shiny app that has been bundled as a R package for easy deployment. 
+    (The app code is located in the inst folder).
+License: GNU General Public License
 Encoding: UTF-8
 LazyData: true
+Depends:
+    R (>= 3.6.0),
+    bsplus, data.table, DiagrammeR, digest, DT, flexdashboard, foreign, highcharter, 
+    jsonlite, lubridate, markdown, openssl, purrr, pushbar, RColorBrewer, readxl, shiny, 
+    shinyBS, shinycssloaders, shinyhelper, shinythemes, shinyWidgets, tidyverse, tools, timevis, vov
+RoxygenNote: 7.0.2

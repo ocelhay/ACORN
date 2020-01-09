@@ -98,7 +98,7 @@ ui <- fluidPage(
                                                  )
                                 )
                             ),
-                            source("./www/R/across_pushbar_filters.R", local = T)[1]
+                            source("./www/R/across_pushbar_filters.R", local = TRUE)[1]
            )
     ),
     column(width = 9,
@@ -124,7 +124,7 @@ ui <- fluidPage(
                                                          HTML("Process here laboratory & patient data into an anonymised, App-ready, dataset."),
                                                          bsButton("generate_data", label = "Generate ACORN Data", style = "primary", type = "toggle", value = FALSE, 
                                                                   size = "default", block = TRUE),
-                                                         source("./www/R/welcome_pushbar_generate.R", local = T)[1],
+                                                         source("./www/R/welcome_pushbar_generate.R", local = TRUE)[1],
                                                          hr()
                                         ),
                                         conditionalPanel(condition = "! output.local_server_test",
@@ -585,7 +585,7 @@ server <- function(input, output, session) {
   # Events on demo toggle ON/OFF ----
   observe(
     if(input$demo == TRUE) {
-      load("./www/data/Mock ACORN Dataset.RData")
+      load("./www/data/Mock_ACORN_Dataset.RData")
       data_provided(TRUE)
       patient(patient)
       microbio <- microbio %>% mutate(specimen_type = recode(specimen_type,
