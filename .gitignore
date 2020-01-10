@@ -1,3 +1,6 @@
 
 *.DS_Store
 *.dcf
+.DS_Store
+inst/ACORN-app/rsconnect/shinyapps.io/moru/acornamr_prototype.dcf
+inst/ACORN-app/rsconnect/shinyapps.io/moru/acornamr_prototype.dcf

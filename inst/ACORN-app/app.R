@@ -128,8 +128,8 @@ ui <- fluidPage(
                                                          hr()
                                         ),
                                         conditionalPanel(condition = "! output.local_server_test",
-                                                         HTML("This is possible only in the App local version") %>%
-                                                           helper(content = "app_local", colour = "red"),
+                                                         HTML("You can generate data only in the App OFFLINE version") %>%
+                                                           helper(content = "app_offline", colour = "red"),
                                                          bsButton("generate_data", label = "Generate ACORN Data (Disabled)", style = "primary", type = "toggle", value = FALSE, 
                                                                   size = "default", disabled = TRUE, block = TRUE),
                                                          hr()
@@ -448,9 +448,9 @@ server <- function(input, output, session) {
   
   output$local_server_msg <- renderText({
     if (! local_server_test) return(as.character(
-      span(h4(icon("info-circle"), "ONLINE App"), br(), p(icon("exclamation-triangle"), "You are using the online version of the App.", br(), "Uploaded data is only used while the App is open and deleted immediately on browser close."))))
+      span(h4(icon("exclamation-triangle"), "ONLINE"), br(), p(icon("wifi"), "You are using the ONLINE version (", as.character(packageVersion("ACORN")), ") of the App.", br(), "Uploaded data is only used while the App is open and deleted immediately on browser close."))))
     if (local_server_test) return(as.character(
-      span(h4(icon("info-circle"), "LOCAL App"), p("You are using the local version of the App.", br(), "Data will not be uploaded/shared at any stage."))))
+      span(h4(icon("exclamation-triangle"), "OFFLINE"), p("You are using the OFFLINE version (", as.character(packageVersion("ACORN")), ") of the App.", br(), "Data will not be uploaded/shared at any stage."))))
   })
   
   
