@@ -1,6 +1,6 @@
-To use ACORN App OFFLINE version,
+## ACORN App OFFLINE version
 
-To install ACORN OFFLINE App:
+### Installation
 
 1. [Install R Statistical software](https://www.r-project.org)
 2. Open R
@@ -9,7 +9,7 @@ To install ACORN OFFLINE App:
 5. Install the ACORN package with `install_github("ocelhay/ACORN")`
 
 
-To run ACORN OFFLINE App:
+### Run
 
 1. Open R
 2. Load the ACORN package  with `library(ACORN)`

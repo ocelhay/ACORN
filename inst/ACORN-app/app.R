@@ -448,7 +448,7 @@ server <- function(input, output, session) {
   
   output$local_server_msg <- renderText({
     if (! local_server_test) return(as.character(
-      span(h4(icon("exclamation-triangle"), "ONLINE"), br(), p(icon("wifi"), "You are using the ONLINE version (", as.character(packageVersion("ACORN")), ") of the App.", br(), "Uploaded data is only used while the App is open and deleted immediately on browser close."))))
+      span(h4(icon("exclamation-triangle"), "ONLINE"), br(), p(icon("wifi"), "You are using the ONLINE version of the App.", br(), "Uploaded data is only used while the App is open and deleted immediately on browser close."))))
     if (local_server_test) return(as.character(
       span(h4(icon("exclamation-triangle"), "OFFLINE"), p("You are using the OFFLINE version (", as.character(packageVersion("ACORN")), ") of the App.", br(), "Data will not be uploaded/shared at any stage."))))
   })
