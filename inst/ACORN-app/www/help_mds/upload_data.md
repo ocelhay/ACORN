@@ -1,4 +1,4 @@
-File should have been generated with this App and have a ".RData"" extension. Files in different formats won't be processed.
+File should have been generated with this App and have a ".RData" extension. Files in different formats won't be processed.
 
 Uploaded data is only used while the App is open and deleted immediately on browser close.
 
