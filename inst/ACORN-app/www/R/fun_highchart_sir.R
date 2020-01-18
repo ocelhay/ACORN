@@ -55,7 +55,7 @@ highchart_sir <- function(data_input, organism_input, corresp) {
     categories_grouped <- sir_results %>%
       select(antibio_group, antibio_name) %>%
       distinct() %>%
-      group_by(name = antibio_group,) %>%
+      group_by(name = antibio_group) %>%
       do(categories = .$antibio_name) %>%
       ungroup() %>%
       mutate(name = str_replace(name, "Other", "zzzOther")) %>%
@@ -67,6 +67,9 @@ highchart_sir <- function(data_input, organism_input, corresp) {
           x[["categories"]] <- list(x[["categories"]])
         x
       })
+    
+    shiny_categories_grouped <<- categories_grouped
+    shiny_sir_results <<- sir_results
 
     return(
       sir_results %>%
@@ -117,7 +120,7 @@ highchart_sir <- function(data_input, organism_input, corresp) {
     categories_grouped <- sir_results %>%
       select(antibio_group, antibio_name) %>%
       distinct() %>%
-      group_by(name = antibio_group,) %>%
+      group_by(name = antibio_group) %>%
       do(categories = .$antibio_name) %>%
       ungroup() %>%
       mutate(name = str_replace(name, "Other", "zzzOther")) %>%
@@ -129,6 +132,9 @@ highchart_sir <- function(data_input, organism_input, corresp) {
           x[["categories"]] <- list(x[["categories"]])
         x
       })
+    
+    shiny_categories_grouped <<- categories_grouped
+    shiny_sir_results <<- sir_results
     
     return(
       sir_results %>%
