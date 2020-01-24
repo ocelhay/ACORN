@@ -2,7 +2,7 @@
 
 output$abaumannii_sir <- renderHighchart({
   organism_input <- "Acinetobacter baumannii"
-  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio())
+  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), combine_SI = input$combine_SI)
 })
 
 
@@ -25,7 +25,7 @@ output$nb_isolates_abaumannii <- renderText({
 
 output$ecoli_sir <- renderHighchart({
   organism_input <- "Escherichia coli"
-  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio())
+  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), combine_SI = input$combine_SI)
 })
 
 output$test_ecoli_sir <- reactive({
@@ -56,7 +56,7 @@ output$nb_isolates_ecoli <- renderText({
 
 output$kpneumoniae_sir <- renderHighchart({
   organism_input <- "Klebsiella pneumoniae"
-  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio())
+  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), combine_SI = input$combine_SI)
 })
 
 output$test_kpneumoniae_sir <- reactive({
@@ -82,7 +82,7 @@ output$nb_isolates_kpneumoniae <- renderText({
 # S. aureus ----
 output$saureus_sir <- renderHighchart({
   organism_input <- "Staphylococcus aureus"
-  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio())
+  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), combine_SI = input$combine_SI)
 })
 
 
@@ -103,7 +103,7 @@ output$nb_isolates_saureus <- renderText({
 
 output$spneumoniae_sir <- renderHighchart({
   organism_input <- "Streptococcus pneumoniae"
-  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio())
+  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), combine_SI = input$combine_SI)
 })
 
 
@@ -125,7 +125,7 @@ output$nb_isolates_spneumoniae <- renderText({
 
 output$salmonella_sir <- renderHighchart({
   organism_input <- input$select_salmonella
-  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio())
+  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), combine_SI = input$combine_SI)
 })
 
 output$test_salmonella_sir <- reactive({
@@ -159,7 +159,7 @@ output$nb_isolates_salmonella <- renderText({
 output$ngonorrhoeae_sir <- renderHighchart({
   organism_input <- "Neisseria gonorrhoeae"
   req(microbio_filter() %>% filter(organism == organism_input))
-  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio())
+  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), combine_SI = input$combine_SI)
 })
 
 
@@ -182,7 +182,7 @@ output$nb_isolates_ngonorrhoeae <- renderText({
 # Other Organism ----
 output$other_organism_sir <- renderHighchart({
   organism_input <- input$other_organism
-  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio())
+  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), combine_SI = input$combine_SI)
 })
 
 output$test_other_sir <- reactive({

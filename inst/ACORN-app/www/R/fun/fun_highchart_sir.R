@@ -1,7 +1,7 @@
 # Colors order: S, I, R
 cols_sir <- c("#2166ac", "#fddbc7", "#b2182b")
 
-highchart_sir <- function(data_input, organism_input, corresp) {
+highchart_sir <- function(data_input, organism_input, corresp, combine_SI) {
   
   # Column in the Organism-Antibiotic matrix
   matching_name_column <- "all_other_organisms"
@@ -15,10 +15,9 @@ highchart_sir <- function(data_input, organism_input, corresp) {
   if(organism_input == "Salmonella sp (not S. typhi or S. paratyphi)") {
     vec <- unique(data_input$organism)
     organism_input <- vec[str_detect(vec, "Salmonella") & vec != "Salmonella typhi" & vec != "Salmonella paratyphi"]
-    print(organism_input)
   }
   
-  if(input$combine_SI) {
+  if(combine_SI) {
     
     data <- data_input %>% 
       filter(organism %in% organism_input) %>%
@@ -84,7 +83,7 @@ highchart_sir <- function(data_input, organism_input, corresp) {
     )
   }
   
-  if(!input$combine_SI) {
+  if(!combine_SI) {
     
     data <- data_input %>% 
       filter(organism %in% organism_input) %>%

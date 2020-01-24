@@ -28,7 +28,7 @@ list(
                                 bs_append(title = h4('(Type of) Ward'),
                                           content = span(p("Select patients that stayed in one of these", tags$u(strong("type of")), " wards:"),
                                                          pickerInput(inputId = "filter_type_ward", label = NULL, multiple = TRUE,
-                                                                     choices = NULL, selected = NULL, options = list(
+                                                                     choices = "INCEPTION", selected = "INCEPTION", options = list(
                                                                        `actions-box` = TRUE, `deselect-all-text` = "None...",
                                                                        `select-all-text` = "Select All", `none-selected-text` = "None Selected")),
                                                          p("Select patients that stayed in one of these wards:"),

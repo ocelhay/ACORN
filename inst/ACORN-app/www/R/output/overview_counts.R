@@ -1,6 +1,5 @@
 output$n_overview_patient <- renderText({
   p <- patient() %>% nrow()
-  print(p)
   
   return(
     paste0(

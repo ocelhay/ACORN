@@ -1,7 +1,7 @@
 # Load packages ----
 library(bsplus)  # bs_accordion()
 library(data.table)
-library(DiagrammeR)  # grVizOutput()
+# library(DiagrammeR)  # grVizOutput()
 library(digest)
 library(DT)
 library(flexdashboard)  # gaugeOutput()
@@ -20,15 +20,15 @@ library(shinyBS)
 library(shinycssloaders)  # withSpinner()
 library(shinyhelper)  # helper()
 library(shinythemes)  # shinytheme()
+# require shinyWidgets 0.4.9 as we experience issues with subsequent versions
 library(shinyWidgets)  # switchInput()
 library(tidyverse)  # App requires recent version for the implementation of na.rm in unite()
 library(tools)  # file_ext()
 library(timevis)  # timevisOutput()
 library(vov)  # swivel_vertical()
 
-
-source("./www/R/fun_filter_data.R", local = TRUE)
-source("./www/R/fun_highchart_sir.R", local = TRUE)
+source("./www/R/fun/fun_filter_data.R", local = TRUE)
+source("./www/R/fun/fun_highchart_sir.R", local = TRUE)
 
 
 # Define UI ----
@@ -47,7 +47,7 @@ ui <- fluidPage(
   
   conditionalPanel(condition = "input.tabs != 'welcome'",
                    div(id = "feedback_topright",
-                       blur_in(duration = "slower",
+                       blur_in(duration = "slow",
                                htmlOutput("feedback_filters")
                        )
                    )
@@ -69,7 +69,7 @@ ui <- fluidPage(
                                 downloadLink("report", label = span(icon("file-pdf"), "Generate Printable Report")),
                                 conditionalPanel(condition = "input.tabs != 'overview'",
                                                  div(id = "floatingfilter",
-                                                     blur_in(duration = "slower",
+                                                     blur_in(duration = "slow",
                                                              div(class = 'box_outputs',
                                                                  h4("Filter Patients:"),
                                                                  prettyRadioButtons(inputId = "filter_category", label = NULL,  shape = "curve",
@@ -81,7 +81,7 @@ ui <- fluidPage(
                                                      ),
                                                      conditionalPanel(condition = "input.tabs != 'patients' & input.tabs != 'followup'",
                                                                       br(),
-                                                                      blur_in(duration = "slower",
+                                                                      blur_in(duration = "slow",
                                                                               div(class = 'box_outputs',
                                                                                   h4("Filter Specimens, Isolates:"),
                                                                                   prettyCheckboxGroup(inputId = "filter_method_collection", label = NULL,  shape = "curve", status = "primary",
@@ -98,7 +98,8 @@ ui <- fluidPage(
                                                  )
                                 )
                             ),
-                            source("./www/R/across_pushbar_filters.R", local = TRUE)[1]
+                            source("./www/R/ui/across_pushbar_filters.R", local = TRUE)[1]
+                            
            )
     ),
     column(width = 9,
@@ -124,7 +125,7 @@ ui <- fluidPage(
                                                          HTML("Process here laboratory & patient data to create an anonymised, App-ready, dataset."),
                                                          bsButton("generate_data", label = "Generate ACORN Data", style = "primary", type = "toggle", value = FALSE, 
                                                                   size = "default", block = TRUE),
-                                                         source("./www/R/welcome_pushbar_generate.R", local = TRUE)[1],
+                                                         source("./www/R/ui/welcome_pushbar_generate.R", local = TRUE)[1],
                                                          hr()
                                         ),
                                         conditionalPanel(condition = "! output.local_server_test",
@@ -156,7 +157,7 @@ ui <- fluidPage(
                                                   ),
                                                   column(9, 
                                                          br(),
-                                                         grVizOutput('diagramme')
+                                                         # grVizOutput('diagramme')
                                                   )
                                                 ),
                                                 br(), hr(),
@@ -439,9 +440,9 @@ ui <- fluidPage(
 # Define server logic ----
 server <- function(input, output, session) {
   # stop the shiny app when the browser window is closed
-  session$onSessionEnded(function() {
-    stopApp()
-  })
+  # session$onSessionEnded(function() {
+  #   stopApp()
+  # })
   
   # TRUE if App running locally, FALSE if running online (shinyapps.io ...)
   local_server_test <- !nzchar(Sys.getenv("SHINY_PORT"))
@@ -454,7 +455,7 @@ server <- function(input, output, session) {
     if (! local_server_test) return(as.character(
       span(h4(icon("wifi"), "ONLINE"), br(), p("You are using the ONLINE version of the ACORN App.", br(), "Uploaded data is only used while the App is open and deleted immediately on browser close."))))
     if (local_server_test) return(as.character(
-      span(h4(icon("laptop"), "OFFLINE"), p("You are using the OFFLINE version (", as.character(packageVersion("ACORN")), ") of the ACORN App.", br(), "Data will not be uploaded/shared at any stage."))))
+      span(h4(icon("laptop"), "OFFLINE"), p("You are using the OFFLINE version"))))
   })
   
   
@@ -488,9 +489,7 @@ server <- function(input, output, session) {
   observeEvent(input$generate_data, ignoreInit = TRUE, { pushbar_open(id = "Pushbar_Generate_Data") })  
   observeEvent(input$close2, { pushbar_close() })
   
-  # Source code to generate outputs ----
-  file_list <- list.files(path = "./www/R", pattern = "*.R")
-  for (file in file_list) source(paste0("./www/R/", file), local = TRUE)$value
+  
   
   # Reactive data management ----
   data_provided <- reactiveVal(FALSE)
@@ -501,11 +500,17 @@ server <- function(input, output, session) {
   
   patient_filter <- reactive(
     fun_filter_patient(data = patient(), input = input)
+    # patient()
   )
   
   microbio_filter <- reactive(
     fun_filter_microbio(data = microbio(), patient = patient_filter(), input = input)
+    # microbio()
   )
+  
+  # Source code to generate outputs ----
+  file_list <- list.files(path = "./www/R/output", pattern = "*.R")
+  for (file in file_list) source(paste0("./www/R/output/", file), local = TRUE)$value
   
   # Data generation ----
   generation_status <- reactiveValues(
@@ -528,7 +533,7 @@ server <- function(input, output, session) {
   )
   
   observeEvent(input$launch_generate_data, {
-    # showNotification("Data Generation Running. Check Console for Status", id = "message_run", duration = NULL, type = "default", session = session)
+    showNotification("Data Generation Running. Check Console for Status", id = "message_run", duration = NULL, type = "default", session = session)
     
     print("Source 01_read_acorn_data.R")
     source("./www/R/data_generation/01_read_acorn_data.R", local = TRUE)
@@ -565,7 +570,7 @@ server <- function(input, output, session) {
     generation_status$corresp_org_antibio <- corresp_org_antibio
     generation_status$hai.surveys <- hai.surveys
     
-    # removeNotificsation(id = "message_run", session = session)
+    removeNotification(id = "message_run", session = session)
   })
   
   output$button_download <- renderUI({
@@ -605,7 +610,7 @@ server <- function(input, output, session) {
                                  choices = sort(setdiff(unique(microbio$specimen_type), "Blood")), 
                                  selected = sort(setdiff(unique(microbio$specimen_type), "Blood")),
                                  size = "sm", status = "primary", checkIcon = list(yes = icon("check")))
-      updatePickerInput(session = session, "filter_type_ward", choices = sort(unique(patient$ward)), selected = sort(unique(patient$ward)))
+      updatePickerInput(session = session, inputId = "filter_type_ward", choices = sort(unique(patient$ward)), selected = sort(unique(patient$ward)))
       updatePickerInput(session = session, "filter_ward", choices = sort(unique(patient$ward_text)), selected = sort(unique(patient$ward_text)))
       updateDateRangeInput(session = session, "filter_enrollment", start = min(patient$date_enrollment), end = max(patient$date_enrollment))
       other_organism <- setdiff(unique(microbio$organism), 
