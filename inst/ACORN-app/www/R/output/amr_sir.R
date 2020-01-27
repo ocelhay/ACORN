@@ -156,27 +156,27 @@ output$nb_isolates_salmonella <- renderText({
 
 # Neisseria ngonorrhoeae ----
 
-output$ngonorrhoeae_sir <- renderHighchart({
-  organism_input <- "Neisseria gonorrhoeae"
-  req(microbio_filter() %>% filter(organism == organism_input))
-  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), combine_SI = input$combine_SI)
-})
-
-
-output$test_ngonorrhoeae_sir <- reactive({
-  req(microbio_filter())
-  organism_input <- "Neisseria gonorrhoeae"
-  ifelse (nrow(microbio_filter() %>% filter(organism == organism_input)) == 0, FALSE, TRUE)
-})
-outputOptions(output, "test_ngonorrhoeae_sir", suspendWhenHidden = FALSE)
-
-
-output$nb_isolates_ngonorrhoeae <- renderText({
-  organism_input <- "Neisseria gonorrhoeae"
-  req(microbio_filter() %>% filter(organism == organism_input))
-  nb <- microbio_filter() %>% filter(organism == organism_input) %>% nrow()
-  ifelse (nb != 0, paste0(span("Total of ", br(), nb, " isolates")), HTML("There are no isolates"))
-})
+# output$ngonorrhoeae_sir <- renderHighchart({
+#   organism_input <- "Neisseria gonorrhoeae"
+#   req(microbio_filter() %>% filter(organism == organism_input))
+#   highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), combine_SI = input$combine_SI)
+# })
+# 
+# 
+# output$test_ngonorrhoeae_sir <- reactive({
+#   req(microbio_filter())
+#   organism_input <- "Neisseria gonorrhoeae"
+#   ifelse (nrow(microbio_filter() %>% filter(organism == organism_input)) == 0, FALSE, TRUE)
+# })
+# outputOptions(output, "test_ngonorrhoeae_sir", suspendWhenHidden = FALSE)
+# 
+# 
+# output$nb_isolates_ngonorrhoeae <- renderText({
+#   organism_input <- "Neisseria gonorrhoeae"
+#   req(microbio_filter() %>% filter(organism == organism_input))
+#   nb <- microbio_filter() %>% filter(organism == organism_input) %>% nrow()
+#   ifelse (nb != 0, paste0(span("Total of ", br(), nb, " isolates")), HTML("There are no isolates"))
+# })
 
 
 # Other Organism ----

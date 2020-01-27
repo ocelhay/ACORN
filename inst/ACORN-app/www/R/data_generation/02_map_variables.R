@@ -20,15 +20,19 @@ amr <- subset(amr, select = (!is.na(colnames(amr))))
 # Sort out the specimen date variable
 # - if importing WHONET files, the dates are all yyyy-mm-dd by default
 # - if importing Excel files, readxl auto-converts dates to yyyy-mm-dd
-date.format <- data_dictionary$date.format$date.format
+# date.format <- data_dictionary$date.format$date.format
+# 
+# if (data_dictionary$input.file$file.type %in% c("dbf", "xls", "xlsx")) { amr$specdate <- as.Date(amr$specdate, "%Y-%m-%d") } else if 
+# (date.format == "dd/mm/yyyy") { amr$specdate <- as.Date(amr$specdate, "%d/%m/%Y") } else if 
+# (date.format == "dd-mm-yyyy") { amr$specdate <- as.Date(amr$specdate, "%d-%m-%Y") } else if 
+# (date.format == "yyyy/mm/dd") { amr$specdate <- as.Date(amr$specdate, "%Y/%m/%d") } else if 
+# (date.format == "yyyy-mm-dd") { amr$specdate <- as.Date(amr$specdate, "%Y-%m-%d") } else if
+# (date.format == "dd MMM yyyy") { amr$specdate <- as.Date(amr$specdate, "%d %b %Y") } else
+# { stop("Unrecognised date format for amr$specdate") }
 
-if (data_dictionary$input.file$file.type %in% c("dbf", "xls", "xlsx")) { amr$specdate <- as.Date(amr$specdate, "%Y-%m-%d") } else if 
-(date.format == "dd/mm/yyyy") { amr$specdate <- as.Date(amr$specdate, "%d/%m/%Y") } else if 
-(date.format == "dd-mm-yyyy") { amr$specdate <- as.Date(amr$specdate, "%d-%m-%Y") } else if 
-(date.format == "yyyy/mm/dd") { amr$specdate <- as.Date(amr$specdate, "%Y/%m/%d") } else if 
-(date.format == "yyyy-mm-dd") { amr$specdate <- as.Date(amr$specdate, "%Y-%m-%d") } else if
-(date.format == "dd MMM yyyy") { amr$specdate <- as.Date(amr$specdate, "%d %b %Y") } else
-{ stop("Unrecognised date format for amr$specdate") }
+# guess the date format
+amr$specdate <- parse_date_time(amr$specdate, c("dmY", "Ymd", "dbY"))
+
 
 # Make a new orgnum (do not rely on any orgnum imported as part of the dataset)
 amr$specid.lc <- tolower(amr$specid) # Make all specid lowercase (to avoid splitting specid based on inconsistent use of caps)

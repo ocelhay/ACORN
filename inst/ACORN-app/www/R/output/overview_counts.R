@@ -33,17 +33,20 @@ output$n_overview_specimen <- renderText({
   )
 })
 
-output$n_overview_isolate <- renderText({
-  
-  p <- microbio() %>% nrow()
+
+output$n_overview_pathogen <- renderText({
+  p <- microbio() %>%
+    filter(organism %in% c("Acinetobacter baumannii", "Escherichia coli", "Klebsiella pneumoniae", 
+                           "Staphylococcus aureus", "Streptococcus pneumoniae")) %>%
+    nrow()
   
   return(
     paste0(
       as.character(
         div(class = "n_box",
-            div(class = "icon_box", icon("microscope")),
+            div(class = "icon_box", icon("vial")),
             h3(p),
-            span(strong("Isolates"))
+            span(strong("Isolates of Target Pathogens"))
         )
       )
     )

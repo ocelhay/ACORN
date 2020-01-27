@@ -83,19 +83,12 @@ h4 {
   position: fixed;
 }
 
-#feedback_topright {
-  top: calc(1%);;
-  right: calc(2%);;
+#feedback_patients {
+  top: calc(20%);;
+  left: calc(2%);;
   z-index: 999999999;
   position: fixed;
 }
-
-/*
-.mybutton {
-  background-color: #2c3e50;
-  border: 2px solid white;
-}
-*/
 
 
 #pos_button_filter_more {

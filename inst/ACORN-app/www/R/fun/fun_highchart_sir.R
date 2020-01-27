@@ -1,6 +1,3 @@
-# Colors order: S, I, R
-cols_sir <- c("#2166ac", "#fddbc7", "#b2182b")
-
 highchart_sir <- function(data_input, organism_input, corresp, combine_SI) {
   
   # Column in the Organism-Antibiotic matrix

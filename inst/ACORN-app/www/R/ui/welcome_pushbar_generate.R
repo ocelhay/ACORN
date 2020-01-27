@@ -12,17 +12,20 @@ list(
                        p("Upload lab CODES (.xlsx):"),
                        fileInput("file_lab_codes", label = NULL, accept = ".xlsx", buttonLabel = "Browse ..."),
                        
-                       p("Upload lab DATA (.csv, .dbf, .txt, .xls, .xlsx):"),
-                       fileInput("file_lab_data", label = NULL, buttonLabel = "Browse ..."),
+                       
+                       radioButtons("whonet_file", label = "Format of the lab data", choices = c("WHONET file", "Not WHONET file"),
+                                    selected = "Not WHONET file", inline = TRUE),
+                       uiOutput("upload_lab_data"),
                        
                        p("Upload ODK data (requiring 5 .csv files):"),
                        fileInput("file_odk_data", label = NULL, multiple = TRUE, buttonLabel = "Browse ..."),
-                       
-                       bsButton("launch_generate_data", label = "Generate ACORN Data (Upload Data First)", style = "primary", 
-                                disabled = TRUE, size = "default", block = FALSE)
                 ),
                 column(6,  offset = 1,
                        htmlOutput("feedback_data_generation"),
+                       bsButton("launch_generate_data", label = "Generate ACORN Data (Upload Data First)", style = "primary", 
+                                disabled = TRUE, size = "default", block = FALSE),
+                       br(), br(),
+                       htmlOutput("feedback_data_generation_2"),
                        br(), br(),
                        uiOutput("button_download")
                 )

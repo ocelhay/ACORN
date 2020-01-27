@@ -1,7 +1,6 @@
 # Load packages ----
 library(bsplus)  # bs_accordion()
 library(data.table)
-# library(DiagrammeR)  # grVizOutput()
 library(digest)
 library(DT)
 library(flexdashboard)  # gaugeOutput()
@@ -27,8 +26,17 @@ library(tools)  # file_ext()
 library(timevis)  # timevisOutput()
 library(vov)  # swivel_vertical()
 
+
+#  Functions and global variables ----
 source("./www/R/fun/fun_filter_data.R", local = TRUE)
+
+cols_sir <- c("#2166ac", "#fddbc7", "#b2182b")  # S, I, R
 source("./www/R/fun/fun_highchart_sir.R", local = TRUE)
+
+source("./www/R/fun/fun_highchart_esbl.R", local = TRUE)
+cols_esbl <-  c("#2166ac", "#b2182b", "#2c3e50")
+
+source("./www/R/fun/fun_qc.R", local = TRUE)
 
 
 # Define UI ----
@@ -46,7 +54,7 @@ ui <- fluidPage(
   use_vov(),
   
   conditionalPanel(condition = "input.tabs != 'welcome'",
-                   div(id = "feedback_topright",
+                   div(id = "feedback_patients",
                        blur_in(duration = "slow",
                                htmlOutput("feedback_filters")
                        )
@@ -54,6 +62,7 @@ ui <- fluidPage(
   ),
   
   fluidRow(
+    # Sidebar ----
     column(width = 3,
            conditionalPanel(condition = "input.tabs == 'welcome'",
                             tags$a(href='http://acornamr.net', tags$img(src = 'img_ACORN_logo.png', class = 'logo')),
@@ -102,6 +111,7 @@ ui <- fluidPage(
                             
            )
     ),
+    # Main Content ----
     column(width = 9,
            navbarPage(NULL, id = "tabs", windowTitle = "ACORN", collapsible = TRUE, 
                       tabPanel("Welcome", value = "welcome",
@@ -112,13 +122,14 @@ ui <- fluidPage(
                                           bs_set_opts(panel_type = "default", use_heading_link = TRUE) %>%
                                           bs_append(title = "What is ACORN?", content = includeMarkdown('www/markdown/faq_1.md')) %>%
                                           bs_append(title = "Why is ACORN needed?", content = includeMarkdown('www/markdown/faq_2.md')) %>%
-                                          bs_append(title = "Where is ACORN surveillance being done?", content = includeMarkdown('www/markdown/faq_3.md')),
+                                          bs_append(title = "Where is ACORN surveillance being done?", content = includeMarkdown('www/markdown/faq_3.md')) %>%
+                                          bs_append(title = "What are target pathogens?", content = HTML("TODO: placeholder for Paul content")),
                                         br(),
                                         h4(icon("envelope"), "Contact the ACORN Team"),
                                         includeMarkdown('www/markdown/faq_4.md')
                                  ),
                                  column(5,
-                                        htmlOutput("local_server_msg"),
+                                        htmlOutput("online_offline"),
                                         hr(),
                                         h4(icon("hand-point-right"), "Generate ACORN Data"),
                                         conditionalPanel(condition = "output.local_server_test",
@@ -149,26 +160,21 @@ ui <- fluidPage(
                                )
                       ),
                       tabPanel("Overview", value = "overview", 
-                               conditionalPanel(condition = "output.test_data",
-                                                fluidRow(
-                                                  column(3, htmlOutput("n_overview_patient"),
-                                                         br(), htmlOutput("n_overview_specimen"),
-                                                         br(), htmlOutput("n_overview_isolate")
-                                                  ),
-                                                  column(9, 
-                                                         br(),
-                                                         # grVizOutput('diagramme')
-                                                  )
-                                                ),
-                                                br(), hr(),
-                                                checkboxGroupButtons("variables_table", label = "Select Variables to Include in Table:", 
-                                                                     size = "sm", status = "primary", checkIcon = list(yes = icon("check")), individual = TRUE,
-                                                                     choices = c("Place of Infection" = "surveillance_cat", "Type of Ward" = "ward", "Ward" = "ward_text", "Clinical Outcome" = "clinical_outcome", "Day-28 Outcome" = "d28_outcome"), 
-                                                                     selected = c("surveillance_cat", "ward", "ward_text", "clinical_outcome", "d28_outcome")),
-                                                
-                                                DTOutput("table_patients", width = "95%") %>% withSpinner(),
-                                                br(), br()
-                               )
+                               # conditionalPanel(condition = "output.test_data",
+                               fluidRow(
+                                 column(4, htmlOutput("n_overview_patient")),
+                                 column(4, htmlOutput("n_overview_specimen")),
+                                 column(4, htmlOutput("n_overview_pathogen"))
+                               ),
+                               br(), hr(),
+                               checkboxGroupButtons("variables_table", label = "Select Variables to Include in Table:", 
+                                                    size = "sm", status = "primary", checkIcon = list(yes = icon("check")), individual = TRUE,
+                                                    choices = c("Place of Infection" = "surveillance_cat", "Type of Ward" = "ward", "Ward" = "ward_text", "Clinical Outcome" = "clinical_outcome", "Day-28 Outcome" = "d28_outcome"), 
+                                                    selected = c("surveillance_cat", "ward", "ward_text", "clinical_outcome", "d28_outcome")),
+                               
+                               DTOutput("table_patients", width = "95%") %>% withSpinner(),
+                               br(), br()
+                               # )
                       ),
                       # Profile ----
                       tabPanel(span(icon("user"), "Profile"), value = "patients",
@@ -330,7 +336,7 @@ ui <- fluidPage(
                                )
                       ),
                       # AMR ----
-                      tabPanel("AMR", value = "resistance",
+                      tabPanel("AMR", value = "amr",
                                div(class = "right",
                                    prettySwitch(inputId = "combine_SI", label = "Combine Susceptible + Intermediate", status = "primary")) %>% 
                                  helper(content = "combine_SI", colour = "red"),
@@ -407,16 +413,16 @@ ui <- fluidPage(
                                      conditionalPanel(condition = "! output.test_salmonella_sir", span(h4("There is no data to display for this organism.")))
                                    )
                                  ) %>%
-                                 bs_append(
-                                   title_side = "N. gonorrhoeae",
-                                   content_side = htmlOutput("nb_isolates_ngonorrhoeae"),
-                                   content_main = span(
-                                     conditionalPanel(condition = "output.test_ngonorrhoeae_sir",
-                                                      highchartOutput("ngonorrhoeae_sir", height = "700px") %>% withSpinner()
-                                     ),
-                                     conditionalPanel(condition = "! output.test_ngonorrhoeae_sir", span(h4("There is no data to display for this organism.")))
-                                   )
-                                 ) %>%
+                                 # bs_append(
+                                 #   title_side = "N. gonorrhoeae",
+                                 #   content_side = htmlOutput("nb_isolates_ngonorrhoeae"),
+                                 #   content_main = span(
+                                 #     conditionalPanel(condition = "output.test_ngonorrhoeae_sir",
+                                 #                      highchartOutput("ngonorrhoeae_sir", height = "700px") %>% withSpinner()
+                                 #     ),
+                                 #     conditionalPanel(condition = "! output.test_ngonorrhoeae_sir", span(h4("There is no data to display for this organism.")))
+                                 #   )
+                                 # ) %>%
                                  bs_append(
                                    title_side = "Other Organisms",
                                    content_side = htmlOutput("nb_isolates_other"),
@@ -431,6 +437,9 @@ ui <- fluidPage(
                                  ),
                                
                                use_bs_accordion_sidebar()
+                      ),
+                      tabPanel(span(icon("key"), "Key Metrics"), value = "key",
+                               HTML("TODO: placeholder for key metrics")
                       )
            )
     )
@@ -446,19 +455,8 @@ server <- function(input, output, session) {
   
   # TRUE if App running locally, FALSE if running online (shinyapps.io ...)
   local_server_test <- !nzchar(Sys.getenv("SHINY_PORT"))
-  
   output$local_server_test <- reactive(local_server_test)
   outputOptions(output, "local_server_test", suspendWhenHidden = FALSE)
-  
-  
-  output$local_server_msg <- renderText({
-    if (! local_server_test) return(as.character(
-      span(h4(icon("wifi"), "ONLINE"), br(), p("You are using the ONLINE version of the ACORN App.", br(), "Uploaded data is only used while the App is open and deleted immediately on browser close."))))
-    if (local_server_test) return(as.character(
-      span(h4(icon("laptop"), "OFFLINE"), p("You are using the OFFLINE version"))))
-  })
-  
-  
   
   
   # Hide tabs on app launch ----
@@ -466,7 +464,8 @@ server <- function(input, output, session) {
   hideTab(inputId = "tabs", target = "patients")
   hideTab(inputId = "tabs", target = "followup")
   hideTab(inputId = "tabs", target = "microbiology")
-  hideTab(inputId = "tabs", target = "resistance")
+  hideTab(inputId = "tabs", target = "amr")
+  hideTab(inputId = "tabs", target = "key")
   
   observe_helpers(help_dir = "./www/help_mds")
   
@@ -500,12 +499,10 @@ server <- function(input, output, session) {
   
   patient_filter <- reactive(
     fun_filter_patient(data = patient(), input = input)
-    # patient()
   )
   
   microbio_filter <- reactive(
     fun_filter_microbio(data = microbio(), patient = patient_filter(), input = input)
-    # microbio()
   )
   
   # Source code to generate outputs ----
@@ -518,7 +515,8 @@ server <- function(input, output, session) {
     file_lab_codes = FALSE,
     file_lab_data = FALSE,
     file_odk_data = FALSE,
-    generate_acorn_data = FALSE
+    generate_acorn_data = FALSE,
+    log = "Data generation not started."
   )
   
   observeEvent(input$file_data_dic, generation_status$file_data_dic <- TRUE)
@@ -534,37 +532,76 @@ server <- function(input, output, session) {
   
   observeEvent(input$launch_generate_data, {
     showNotification("Data Generation Running. Check Console for Status", id = "message_run", duration = NULL, type = "default", session = session)
+    start_data_generation <- Sys.time()
     
     print("Source 01_read_acorn_data.R")
     source("./www/R/data_generation/01_read_acorn_data.R", local = TRUE)
+    generation_status$version_CLSI <- paste0(as.character(shiny_lab_code_notes[30, 1]), " version ", as.character(shiny_lab_code_notes[30, 2]), " - ", as.character(shiny_lab_code_notes[30, 3]))
+    generation_status$version_EUCAST <- paste0(as.character(shiny_lab_code_notes[31, 1]), " version ", as.character(shiny_lab_code_notes[31, 2]), " - ", as.character(shiny_lab_code_notes[31, 3]))
+    
     print("Source 02_map_variables.R")
     source("./www/R/data_generation/02_map_variables.R", local = TRUE)
+    
     print("Source 03_map_specimens.R")
     source("./www/R/data_generation/03_map_specimens.R", local = TRUE)
+    
     print("Source 04_map_organisms.R")
     source("./www/R/data_generation/04_map_organisms.R", local = TRUE)
+    
     print("Source 05_make_ast_group.R")
     source("./www/R/data_generation/05_make_ast_group.R", local = TRUE)
+    
     print("Source 06_ast_interpretation.R")
     source("./www/R/data_generation/06_ast_interpretation.R", local = TRUE)
+    
     print("Source 07_ast_interpretation_nonstandard.R")
     source("./www/R/data_generation/07_ast_interpretation_nonstandard.R", local = TRUE)
+    
     print("Source 08_odk_assembly.R")
     source("./www/R/data_generation/08_odk_assembly.R", local = TRUE)
+    
     print("Source 09_link_clinical_assembly.R")
     source("./www/R/data_generation/09_link_clinical_assembly.R", local = TRUE)
+    
     print("Source 10_process_hai_survey_data.R")
     source("./www/R/data_generation/10_process_hai_survey_data.R", local = TRUE)
+    
     print("Source 11_prepare_data.R")
     source("./www/R/data_generation/11_prepare_data.R", local = TRUE)
     
-    print(paste0("Info: ", nrow(patient), " rows in generated patient dataset."))
-    print(paste0("Info: ", nrow(microbio), " rows in generated microbio dataset."))
-    print(paste0("Info: ", nrow(hai.surveys), " rows in generated HAI surveys dataset."))
+    generation_status$log <-  paste0("Data generated in ", round(difftime(Sys.time(), start_data_generation, units = 'secs'), 1), " seconds.")
+    generation_status$log <- c(generation_status$log, paste0(nrow(patient), " rows in generated patient dataset."))
+    generation_status$log <- c(generation_status$log, paste0(nrow(microbio), " rows in generated microbio dataset."))
+    generation_status$log <- c(generation_status$log, paste0(nrow(hai.surveys), " rows in generated HAI surveys dataset."))
+    
+    
+    generation_status$link_F01_F02 <- ifelse(length(setdiff(f02.sel$LINK, f01.sel$LINK)) == 0, 
+                                             "All elements of F02 can be linked to F01",
+                                             paste("The following elements from F02 can't be linked to F01:",  paste(setdiff(f02.sel$LINK, f01.sel$LINK), collapse = ", "))
+    )
+     
+    generation_status$link_F01_F03 <- ifelse(length(setdiff(f02.sel$LINK, f01.sel$LINK)) == 0, 
+                                             "All elements of F03 can be linked to F01",
+                                             paste("The following elements from F03 can't be linked to F01:",  paste(setdiff(f03.sel$LINK, f01.sel$LINK), collapse = ", "))
+    )                                        
+    
+    generation_status$patid <- qc(all(!is.na(microbio$patid)), "Okay, all patients ids are provided",
+                                paste0("Warning: there are ", sum(is.na(microbio$patid)), " rows with missing patid data."))
+    generation_status$specid <- qc(all(!is.na(microbio$specid)), "Okay, all specid are provided",
+                                 paste0("Warning: there are ", sum(is.na(microbio$specid)), " rows with missing specid data."))
+    generation_status$specdate <- qc(all(!is.na(microbio$specdate)), "Okay: all specdate are provided",
+                                   paste0("Warning: there are ", sum(is.na(microbio$specdate)), " rows with missing specdate data."))
+    generation_status$specdate2 <- qc(microbio$specdate <= Sys.Date(), "Okay: all specdate happen today or before today",
+                                    paste0("Warning: there are ", sum(microbio$specdate > Sys.Date()), " rows with specdate after today."))
+    generation_status$specgroup <- qc(all(!is.na(microbio$specgroup)), "Okay: all specgroup are provided",
+                                    paste0("Warning: there are ", sum(is.na(microbio$specgroup)), " rows with missing specgroup data."))
+    generation_status$orgname <- qc(all(!is.na(microbio$orgname)), "Okay: all orgname are provided",
+                                  paste0("Warning: there are ", sum(is.na(microbio$orgname)), " rows with missing orgname data."))
+    
     
     generation_status$generate_acorn_data <- TRUE
     
-    # save datatasets to be exported
+    # save datasets to be exported
     generation_status$patient <- patient
     generation_status$microbio <- microbio
     generation_status$corresp_org_antibio <- corresp_org_antibio
@@ -615,7 +652,7 @@ server <- function(input, output, session) {
       updateDateRangeInput(session = session, "filter_enrollment", start = min(patient$date_enrollment), end = max(patient$date_enrollment))
       other_organism <- setdiff(unique(microbio$organism), 
                                 union(c("Acinetobacter baumannii", "Escherichia coli", "Klebsiella pneumoniae", "Staphylococcus aureus",
-                                        "Streptococcus pneumoniae", "Neisseria gonorrhoeae"),
+                                        "Streptococcus pneumoniae"),
                                       c("No Growth", "No growth", "Not cultured",
                                         str_subset(unique(microbio$organism), "Salmonella"))))
       updateSelectInput(session = session, "other_organism", choices = other_organism)
@@ -634,7 +671,8 @@ server <- function(input, output, session) {
       showTab(inputId = "tabs", target = "patients")
       showTab(inputId = "tabs", target = "followup")
       showTab(inputId = "tabs", target = "microbiology")
-      showTab(inputId = "tabs", target = "resistance")
+      showTab(inputId = "tabs", target = "amr")
+      showTab(inputId = "tabs", target = "key")
     }
   )
   
@@ -699,11 +737,12 @@ server <- function(input, output, session) {
     showTab(inputId = "tabs", target = "patients")
     showTab(inputId = "tabs", target = "followup")
     showTab(inputId = "tabs", target = "microbiology")
-    showTab(inputId = "tabs", target = "resistance")
+    showTab(inputId = "tabs", target = "amr")
+    showTab(inputId = "tabs", target = "key")
   })
   
-  output$test_data <- reactive({ifelse(data_provided(), TRUE, FALSE)})
-  outputOptions(output, "test_data", suspendWhenHidden = FALSE)
+  # output$test_data <- reactive({ifelse(data_provided(), TRUE, FALSE)})
+  # outputOptions(output, "test_data", suspendWhenHidden = FALSE)
   
   # pdf Report
   feedback_download <- reactiveValues(download_flag = 0)

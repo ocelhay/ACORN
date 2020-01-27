@@ -17,13 +17,18 @@ print("Okay, import data dictionnary") # Log R console
 # Read in ACORN lab data
 print("Okay, start to read ACORN lab data")  # Log R console
 
-path_lab_file <- input$file_lab_data[[1, 'datapath']]
-extension_file_lab_codes <- file_ext(path_lab_file)
+if(input$whonet_file == "WHONET file") {
+  amr.loc <- read.dbf(path_lab_file, as.is = T)
+}
 
-if (extension_file_lab_codes == "csv") { amr.loc <- read_csv(path_lab_file, guess_max = 10000) } else if
-(extension_file_lab_codes == "dbf") { amr.loc <- read.dbf(path_lab_file, as.is = T) } else if
-(extension_file_lab_codes == "txt") { amr.loc <- read_tsv(path_lab_file, guess_max = 10000) } else if
-(extension_file_lab_codes %in% c("xls", "xlsx")) { amr.loc <- read_excel(path_lab_file, guess_max = 10000) }
+if(input$whonet_file == "Not WHONET file") {
+  path_lab_file <- input$file_lab_data[[1, 'datapath']]
+  extension_file_lab_codes <- file_ext(path_lab_file)
+  
+  if (extension_file_lab_codes == "csv") { amr.loc <- read_csv(path_lab_file, guess_max = 10000) } else if
+  (extension_file_lab_codes == "txt") { amr.loc <- read_tsv(path_lab_file, guess_max = 10000) } else if
+  (extension_file_lab_codes %in% c("xls", "xlsx")) { amr.loc <- read_excel(path_lab_file, guess_max = 10000) }
+}
 
 print(paste0("Info: extension file of ACORN lab data is ", extension_file_lab_codes))  # Log R console
 print("Okay, import ACORN lab data")  # Log R console
@@ -33,7 +38,8 @@ print("Okay, import ACORN lab data")  # Log R console
 print("Okay, start to read lab codes")  # Log R console
 
 path_lab_code_file <- input$file_lab_codes[[1, 'datapath']]
-read_lab_code <- function(sheet) read_excel(path_lab_code_file, sheet = sheet, col_types = c("text", "text", "text", "text", "text", "numeric", "numeric", "text", "text"), na = "NA")
+read_lab_code <- function(sheet) read_excel(path_lab_code_file, sheet = sheet, 
+                                            col_types = c("text", "text", "text", "text", "text", "numeric", "numeric", "text", "text"), na = "NA")
 
 lab_code <- list(
   whonet.spec = read_excel(path_lab_code_file, sheet = "spectypes.whonet"),
@@ -50,8 +56,11 @@ lab_code <- list(
   ast.shi = read_lab_code(sheet = "shi"),  # Shigella sp
   ast.ent = read_lab_code(sheet = "ent"),  # Gram positives - Enterococcus sp (all)
   ast.sau = read_lab_code(sheet = "sau"),  # Staphylococcus aureus
-  ast.spn = read_lab_code(sheet = "spn")  # Streptococcus pneumoniae
+  ast.spn = read_lab_code(sheet = "spn"),  # Streptococcus pneumoniae
+  notes = read_excel(path_lab_code_file, sheet = "notes")
 )
+
+shiny_lab_code_notes <<- lab_code$notes
 
 print("Okay, lab codes read")  # Log R console
 

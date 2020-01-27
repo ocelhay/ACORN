@@ -2,7 +2,6 @@
 
 export(runACORN)
 import(DT)
-import(DiagrammeR)
 import(RColorBrewer)
 import(bsplus)
 import(data.table)

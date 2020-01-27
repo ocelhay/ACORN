@@ -1,5 +1,3 @@
-cols_esbl <-  c("#2166ac", "#b2182b", "#2c3e50")
-
 highchart_esbl <- function(data_input, organism_input) {
   
   total_tested <- data_input %>%
