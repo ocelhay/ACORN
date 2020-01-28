@@ -16,6 +16,7 @@ library(RColorBrewer)
 library(readxl)
 library(shiny)
 library(shinyBS)
+# require shinycssloaders 0.2.0 as we experience issues with subsequent versions
 library(shinycssloaders)  # withSpinner()
 library(shinyhelper)  # helper()
 library(shinythemes)  # shinytheme()
@@ -162,9 +163,13 @@ ui <- fluidPage(
                       tabPanel("Overview", value = "overview", 
                                # conditionalPanel(condition = "output.test_data",
                                fluidRow(
-                                 column(4, htmlOutput("n_overview_patient")),
-                                 column(4, htmlOutput("n_overview_specimen")),
-                                 column(4, htmlOutput("n_overview_pathogen"))
+                                 column(3, br(), htmlOutput("n_overview_patient"), 
+                                        br(), htmlOutput("n_overview_specimen"), 
+                                        br(), htmlOutput("n_overview_pathogen")),
+                                 column(9, div(class = 'box_outputs',
+                                               h4(icon('tint'), "Proportions of Enrollments with Blood Culture"),
+                                               highchartOutput("evolution_blood_culture", height = "350px") %>% withSpinner()
+                                 ))
                                ),
                                br(), hr(),
                                checkboxGroupButtons("variables_table", label = "Select Variables to Include in Table:", 
@@ -437,9 +442,6 @@ ui <- fluidPage(
                                  ),
                                
                                use_bs_accordion_sidebar()
-                      ),
-                      tabPanel(span(icon("key"), "Key Metrics"), value = "key",
-                               HTML("TODO: placeholder for key metrics")
                       )
            )
     )
@@ -465,7 +467,6 @@ server <- function(input, output, session) {
   hideTab(inputId = "tabs", target = "followup")
   hideTab(inputId = "tabs", target = "microbiology")
   hideTab(inputId = "tabs", target = "amr")
-  hideTab(inputId = "tabs", target = "key")
   
   observe_helpers(help_dir = "./www/help_mds")
   
@@ -576,13 +577,15 @@ server <- function(input, output, session) {
     
     
     generation_status$link_F01_F02 <- ifelse(length(setdiff(f02.sel$LINK, f01.sel$LINK)) == 0, 
-                                             "All elements of F02 can be linked to F01",
-                                             paste("The following elements from F02 can't be linked to F01:",  paste(setdiff(f02.sel$LINK, f01.sel$LINK), collapse = ", "))
+                                             "All hospital outcome forms (F02) can be linked to a patient enrollment form (F01)",
+                                             paste("The following hospital outcome forms (F02) can't be linked to a patient enrollment form (F01):",  
+                                                   paste(setdiff(f02.sel$LINK, f01.sel$LINK), collapse = ", "))
     )
      
     generation_status$link_F01_F03 <- ifelse(length(setdiff(f02.sel$LINK, f01.sel$LINK)) == 0, 
-                                             "All elements of F03 can be linked to F01",
-                                             paste("The following elements from F03 can't be linked to F01:",  paste(setdiff(f03.sel$LINK, f01.sel$LINK), collapse = ", "))
+                                             "All D28 follow up forms (F03)  can be linked to a patient enrollment form (F01)",
+                                             paste("The following D28 follow up forms can't be linked to a patient enrollment form:",  
+                                                   paste(setdiff(f03.sel$LINK, f01.sel$LINK), collapse = ", "))
     )                                        
     
     generation_status$patid <- qc(all(!is.na(microbio$patid)), "Okay, all patients ids are provided",
@@ -606,6 +609,7 @@ server <- function(input, output, session) {
     generation_status$microbio <- microbio
     generation_status$corresp_org_antibio <- corresp_org_antibio
     generation_status$hai.surveys <- hai.surveys
+    generation_status$enrol.log <- enrol.log
     
     removeNotification(id = "message_run", session = session)
   })
@@ -616,15 +620,21 @@ server <- function(input, output, session) {
   
   # Process on "Download ACORN Data" ----
   output$download_data <- downloadHandler(
-    filename = paste0("ACORN_Data_", Sys.Date(), ".RData"),
+    filename = paste0("ACORN_Data_", Sys.Date(), ".zip"),
     content = function(file) {
       patient <- generation_status$patient
       microbio <- generation_status$microbio
       corresp_org_antibio <- generation_status$corresp_org_antibio
       hai.surveys <- generation_status$hai.surveys
       meta <-  paste0("Dataset generated the ", Sys.Date())
+      enrol.log <- generation_status$enrol.log
       
-      save(patient, microbio, corresp_org_antibio, hai.surveys, meta, file = file)
+      write.csv(enrol.log, file = paste0("ACORN_Data_Enrol_Log", Sys.Date(), ".csv"), row.names = F)
+      save(patient, microbio, corresp_org_antibio, hai.surveys, meta, file = paste0("ACORN_Data_", Sys.Date(), ".RData"))
+      
+      #create the zip file
+      zip(file, c(paste0("ACORN_Data_Enrol_Log", Sys.Date(), ".csv"), 
+                  paste0("ACORN_Data_", Sys.Date(), ".RData")))
     })
   
   
@@ -672,7 +682,6 @@ server <- function(input, output, session) {
       showTab(inputId = "tabs", target = "followup")
       showTab(inputId = "tabs", target = "microbiology")
       showTab(inputId = "tabs", target = "amr")
-      showTab(inputId = "tabs", target = "key")
     }
   )
   
@@ -738,7 +747,6 @@ server <- function(input, output, session) {
     showTab(inputId = "tabs", target = "followup")
     showTab(inputId = "tabs", target = "microbiology")
     showTab(inputId = "tabs", target = "amr")
-    showTab(inputId = "tabs", target = "key")
   })
   
   # output$test_data <- reactive({ifelse(data_provided(), TRUE, FALSE)})
