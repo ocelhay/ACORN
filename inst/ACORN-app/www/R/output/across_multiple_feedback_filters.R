@@ -17,7 +17,7 @@ output$feedback_filters <- renderText({
   )
 })
 
-output$feedback_filters_dup <- renderText({
+output$feedback_filters_details <- renderText({
   req(patient())
   req(patient_filter())
   
@@ -48,7 +48,7 @@ output$feedback_filters_dup <- renderText({
   
   # Age
   filter_age_text <- ""
-  if(input$filter_age[1] > 0 | input$filter_age[2] < 99) filter_age_text <- paste0("Aged ", input$filter_age[1], " to ", input$filter_age[2], " y.o.")
+  if(input$filter_age_min > 0 | input$filter_age_max < 99) filter_age_text <- paste0("Aged ", input$filter_age_min, " to ", input$filter_age_max, " ", input$filter_age_unit)
   if(! input$filter_age_na) filter_age_text <- paste0(filter_age_text, " excluding missing ages.")
   
   # Type of Ward

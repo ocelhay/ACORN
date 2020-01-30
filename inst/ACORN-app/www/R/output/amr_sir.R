@@ -5,6 +5,11 @@ output$abaumannii_sir <- renderHighchart({
   highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), combine_SI = input$combine_SI)
 })
 
+output$abaumannii_sir_evolution <- renderHighchart({
+  organism_input <- "Acinetobacter baumannii"
+  highchart_sir_evolution(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), 
+                          combine_SI = input$combine_SI, filter_group = "Carbapenems")
+})
 
 output$test_abaumannii_sir <- reactive({
   req(microbio_filter())
@@ -26,6 +31,12 @@ output$nb_isolates_abaumannii <- renderText({
 output$ecoli_sir <- renderHighchart({
   organism_input <- "Escherichia coli"
   highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), combine_SI = input$combine_SI)
+})
+
+output$ecoli_sir_evolution <- renderHighchart({
+  organism_input <- "Escherichia coli"
+  highchart_sir_evolution(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), 
+                          combine_SI = input$combine_SI, filter_group = "Carbapenems")
 })
 
 output$test_ecoli_sir <- reactive({
@@ -59,6 +70,13 @@ output$kpneumoniae_sir <- renderHighchart({
   highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), combine_SI = input$combine_SI)
 })
 
+output$kpneumoniae_sir_evolution <- renderHighchart({
+  organism_input <- "Klebsiella pneumoniae"
+  highchart_sir_evolution(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), 
+                          combine_SI = input$combine_SI, filter_group = "Carbapenems")
+})
+
+
 output$test_kpneumoniae_sir <- reactive({
   req(microbio_filter())
   organism_input <- "Klebsiella pneumoniae"
@@ -85,6 +103,11 @@ output$saureus_sir <- renderHighchart({
   highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), combine_SI = input$combine_SI)
 })
 
+output$saureus_sir_evolution <- renderHighchart({
+  organism_input <- "Staphylococcus aureus"
+  highchart_sir_evolution(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), 
+                          combine_SI = input$combine_SI, filter_antibio = "Oxacillin")
+})
 
 output$test_saureus_sir <- reactive({
   req(microbio_filter())
@@ -106,6 +129,11 @@ output$spneumoniae_sir <- renderHighchart({
   highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), combine_SI = input$combine_SI)
 })
 
+output$spneumoniae_sir_evolution <- renderHighchart({
+  organism_input <- "Streptococcus pneumoniae"
+  highchart_sir_evolution(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), 
+                          combine_SI = input$combine_SI, filter_group = "Penicillins")
+})
 
 output$test_spneumoniae_sir <- reactive({
   req(microbio_filter())
@@ -126,6 +154,18 @@ output$nb_isolates_spneumoniae <- renderText({
 output$salmonella_sir <- renderHighchart({
   organism_input <- input$select_salmonella
   highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), combine_SI = input$combine_SI)
+})
+
+output$salmonella_sir_evolution_ceph <- renderHighchart({
+  organism_input <- input$select_salmonella
+  highchart_sir_evolution(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), 
+                          combine_SI = input$combine_SI, filter_antibio = "Aggregate 3rd gen. ceph.")
+})
+
+output$salmonella_sir_evolution_fluo <- renderHighchart({
+  organism_input <- input$select_salmonella
+  highchart_sir_evolution(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), 
+                          combine_SI = input$combine_SI, filter_group = "Fluoroquinolones")
 })
 
 output$test_salmonella_sir <- reactive({

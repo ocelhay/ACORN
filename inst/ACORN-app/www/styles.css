@@ -84,7 +84,7 @@ h4 {
 }
 
 #feedback_patients {
-  top: calc(20%);;
+  top: calc(15%);;
   left: calc(2%);;
   z-index: 999999999;
   position: fixed;

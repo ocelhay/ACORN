@@ -1,5 +1,6 @@
 output$evolution_blood_culture <- renderHighchart({
   req(microbio_filter())
+  req(nrow(microbio_filter()) > 0)
   
   # Add date of enrollment to microbio
   microbio <- left_join(microbio_filter() %>%

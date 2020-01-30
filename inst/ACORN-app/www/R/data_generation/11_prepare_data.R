@@ -104,8 +104,6 @@ patient$comorb_lung[str_detect(patient$CMB_COMORBIDITIES, "CLD")] <- "Chronic lu
 patient$comorb_diabetes[str_detect(patient$CMB_COMORBIDITIES, "DM")] <- "Diabetes mellitus"
 patient$comorb_malnutrition[str_detect(patient$CMB_COMORBIDITIES, "MAL")] <- "Malnutrition"
 
-# TODO: add date_symptom_onset to mock dataset?
-
 patient$medical_p_catheter[str_detect(patient$HAI_HAVE_MED_DEVICE, "PCV")] <- "Peripheral IV catheter"
 patient$medical_c_catheter[str_detect(patient$HAI_HAVE_MED_DEVICE, "CVC")] <- "Central IV catheter"
 patient$medical_u_catheter[str_detect(patient$HAI_HAVE_MED_DEVICE, "IUC")] <- "Urinary catheter"
@@ -151,14 +149,26 @@ patient$Tigecycline[str_detect(patient$ANTIBIOTIC, "J01AA12")] <- "Yes"
 patient$Vancomycin[str_detect(patient$ANTIBIOTIC, "J01XA01")] <- "Yes"
 
 
+
 patient <- patient %>% 
   mutate(
     ward = recode(ward, MED = "Medical", SUR = "Surgical", PED = "Paediatric", ICUNEO = "NICU", ICUPED = "PICU"),
     ward_text = toupper(ward_text),
     sex = recode(sex, M = "Male", `F` = "Female"),
     surveillance_diag = recode(surveillance_diag, MEN = "Meningitis", PNEU = "Pneumonia", SEPSIS = "Sepsis"),
-    transfer = recode(transfer, Y = "Yes", N = "No"),
-    surgery_3months = recode(surgery_3months, Y = "Yes", N = "No"),
+    
+    transfer = recode(transfer, Y = "Yes", N = "No", UNK = "Unknown", .missing = "Missing Value"),
+    surgery_3months = recode(surgery_3months, Y = "Yes", N = "No", UNK = "Unknown", .missing = "Missing Value"),
+    
+    state_mentation = recode(patient$state_mentation, Y = "Yes", N = "No", UNK = "Unknown", .missing = "Missing Value"),
+    state_respiratory = recode(patient$state_respiratory, Y = "Yes", N = "No", UNK = "Unknown", .missing = "Missing Value"),
+    state_systolic = recode(patient$state_systolic, Y = "Yes", N = "No", UNK = "Unknown", .missing = "Missing Value"),
+    state_temperature = recode(patient$state_temperature, Y = "Yes", N = "No", UNK = "Unknown", .missing = "Missing Value"),
+    state_tachycardia = recode(patient$state_tachycardia, Y = "Yes", N = "No", UNK = "Unknown", .missing = "Missing Value"),
+    state_mental = recode(patient$state_mental, Y = "Yes", N = "No", UNK = "Unknown", .missing = "Missing Value"),
+    state_perfusion = recode(patient$state_mental, Y = "Yes", N = "No", UNK = "Unknown", .missing = "Missing Value"),
+    
+    
     overnight_3months = recode(overnight_3months, Y = "Yes", N = "No"),
     blood_24 = recode(blood_24, Y = "Yes", N = "No"),
     antibiotic_24 = recode(antibiotic_24, Y = "Yes", N = "No"),
@@ -172,6 +182,11 @@ patient <- patient %>%
                               LAMA = "Left against medical advice", TRANS = "Transferred")) %>% 
   select(-CMB_COMORBIDITIES, -HAI_HAVE_MED_DEVICE, -ANTIBIOTIC)
 
+# Define Clinical Severity
+patient$clinical_severity <- "Unknown"
+patient$clinical_severity[patient$age >= 18 & (patient$state_mentation == "Yes" | patient$state_respiratory == "Yes" | patient$state_systolic == "Yes")] <- "Severe"
+patient$clinical_severity[patient$age < 18 & (patient$state_temperature == "Yes" | patient$state_tachycardia == "Yes" | 
+                                                patient$state_mental == "Yes" | patient$state_perfusion == "Yes")] <- "Severe"
 
 microbio <- amr %>%
   transmute(
@@ -194,4 +209,5 @@ microbio <- amr %>%
   filter(patient_id %in% patient$patient_id)  # select only records from patient in patient_id.
 
 corresp_org_antibio <- lab_code$orgs.antibio
+
 

@@ -3,9 +3,9 @@ print("Okay, start to read data dictionnary")  # Log R console
 path_data_dictionary_file <- input$file_data_dic[[1, 'datapath']]
 
 data_dictionary <- list()
-data_dictionary$input.file <- read_excel(path_data_dictionary_file, sheet = "lab.filename",range = "B1:C2")
+# data_dictionary$input.file <- read_excel(path_data_dictionary_file, sheet = "lab.filename",range = "B1:C2")
 data_dictionary$variables <- read_excel(path_data_dictionary_file, sheet = "variables")
-data_dictionary$date.format <- read_excel(path_data_dictionary_file, sheet = "lab.filename",range = "D1:D2")
+# data_dictionary$date.format <- read_excel(path_data_dictionary_file, sheet = "lab.filename",range = "D1:D2")
 data_dictionary$test.res <- read_excel(path_data_dictionary_file, sheet = "test.results")
 data_dictionary$local.spec <- read_excel(path_data_dictionary_file, sheet = "spec.types")
 data_dictionary$local.orgs <- read_excel(path_data_dictionary_file, sheet = "organisms")

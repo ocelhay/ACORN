@@ -1,36 +1,70 @@
 ---
-title: "AMR Report"
-output: pdf_document
+title: "ACORN AMR Report"
+output: word_document
 ---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
+
+patient <- patient()
 ```
 
 Report generated the `r Sys.time()`.
 
-Report will include several metrics at patient and specimen levels.
-
 # Profile of Patients
 
-## Total Patients per Type of Ward
+## Total Number of Patients 
 
-```{r fig.width = 6, fig.height = 4}
-patient_filter() %>%
-  group_by(ward) %>%
+### Per Surveillance Category
+
+Ward Type:
+```{r}
+# ward type
+patient %>%
+  group_by(ward, surveillance_cat) %>%
   summarise(patients = n()) %>%
-  mutate(ward = replace_na(ward, "Unknown Ward")) %>%
-           ggplot(aes(x = ward, weight = patients)) + 
-           geom_bar() +
-           geom_label(aes(y = patients, label = patients)) +
-           coord_flip() +
-           labs(x = NULL, y = "Total Patients", x = "Ward") +
-           theme_minimal()
-
+  ungroup() %>%
+  complete(surveillance_cat, ward) %>%
+  mutate(patients = replace_na(patients, 0)) %>%
+  pivot_wider(names_from = surveillance_cat, values_from = patients) %>%
+  kable(format = "markdown", col.names = c("Type of Ward", "CAI", "HAI"), 
+        padding = 2, align = "rcc")
 ```
 
-# Patients Follow-up
+</br>
+Age Category:
 
-# Microbiology
+```{r size=16}
+# age category
+patient %>%
+  mutate(age_category = case_when(
+    age < 1 ~ "Less than 1",
+    age < 5 ~ "1 to  5",
+    TRUE ~ "Above 5")) %>%
+  mutate(age_category = factor(age_category, levels = c("Less than 1", "1 to  5", "Above 5"))) %>% 
+  group_by(age_category, surveillance_cat) %>%
+  summarise(patients = n()) %>%
+  ungroup() %>%
+  complete(surveillance_cat, age_category) %>%
+  mutate(patients = replace_na(patients, 0)) %>%
+  pivot_wider(names_from = surveillance_cat, values_from = patients) %>%
+  kable(format = "markdown", col.names = c("Age Category", "CAI", "HAI"))
+```
 
-# AMR
+TODO: Add Diagnosis Suspected, Outcome, Day 28 status.
+
+### Per Diagnosis
+
+Ward Type:
+```{r}
+# ward type
+patient %>%
+  group_by(ward, surveillance_diag) %>%
+  summarise(patients = n()) %>%
+  ungroup() %>%
+  complete(surveillance_diag, ward) %>%
+  mutate(patients = replace_na(patients, 0)) %>%
+  pivot_wider(names_from = surveillance_diag, values_from = patients) %>%
+  kable(format = "markdown", padding = 2)
+```
