@@ -1,16 +1,98 @@
 ---
 title: "ACORN AMR Report"
 output: word_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
-
-patient <- patient()
+library(flextable)
 ```
 
 Report generated the `r Sys.time()`.
+
+# Filters
+
+This report is generated from the **filtered** patient and microbiology datasets in the ACORN App. You are enoucraged to generate as many reports as needed, using several different filters.
+
+```{r eval = TRUE, echo=FALSE, results="asis"}
+add_text <- function(text)  paste0(feedback_text, br(), text)
+  
+  # Summary
+  start <- patient() %>% nrow()
+  end <- patient_filter() %>% nrow()
+  prop <- round(100 * end / start, 0)
+  if(start == end) feedback_text <- paste0("All ", start, " patients selected")
+  if(start != end) feedback_text <- paste0(end, " patients selected (", prop, "% of ", start, ")")
+  
+  # Surveillance Category
+  if(input$filter_category == "CAI") feedback_text <- add_text("Community Acquired Infections")
+  if(input$filter_category == "HAI") feedback_text <- add_text("Hospital Acquired Infections")
+  
+  # Type of ward
+  if(! identical(input$filter_type_ward, sort(unique(patient()$ward)))) feedback_text <- add_text(paste0("Admitted in ", paste(input$filter_type_ward, collapse = ", "), " wards"))
+  
+  # Date of enrollment
+  if(input$filter_enrollment[1] > min(patient()$date_enrollment) | input$filter_enrollment[2] < max(patient()$date_enrollment)) {
+    feedback_text <- add_text(paste0("Enrolled between ", input$filter_enrollment[1], " and ", input$filter_enrollment[2]))
+  }
+  
+  # Age
+  if(input$filter_age_min > 0 | input$filter_age_max < 99) {
+    feedback_text <- add_text(paste0("Aged ", input$filter_age_min, " to ", input$filter_age_max, " ", input$filter_age_unit))
+  }
+  if(! input$filter_age_na) {
+    feedback_text <- add_text("Excluding missing ages")
+  }
+  
+  # Patient diagnosis
+  if(length(input$filter_diagnosis) != 3) {
+    feedback_text <- add_text(paste0("Patients diagnosed with ", paste(input$filter_diagnosis, collapse = " or "), " only"))
+  }
+  
+  # Diagnosis confirmation
+  if(input$confirmed_diagnosis %in% c("Diagnosis confirmed", "Diagnosis rejected")) feedback_text <- add_text(paste0(input$confirmed_diagnosis, " by clinical outcome"))
+  
+  # Outcomes
+  if(input$filter_outcome_clinical & !input$filter_outcome_d28)  feedback_text <- add_text("Patients with clinical outcome")
+  if(!input$filter_outcome_clinical & input$filter_outcome_d28)  feedback_text <- add_text("Patients with D28-outcome")
+  if(input$filter_outcome_clinical & input$filter_outcome_d28)  feedback_text <- add_text("Patients with clinical and D28-outcome")
+  
+  # Comorbidities
+  if(input$filter_comorb)  feedback_text <- add_text("At least one Comorbidity")
+  if(input$filter_cancer)  feedback_text <- add_text("With Cancer")
+  if(input$filter_renal)  feedback_text <- add_text("With Chronic Renal Failure")
+  if(input$filter_lung)  feedback_text <- add_text("With Chronic Lung Disease")
+  if(input$filter_diabetes)  feedback_text <- add_text("With Diabetes mellitus")
+  if(input$filter_malnutrition)  feedback_text <- add_text("With Malnutrition")
+  
+  # Clinical severity
+  if(input$filter_clinical_severity)  feedback_text <- add_text("With one qSOFA/Paediatric severity point")
+  
+  # Prior hospitalisation
+  if(input$filter_overnight_3months)  feedback_text <- add_text("With prior hospitalisation (in the past three months)")
+  
+  # Surgery
+  if(input$filter_surgery_3months)  feedback_text <- add_text("With surgery in the past three months")
+  
+  # Presence of medical devices
+  if(input$filter_medical_p_catheter)  feedback_text <- add_text("With Peripheral IV catheter")
+  if(input$filter_medical_c_catheter)  feedback_text <- add_text("With Central IV catheter")
+  if(input$filter_medical_u_catheter)  feedback_text <- add_text("With Urinary catheter")
+  if(input$filter_medical_ventilation)  feedback_text <- add_text("With Intubation / Mechanical ventilation")
+  
+  # Ward
+  if(! identical(input$filter_ward, sort(unique(patient()$ward_text))))  feedback_text <- add_text(paste0("Admitted in ", paste(input$filter_ward, collapse = ", "), " wards"))
+  
+  # Empiric Antibiotics Prescribed
+  if(! is.null(input$filter_type_antibio)) feedback_text <- add_text(paste0("Prescribed with ", paste(input$filter_type_antibio, collapse = ", ")))
+  
+  # Return text
+  return(HTML(feedback_text))
+```
+
 
 # Profile of Patients
 
@@ -18,26 +100,33 @@ Report generated the `r Sys.time()`.
 
 ### Per Surveillance Category
 
-Ward Type:
+Type of ward:
+
 ```{r}
-# ward type
-patient %>%
+patient_filter() %>%
   group_by(ward, surveillance_cat) %>%
   summarise(patients = n()) %>%
   ungroup() %>%
   complete(surveillance_cat, ward) %>%
   mutate(patients = replace_na(patients, 0)) %>%
   pivot_wider(names_from = surveillance_cat, values_from = patients) %>%
-  kable(format = "markdown", col.names = c("Type of Ward", "CAI", "HAI"), 
-        padding = 2, align = "rcc")
+  
+ 
+  # add totals
+  bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total"))) %>%
+  mutate(Total = rowSums(.[-1])) %>%
+  
+  # create table
+  flextable() %>%
+  set_header_labels(ward = "") %>%
+  autofit()
 ```
 
 </br>
 Age Category:
 
-```{r size=16}
-# age category
-patient %>%
+```{r}
+patient_filter() %>%
   mutate(age_category = case_when(
     age < 1 ~ "Less than 1",
     age < 5 ~ "1 to  5",
@@ -49,22 +138,351 @@ patient %>%
   complete(surveillance_cat, age_category) %>%
   mutate(patients = replace_na(patients, 0)) %>%
   pivot_wider(names_from = surveillance_cat, values_from = patients) %>%
-  kable(format = "markdown", col.names = c("Age Category", "CAI", "HAI"))
+  mutate(age_category = as.character(age_category)) %>%
+  
+  # add totals
+  bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total"))) %>%
+  mutate(Total = rowSums(.[-1])) %>%
+  
+  # create table
+  flextable() %>%
+  set_header_labels(age_category = "") %>%
+  autofit()
 ```
 
-TODO: Add Diagnosis Suspected, Outcome, Day 28 status.
+
+</br>
+Suspected Diagnosis:
+
+```{r}
+patient_filter() %>%
+  group_by(surveillance_diag, surveillance_cat) %>%
+  summarise(patients = n()) %>%
+  ungroup() %>%
+  complete(surveillance_cat, surveillance_diag) %>%
+  mutate(patients = replace_na(patients, 0)) %>%
+  pivot_wider(names_from = surveillance_cat, values_from = patients) %>%
+ 
+  # add totals
+  bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total"))) %>%
+  mutate(Total = rowSums(.[-1])) %>%
+  
+  # create table
+  flextable() %>%
+  set_header_labels(surveillance_diag = "") %>%
+  autofit()
+```
+
+
+</br>
+Hospital Outcome:
+
+```{r}
+patient_filter() %>%
+  mutate(clinical_outcome = as.character(clinical_outcome)) %>%
+  mutate(clinical_outcome = recode(clinical_outcome, "TRUE" = "Hospital Outcome", "FALSE" = "No Hospital Outcome")) %>%
+  group_by(clinical_outcome, surveillance_cat) %>%
+  summarise(patients = n()) %>%
+  ungroup() %>%
+  complete(surveillance_cat, clinical_outcome) %>%
+  mutate(patients = replace_na(patients, 0)) %>%
+  pivot_wider(names_from = surveillance_cat, values_from = patients) %>%
+  
+  # add totals
+  bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total"))) %>%
+  mutate(Total = rowSums(.[-1])) %>%
+  
+  # create table
+  flextable() %>%
+  set_header_labels(clinical_outcome = "") %>%
+  autofit()
+```
+
+</br>
+Hospital Discharge Status:
+
+```{r}
+patient_filter() %>%
+  group_by(discharge_status, surveillance_cat) %>%
+  summarise(patients = n()) %>%
+  ungroup() %>%
+  complete(surveillance_cat, discharge_status) %>%
+  mutate(patients = replace_na(patients, 0)) %>%
+  pivot_wider(names_from = surveillance_cat, values_from = patients) %>%
+  
+  # add totals
+  bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total"))) %>%
+  mutate(discharge_status = replace_na(discharge_status, "Unknown")) %>%
+  mutate(Total = rowSums(.[-1])) %>%
+  
+  # create table
+  flextable() %>%
+  set_header_labels(discharge_status = "") %>%
+  autofit()
+```
+
+</br>
+Day 28 Outcome:
+
+```{r}
+patient_filter() %>%
+  mutate(d28_outcome = as.character(d28_outcome)) %>%
+  mutate(d28_outcome = recode(d28_outcome, "TRUE" = "Day 28 Outcome", "FALSE" = "No Day 28 Outcome")) %>%
+  group_by(d28_outcome, surveillance_cat) %>%
+  summarise(patients = n()) %>%
+  ungroup() %>%
+  complete(surveillance_cat, d28_outcome) %>%
+  mutate(patients = replace_na(patients, 0)) %>%
+  pivot_wider(names_from = surveillance_cat, values_from = patients) %>%
+  
+  # add totals
+  bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total"))) %>%
+  mutate(Total = rowSums(.[-1])) %>%
+  
+  # create table
+  flextable() %>%
+  set_header_labels(d28_outcome = "") %>%
+  autofit()
+```
+
+</br>
+Day 28 Status:
+
+```{r}
+patient_filter() %>%
+  group_by(status_d28, surveillance_cat) %>%
+  summarise(patients = n()) %>%
+  ungroup() %>%
+  complete(surveillance_cat, status_d28) %>%
+  mutate(patients = replace_na(patients, 0)) %>%
+  pivot_wider(names_from = surveillance_cat, values_from = patients) %>%
+  
+  # add totals
+  bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total"))) %>%
+  mutate(status_d28 = replace_na(status_d28, "Unknown")) %>%
+  mutate(Total = rowSums(.[-1])) %>%
+  
+  # create table
+  flextable() %>%
+  set_header_labels(status_d28 = "") %>%
+  autofit()
+```
+
+
 
 ### Per Diagnosis
 
-Ward Type:
+Type of ward:
+
 ```{r}
-# ward type
-patient %>%
+patient_filter() %>%
   group_by(ward, surveillance_diag) %>%
   summarise(patients = n()) %>%
   ungroup() %>%
   complete(surveillance_diag, ward) %>%
   mutate(patients = replace_na(patients, 0)) %>%
   pivot_wider(names_from = surveillance_diag, values_from = patients) %>%
-  kable(format = "markdown", padding = 2)
+  
+ 
+  # add totals
+  bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total"))) %>%
+  mutate(Total = rowSums(.[-1])) %>%
+  
+  # create table
+  flextable() %>%
+  set_header_labels(ward = "") %>%
+  autofit()
 ```
+
+</br>
+Age Category:
+
+```{r}
+patient_filter() %>%
+  mutate(age_category = case_when(
+    age < 1 ~ "Less than 1",
+    age < 5 ~ "1 to  5",
+    TRUE ~ "Above 5")) %>%
+  mutate(age_category = factor(age_category, levels = c("Less than 1", "1 to  5", "Above 5"))) %>% 
+  group_by(age_category, surveillance_diag) %>%
+  summarise(patients = n()) %>%
+  ungroup() %>%
+  complete(surveillance_diag, age_category) %>%
+  mutate(patients = replace_na(patients, 0)) %>%
+  pivot_wider(names_from = surveillance_diag, values_from = patients) %>%
+  mutate(age_category = as.character(age_category)) %>%
+  
+  # add totals
+  bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total"))) %>%
+  mutate(Total = rowSums(.[-1])) %>%
+  
+  # create table
+  flextable() %>%
+  set_header_labels(age_category = "") %>%
+  autofit()
+```
+
+</br>
+Hospital Outcome:
+
+```{r}
+patient_filter() %>%
+  mutate(clinical_outcome = as.character(clinical_outcome)) %>%
+  mutate(clinical_outcome = recode(clinical_outcome, "TRUE" = "Hospital Outcome", "FALSE" = "No Hospital Outcome")) %>%
+  group_by(clinical_outcome, surveillance_diag) %>%
+  summarise(patients = n()) %>%
+  ungroup() %>%
+  complete(surveillance_diag, clinical_outcome) %>%
+  mutate(patients = replace_na(patients, 0)) %>%
+  pivot_wider(names_from = surveillance_diag, values_from = patients) %>%
+  
+  # add totals
+  bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total"))) %>%
+  mutate(Total = rowSums(.[-1])) %>%
+  
+  # create table
+  flextable() %>%
+  set_header_labels(clinical_outcome = "") %>%
+  autofit()
+```
+
+</br>
+Hospital Discharge Status:
+
+```{r}
+patient_filter() %>%
+  group_by(discharge_status, surveillance_diag) %>%
+  summarise(patients = n()) %>%
+  ungroup() %>%
+  complete(surveillance_diag, discharge_status) %>%
+  mutate(patients = replace_na(patients, 0)) %>%
+  pivot_wider(names_from = surveillance_diag, values_from = patients) %>%
+  
+  # add totals
+  bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total"))) %>%
+  mutate(discharge_status = replace_na(discharge_status, "Unknown")) %>%
+  mutate(Total = rowSums(.[-1])) %>%
+  
+  # create table
+  flextable() %>%
+  set_header_labels(discharge_status = "") %>%
+  autofit()
+```
+
+</br>
+Day 28 Outcome:
+
+```{r}
+patient_filter() %>%
+  mutate(d28_outcome = as.character(d28_outcome)) %>%
+  mutate(d28_outcome = recode(d28_outcome, "TRUE" = "Day 28 Outcome", "FALSE" = "No Day 28 Outcome")) %>%
+  group_by(d28_outcome, surveillance_diag) %>%
+  summarise(patients = n()) %>%
+  ungroup() %>%
+  complete(surveillance_diag, d28_outcome) %>%
+  mutate(patients = replace_na(patients, 0)) %>%
+  pivot_wider(names_from = surveillance_diag, values_from = patients) %>%
+  
+  # add totals
+  bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total"))) %>%
+  mutate(Total = rowSums(.[-1])) %>%
+  
+  # create table
+  flextable() %>%
+  set_header_labels(d28_outcome = "") %>%
+  autofit()
+```
+
+</br>
+Day 28 Status:
+
+```{r}
+patient_filter() %>%
+  group_by(status_d28, surveillance_diag) %>%
+  summarise(patients = n()) %>%
+  ungroup() %>%
+  complete(surveillance_diag, status_d28) %>%
+  mutate(patients = replace_na(patients, 0)) %>%
+  pivot_wider(names_from = surveillance_diag, values_from = patients) %>%
+  
+  # add totals
+  bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total"))) %>%
+  mutate(status_d28 = replace_na(status_d28, "Unknown")) %>%
+  mutate(Total = rowSums(.[-1])) %>%
+  
+  # create table
+  flextable() %>%
+  set_header_labels(status_d28 = "") %>%
+  autofit()
+```
+
+# Key Pathogens
+
+Please note that "Susceptible" and "Intermediate" categories are here merged into one category labelled "Susceptible", following <a href = "http://www.eucast.org/newsiandr/" target = "_blank"> EUCAST new definitions of S, I and R from 2019.</a>
+
+
+## A. baumannii
+
+```{r}
+organism_input <- "Acinetobacter baumannii"
+matching_name_column <- "a_baumannii"
+nb <- microbio_filter() %>% filter(organism == organism_input) %>% nrow()
+
+data <- data_input %>%
+      filter(organism %in% organism_input) %>%
+      select(specimen_id, 9:ncol(data_input)) %>%
+      pivot_longer(-specimen_id) %>%
+      filter(value != "Not Tested") %>%
+      mutate(value = recode(value, I = "S")) %>%
+      group_by(name) %>%
+      count(value)
+
+    total_tested <- data %>%
+      group_by(name) %>%
+      summarise(total_org = sum(n))
+
+    sir_results <- data %>%
+      left_join(total_tested, by = "name") %>%
+      mutate(percent = round(100*n / total_org, 1),
+             resistance = case_when(
+               value == "S" ~ "Susceptible",
+               value == "R" ~ "Resistant")) %>%
+      mutate(resistance = factor(resistance, levels = c("Susceptible", "Resistant"))) %>%
+      complete(resistance, nesting(name))
+
+
+    sir_results <- left_join(sir_results, corresp, by = c('name' = 'antibio_code')) %>%
+      filter(UQ(as.symbol(matching_name_column)) == "show") %>%
+      ungroup() %>%
+      mutate(antibio_group = str_replace(antibio_group, "Other", "zzzOther")) %>%
+      mutate(antibio_name = str_replace(antibio_name, "Aggregate", "zzzAggregate")) %>%
+      arrange(antibio_group, antibio_name) %>%
+      mutate(antibio_group = str_replace(antibio_group, "zzzOther", "Other")) %>%
+      mutate(antibio_name = str_replace(antibio_name, "zzzAggregate", "Aggregate"))
+
+    categories_grouped <- sir_results %>%
+      select(antibio_group, antibio_name) %>%
+      distinct() %>%
+      group_by(name = antibio_group) %>%
+      do(categories = .$antibio_name) %>%
+      ungroup() %>%
+      mutate(name = str_replace(name, "Other", "zzzOther")) %>%
+      arrange(name) %>%
+      mutate(name = str_replace(name, "zzzOther", "Other"))
+```
+
+
+Total number of isolates for A. baumannii: `r nb`
+
+
+Overall Susceptibility Graph (All Infections)
+
+
+
+
+Susceptibility Graph for HAI
+
+
+Susceptibility Graph for CAI
+
+

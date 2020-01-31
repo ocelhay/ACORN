@@ -16,13 +16,13 @@ print("Okay, import data dictionnary") # Log R console
 
 # Read in ACORN lab data
 print("Okay, start to read ACORN lab data")  # Log R console
+path_lab_file <- input$file_lab_data[[1, 'datapath']]
 
 if(input$whonet_file == "WHONET file") {
   amr.loc <- read.dbf(path_lab_file, as.is = T)
 }
 
 if(input$whonet_file == "Not WHONET file") {
-  path_lab_file <- input$file_lab_data[[1, 'datapath']]
   extension_file_lab_codes <- file_ext(path_lab_file)
   
   if (extension_file_lab_codes == "csv") { amr.loc <- read_csv(path_lab_file, guess_max = 10000) } else if

@@ -4,7 +4,7 @@
 #' Open browser
 #' @export
 #'
-#' @import bsplus data.table digest DT flexdashboard foreign highcharter 
+#' @import bsplus data.table digest DT flexdashboard flextable foreign highcharter 
 #' @import jsonlite lubridate markdown openssl purrr pushbar RColorBrewer readxl shiny 
 #' @import shinyBS shinycssloaders shinyhelper shinythemes shinyWidgets tidyverse tools timevis vov
 runACORN <- function() {

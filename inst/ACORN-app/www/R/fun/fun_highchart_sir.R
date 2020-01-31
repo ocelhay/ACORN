@@ -63,9 +63,6 @@ highchart_sir <- function(data_input, organism_input, corresp, combine_SI) {
           x[["categories"]] <- list(x[["categories"]])
         x
       })
-    
-    shiny_categories_grouped <<- categories_grouped
-    shiny_sir_results <<- sir_results
 
     return(
       sir_results %>%
