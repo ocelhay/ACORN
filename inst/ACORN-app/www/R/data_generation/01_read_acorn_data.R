@@ -17,14 +17,13 @@ print("Okay, import data dictionnary") # Log R console
 # Read in ACORN lab data
 print("Okay, start to read ACORN lab data")  # Log R console
 path_lab_file <- input$file_lab_data[[1, 'datapath']]
+extension_file_lab_codes <- file_ext(path_lab_file)
 
 if(input$whonet_file == "WHONET file") {
   amr.loc <- read.dbf(path_lab_file, as.is = T)
 }
 
 if(input$whonet_file == "Not WHONET file") {
-  extension_file_lab_codes <- file_ext(path_lab_file)
-  
   if (extension_file_lab_codes == "csv") { amr.loc <- read_csv(path_lab_file, guess_max = 10000) } else if
   (extension_file_lab_codes == "txt") { amr.loc <- read_tsv(path_lab_file, guess_max = 10000) } else if
   (extension_file_lab_codes %in% c("xls", "xlsx")) { amr.loc <- read_excel(path_lab_file, guess_max = 10000) }
@@ -74,35 +73,36 @@ odk_03 <- read.csv(input$file_odk_data[[3, 'datapath']], stringsAsFactors = FALS
 odk_04 <- read.csv(input$file_odk_data[[4, 'datapath']], stringsAsFactors = FALSE) %>% mutate_all(as.character)
 odk_05 <- read.csv(input$file_odk_data[[5, 'datapath']], stringsAsFactors = FALSE) %>% mutate_all(as.character)
 
-if(names(odk_01)[11] == "BRTHDTC")  f01 <- odk_01
-if(names(odk_02)[11] == "BRTHDTC")  f01 <- odk_02
-if(names(odk_03)[11] == "BRTHDTC")  f01 <- odk_03
-if(names(odk_04)[11] == "BRTHDTC")  f01 <- odk_04
-if(names(odk_05)[11] == "BRTHDTC")  f01 <- odk_05
+if("BRTHDTC" %in% names(odk_01))  f01 <- odk_01
+if("BRTHDTC" %in% names(odk_02))  f01 <- odk_02
+if("BRTHDTC" %in% names(odk_03))  f01 <- odk_03
+if("BRTHDTC" %in% names(odk_04))  f01 <- odk_04
+if("BRTHDTC" %in% names(odk_05))  f01 <- odk_05
 
-if(names(odk_01)[10] == "NO_NUMEPISODE")  f02 <- odk_01
-if(names(odk_02)[10] == "NO_NUMEPISODE")  f02 <- odk_02
-if(names(odk_03)[10] == "NO_NUMEPISODE")  f02 <- odk_03
-if(names(odk_04)[10] == "NO_NUMEPISODE")  f02 <- odk_04
-if(names(odk_05)[10] == "NO_NUMEPISODE")  f02 <- odk_05
+if("NO_NUMEPISODE" %in% names(odk_01))  f02 <- odk_01
+if("NO_NUMEPISODE" %in% names(odk_02))  f02 <- odk_02
+if("NO_NUMEPISODE" %in% names(odk_03))  f02 <- odk_03
+if("NO_NUMEPISODE" %in% names(odk_04))  f02 <- odk_04
+if("NO_NUMEPISODE" %in% names(odk_05))  f02 <- odk_05
 
-if(names(odk_01)[1] == "NO_REPEATEPISODE_INDEX")  f02rep <- odk_01
-if(names(odk_02)[1] == "NO_REPEATEPISODE_INDEX")  f02rep <- odk_02
-if(names(odk_03)[1] == "NO_REPEATEPISODE_INDEX")  f02rep <- odk_03
-if(names(odk_04)[1] == "NO_REPEATEPISODE_INDEX")  f02rep <- odk_04
-if(names(odk_05)[1] == "NO_REPEATEPISODE_INDEX")  f02rep <- odk_05
+if("NO_REPEATEPISODE_INDEX" %in% names(odk_01))  f02rep <- odk_01
+if("NO_REPEATEPISODE_INDEX" %in% names(odk_02))  f02rep <- odk_02
+if("NO_REPEATEPISODE_INDEX" %in% names(odk_03))  f02rep <- odk_03
+if("NO_REPEATEPISODE_INDEX" %in% names(odk_04))  f02rep <- odk_04
+if("NO_REPEATEPISODE_INDEX" %in% names(odk_05))  f02rep <- odk_05
 
-if(names(odk_01)[10] == "D28_DATE")  f03 <- odk_01
-if(names(odk_02)[10] == "D28_DATE")  f03 <- odk_02
-if(names(odk_03)[10] == "D28_DATE")  f03 <- odk_03
-if(names(odk_04)[10] == "D28_DATE")  f03 <- odk_04
-if(names(odk_05)[10] == "D28_DATE")  f03 <- odk_05
+if("D28_DATE" %in% names(odk_01))  f03 <- odk_01
+if("D28_DATE" %in% names(odk_02))  f03 <- odk_02
+if("D28_DATE" %in% names(odk_03))  f03 <- odk_03
+if("D28_DATE" %in% names(odk_04))  f03 <- odk_04
+if("D28_DATE" %in% names(odk_05))  f03 <- odk_05
 
-if(names(odk_01)[10] == "WARD")  f04 <- odk_01
-if(names(odk_02)[10] == "WARD")  f04 <- odk_02
-if(names(odk_03)[10] == "WARD")  f04 <- odk_03
-if(names(odk_04)[10] == "WARD")  f04 <- odk_04
-if(names(odk_05)[10] == "WARD")  f04 <- odk_05
+if("WARD_BEDS" %in% names(odk_01))  f04 <- odk_01
+if("WARD_BEDS" %in% names(odk_02))  f04 <- odk_02
+if("WARD_BEDS" %in% names(odk_03))  f04 <- odk_03
+if("WARD_BEDS" %in% names(odk_04))  f04 <- odk_04
+if("WARD_BEDS" %in% names(odk_05))  f04 <- odk_05
+
 
 # Log R console
 ifelse(exists("f01"), print("Okay, F01 data"), print("(!)ERROR(!) F01 not found"))
