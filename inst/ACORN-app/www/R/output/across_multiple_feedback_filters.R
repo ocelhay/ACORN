@@ -21,68 +21,84 @@ output$feedback_filters_details <- renderText({
   req(patient())
   req(patient_filter())
   
-  # Total Patients
+  
+  add_text <- function(text)  paste0(feedback_text, br(), icon("caret-right"), text)
+  
+  # Summary
   start <- patient() %>% nrow()
   end <- patient_filter() %>% nrow()
   prop <- round(100 * end / start, 0)
-  
+  if(start == end) feedback_text <- paste0("All ", start, " patients selected")
+  if(start != end) feedback_text <- paste0(end, " patients selected (", prop, "% of ", start, ")")
   
   # Surveillance Category
-  if(input$filter_category == "all") filter_category <- ""
-  if(input$filter_category == "CAI") filter_category <- "Community Acquired Infections"
-  if(input$filter_category == "HAI") filter_category <- "Hospital Acquired Infections"
+  if(input$filter_category == "CAI") feedback_text <- add_text("Community Acquired Infections")
+  if(input$filter_category == "HAI") feedback_text <- add_text("Hospital Acquired Infections")
   
-  # Diagnosis
-  filter_diagnosis_text <- ""
-  if(length(input$filter_diagnosis) != 3) filter_diagnosis_text <- paste0("Patients diagnosed with ", paste(input$filter_diagnosis, collapse = " or "), " only")
+  # Type of ward
+  if(! identical(input$filter_type_ward, sort(unique(patient()$ward)))) feedback_text <- add_text(paste0("Admitted in ", paste(input$filter_type_ward, collapse = ", "), " wards"))
   
-  # Diagnosis confirmation
-  filter_diagnosis_confirmation <- ""
-  if(input$confirmed_diagnosis %in% c("Diagnosis confirmed", "Diagnosis rejected")) filter_diagnosis_confirmation <- paste0(input$confirmed_diagnosis, " by clinical outcome.")
-  
-  # Outcomes
-  filter_outcomes <- ""
-  if(input$filter_outcome_clinical) filter_outcomes <- "Patients with clinical outcome"
-  if(input$filter_outcome_d28) filter_outcomes <- "Patients with D28-outcome"
-  if(input$filter_outcome_clinical & input$filter_outcome_d28) filter_outcomes <- "Patients with clinical and D28-outcome"
+  # Date of enrollment
+  if(input$filter_enrollment[1] > min(patient()$date_enrollment) | input$filter_enrollment[2] < max(patient()$date_enrollment)) {
+    feedback_text <- add_text(paste0("Enrolled between ", input$filter_enrollment[1], " and ", input$filter_enrollment[2]))
+  }
   
   # Age
-  filter_age_text <- ""
-  if(input$filter_age_min > 0 | input$filter_age_max < 99) filter_age_text <- paste0("Aged ", input$filter_age_min, " to ", input$filter_age_max, " ", input$filter_age_unit)
-  if(! input$filter_age_na) filter_age_text <- paste0(filter_age_text, " excluding missing ages.")
+  if(input$filter_age_min > 0 | input$filter_age_max < 99) {
+    feedback_text <- add_text(paste0("Aged ", input$filter_age_min, " to ", input$filter_age_max, " ", input$filter_age_unit))
+  }
+  if(! input$filter_age_na) {
+    feedback_text <- add_text("Excluding missing ages")
+  }
   
-  # Type of Ward
-  if(identical(input$filter_type_ward, sort(unique(patient()$ward)))) filter_type_ward <- ""
-  if(! identical(input$filter_type_ward, sort(unique(patient()$ward)))) filter_type_ward <- paste0("Admitted in ", paste(input$filter_type_ward, collapse = ", "), " type of wards.")
+  # Patient diagnosis
+  if(length(input$filter_diagnosis) != 3) {
+    feedback_text <- add_text(paste0("Patients diagnosed with ", paste(input$filter_diagnosis, collapse = " or "), " only"))
+  }
+  
+  # Diagnosis confirmation
+  if(input$confirmed_diagnosis %in% c("Diagnosis confirmed", "Diagnosis rejected")) feedback_text <- add_text(paste0(input$confirmed_diagnosis, " by clinical outcome"))
+  
+  # Outcomes
+  if(input$filter_outcome_clinical & !input$filter_outcome_d28)  feedback_text <- add_text("Patients with clinical outcome")
+  if(!input$filter_outcome_clinical & input$filter_outcome_d28)  feedback_text <- add_text("Patients with D28-outcome")
+  if(input$filter_outcome_clinical & input$filter_outcome_d28)  feedback_text <- add_text("Patients with clinical and D28-outcome")
+  
+  # Comorbidities
+  if(input$filter_comorb)  feedback_text <- add_text("At least one Comorbidity")
+  if(input$filter_cancer)  feedback_text <- add_text("With Cancer")
+  if(input$filter_renal)  feedback_text <- add_text("With Chronic Renal Failure")
+  if(input$filter_lung)  feedback_text <- add_text("With Chronic Lung Disease")
+  if(input$filter_diabetes)  feedback_text <- add_text("With Diabetes mellitus")
+  if(input$filter_malnutrition)  feedback_text <- add_text("With Malnutrition")
+  
+  # Clinical severity
+  if(input$filter_clinical_severity)  feedback_text <- add_text("With one qSOFA/Paediatric severity point")
+  
+  # Prior hospitalisation
+  if(input$filter_overnight_3months)  feedback_text <- add_text("With prior hospitalisation (in the past three months)")
+  
+  # Surgery
+  if(input$filter_surgery_3months)  feedback_text <- add_text("With surgery in the past three months")
+  
+  # Presence of medical devices
+  if(input$filter_medical_p_catheter)  feedback_text <- add_text("With Peripheral IV catheter")
+  if(input$filter_medical_c_catheter)  feedback_text <- add_text("With Central IV catheter")
+  if(input$filter_medical_u_catheter)  feedback_text <- add_text("With Urinary catheter")
+  if(input$filter_medical_ventilation)  feedback_text <- add_text("With Intubation / Mechanical ventilation")
   
   # Ward
-  if(identical(input$filter_ward, sort(unique(patient()$ward_text)))) filter_ward <- ""
-  if(! identical(input$filter_ward, sort(unique(patient()$ward_text)))) filter_ward <- paste0("Admitted in ", paste(input$filter_ward, collapse = ", "), " wards.")
+  if(! identical(input$filter_ward, sort(unique(patient()$ward_text))))  feedback_text <- add_text(paste0("Admitted in ", paste(input$filter_ward, collapse = ", "), " wards"))
   
-  # Date of Enrollment
-  filter_date_enrollment_text <- ""
-  if(input$filter_enrollment[1] > min(patient()$date_enrollment) | input$filter_enrollment[2] < max(patient()$date_enrollment)) filter_date_enrollment_text <- paste0("Enrolled between ", input$filter_enrollment[1], " and ", input$filter_enrollment[2])
+  # Empiric Antibiotics Prescribed
+  if(! is.null(input$filter_type_antibio)) feedback_text <- add_text(paste0("Prescribed with ", paste(input$filter_type_antibio, collapse = ", ")))
   
-  # Antibiotics Taken
-  filter_antibiotics_text <- ""
-  if(! is.null(input$filter_type_antibio)) filter_antibiotics_text <- paste0("Prescribed with ", paste(input$filter_type_antibio, collapse = ", "))
+  print(feedback_text)
   
-  
+  # Return text
   paste0(
     div(class = 'box_selected',
-        # Summary
-        if(start == end) span("All ", start, " patients selected"),
-        if(start != end) span(end, " patients selected (", prop, "% of ", start, ")", br()),
-        
-        if(filter_category != "") span(icon("caret-right"), " ", filter_category, br()),
-        if(filter_diagnosis_text != "") span(icon("caret-right"), " ", filter_diagnosis_text, br()),
-        if(filter_diagnosis_confirmation != "") span(icon("caret-right"), " ", filter_diagnosis_confirmation, br()),
-        if(filter_outcomes != "") span(icon("caret-right"), " ", filter_outcomes, br()),
-        if(filter_age_text != "") span(icon("caret-right"), " ", filter_age_text, br()),
-        if(filter_type_ward != "") span(icon("caret-right"), " ", filter_type_ward, br()),
-        if(filter_ward != "") span(icon("caret-right"), " ", filter_ward, br()),
-        if(filter_date_enrollment_text != "") span(icon("caret-right"), " ", filter_date_enrollment_text, br()),
-        if(filter_antibiotics_text != "") span(icon("caret-right"), " ", filter_antibiotics_text, br())
+        HTML(feedback_text)
     )
   )
 })
