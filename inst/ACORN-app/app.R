@@ -40,8 +40,6 @@ source("./www/R/fun/fun_highchart_sir_evolution.R", local = TRUE)
 source("./www/R/fun/fun_highchart_esbl.R", local = TRUE)
 cols_esbl <-  c("#2166ac", "#b2182b", "#2c3e50")
 
-source("./www/R/fun/fun_qc.R", local = TRUE)
-
 
 # Define UI ----
 ui <- fluidPage(
@@ -57,14 +55,6 @@ ui <- fluidPage(
   pushbar_deps(),
   use_vov(),
   
-  conditionalPanel(condition = "input.tabs != 'welcome'",
-                   div(id = "feedback_patients",
-                       blur_in(duration = "slow",
-                               htmlOutput("feedback_filters")
-                       )
-                   )
-  ),
-  
   fluidRow(
     # Sidebar ----
     column(width = 3,
@@ -79,39 +69,40 @@ ui <- fluidPage(
                             div(id = "floatingleft",
                                 uiOutput('hospital_image'), 
                                 uiOutput('data_info'),
-                                downloadLink("report", label = span(icon("file-pdf"), "Generate Printable Report")),
-                                div(id = "floatingfilter",
-                                    blur_in(duration = "slow",
-                                            div(class = 'box_outputs',
-                                                h4("Filter Patients:"),
-                                                prettyRadioButtons(inputId = "filter_category", label = NULL,  shape = "curve",
-                                                                   choices = c("Community Acquired Infections" = "CAI", "Hospital Acquired Infections" = "HAI", "All Infections" = "all"), 
-                                                                   selected = "all"),
-                                                prettyCheckboxGroup(inputId = "filter_type_ward", label = NULL, status = "primary", choices = "INCEPTION", selected = "INCEPTION"),
-                                                bsButton("open", label = "Additional Filters", icon = icon('cog'), style = "primary", type = "toggle", value = FALSE, 
-                                                         size = "default", block = TRUE)
-                                            )
-                                    ),
-                                    conditionalPanel(condition = "input.tabs != 'overview' & input.tabs != 'patients' & input.tabs != 'followup' & input.tabs != 'hai'",
-                                                     br(),
-                                                     blur_in(duration = "slow",
-                                                             div(class = 'box_outputs',
-                                                                 h4("Filter Specimens, Isolates:"),
-                                                                 prettyCheckboxGroup(inputId = "filter_method_collection", label = NULL,  shape = "curve", status = "primary",
-                                                                                     choices = c("Blood Collection" = "blood", "Other Specimens:" = "other_not_blood"), 
-                                                                                     selected = c("blood", "other_not_blood"), inline = TRUE),
-                                                                 conditionalPanel("input.filter_method_collection.includes('other_not_blood')",
-                                                                                  checkboxGroupButtons(inputId = "filter_method_other", label = NULL, choices = " ", selected = NULL, individual = TRUE, size = "sm", status = "primary",
-                                                                                                       checkIcon = list(yes = icon("check")))
-                                                                 ),
-                                                                 prettySwitch(inputId = "first_isolate", label = "Only first isolate per organism per patient", status = "primary", width = "100px")
-                                                             )
-                                                     )
-                                    )
+                                downloadLink("report", label = span(icon("file-downlad"), "Generate Report (.docx)")),
+                                blur_in(duration = "slow", htmlOutput("feedback_filters"))
+                            ),
+                            
+                            div(id = "floatingfilter",
+                                blur_in(duration = "slow",
+                                        div(class = 'box_outputs',
+                                            h4("Filter Patients:"),
+                                            prettyRadioButtons(inputId = "filter_category", label = NULL,  shape = "curve",
+                                                               choices = c("Community Acquired Infections" = "CAI", "Hospital Acquired Infections" = "HAI", "All Infections" = "all"), 
+                                                               selected = "all"),
+                                            prettyCheckboxGroup(inputId = "filter_type_ward", label = NULL, status = "primary", choices = "INCEPTION", selected = "INCEPTION"),
+                                            bsButton("open", label = "Additional Filters", icon = icon('cog'), style = "primary", type = "toggle", value = FALSE, 
+                                                     size = "default", block = TRUE)
+                                        )
+                                ),
+                                conditionalPanel(condition = "input.tabs != 'overview' & input.tabs != 'patients' & input.tabs != 'followup' & input.tabs != 'hai'",
+                                                 br(),
+                                                 blur_in(duration = "slow",
+                                                         div(class = 'box_outputs',
+                                                             h4("Filter Specimens, Isolates:"),
+                                                             prettyCheckboxGroup(inputId = "filter_method_collection", label = NULL,  shape = "curve", status = "primary",
+                                                                                 choices = c("Blood Collection" = "blood", "Other Specimens:" = "other_not_blood"), 
+                                                                                 selected = c("blood", "other_not_blood"), inline = TRUE),
+                                                             conditionalPanel("input.filter_method_collection.includes('other_not_blood')",
+                                                                              checkboxGroupButtons(inputId = "filter_method_other", label = NULL, choices = " ", selected = NULL, individual = TRUE, size = "sm", status = "primary",
+                                                                                                   checkIcon = list(yes = icon("check")))
+                                                             ),
+                                                             prettySwitch(inputId = "first_isolate", label = "Only first isolate per organism per patient", status = "primary", width = "100px")
+                                                         )
+                                                 )
                                 )
                             ),
                             source("./www/R/ui/across_pushbar_filters.R", local = TRUE)[1]
-                            
            )
     ),
     # Main Content ----
@@ -529,33 +520,31 @@ server <- function(input, output, session) {
   
   # Data generation ----
   generation_status <- reactiveValues(
-    file_data_dic = FALSE,
-    file_lab_codes = FALSE,
-    file_lab_data = FALSE,
-    file_odk_data = FALSE,
+    uploaded_files = c(FALSE, FALSE, FALSE, FALSE),
     generate_acorn_data = FALSE,
     log = "Data generation not started."
   )
   
-  observeEvent(input$file_data_dic, generation_status$file_data_dic <- TRUE)
-  observeEvent(input$file_lab_codes, generation_status$file_lab_codes <- TRUE)
-  observeEvent(input$file_lab_data, generation_status$file_lab_data <- TRUE)
-  observeEvent(input$file_odk_data, generation_status$file_odk_data <- TRUE)
+  observeEvent(input$file_data_dic, generation_status$uploaded_files[1] <- TRUE)
+  observeEvent(input$file_lab_codes, generation_status$uploaded_files[2] <- TRUE)
+  observeEvent(input$file_lab_data, generation_status$uploaded_files[3] <- TRUE)
+  observeEvent(input$file_odk_data, generation_status$uploaded_files[4] <- TRUE)
   
   observe(
-    if((generation_status$file_data_dic + generation_status$file_lab_codes + generation_status$file_lab_data + generation_status$file_odk_data) == 4) {
+    if(all(generation_status$uploaded_files)) {
       updateButton(session = session, "launch_generate_data", label = "Generate ACORN Data", style = "success", disabled = FALSE)
     }
   )
   
   observeEvent(input$launch_generate_data, {
-    showNotification("Data Generation Running. Check Console for Status", id = "message_run", duration = NULL, type = "default", session = session)
+    showNotification("Data Generation Running. Check Console for Status", id = "message_run", 
+                     duration = NULL, type = "default", session = session)
     start_data_generation <- Sys.time()
     
     print("Source 01_read_acorn_data.R")
     source("./www/R/data_generation/01_read_acorn_data.R", local = TRUE)
-    generation_status$version_CLSI <- paste0(as.character(shiny_lab_code_notes[30, 1]), " version ", as.character(shiny_lab_code_notes[30, 2]), " - ", as.character(shiny_lab_code_notes[30, 3]))
-    generation_status$version_EUCAST <- paste0(as.character(shiny_lab_code_notes[31, 1]), " version ", as.character(shiny_lab_code_notes[31, 2]), " - ", as.character(shiny_lab_code_notes[31, 3]))
+    generation_status$version_CLSI <- paste0(as.character(lab_code$notes[30, 1]), " version ", as.character(lab_code$notes[30, 2]), " - ", as.character(lab_code$notes[30, 3]))
+    generation_status$version_EUCAST <- paste0(as.character(lab_code$notes[31, 1]), " version ", as.character(lab_code$notes[31, 2]), " - ", as.character(lab_code$notes[31, 3]))
     
     print("Source 02_map_variables.R")
     source("./www/R/data_generation/02_map_variables.R", local = TRUE)
@@ -587,71 +576,64 @@ server <- function(input, output, session) {
     print("Source 11_prepare_data.R")
     source("./www/R/data_generation/11_prepare_data.R", local = TRUE)
     
-    generation_status$log <-  paste0("Data generated in ", round(difftime(Sys.time(), start_data_generation, units = 'secs'), 1), " seconds.")
-    generation_status$log <- c(generation_status$log, paste0(nrow(patient), " rows in generated patient dataset."))
-    generation_status$log <- c(generation_status$log, paste0(nrow(microbio), " rows in generated microbio dataset."))
-    generation_status$log <- c(generation_status$log, paste0(nrow(hai.surveys), " rows in generated HAI surveys dataset."))
+    print("Source 12_quality_control.R")
+    source("./www/R/data_generation/12_quality_control.R", local = TRUE)
     
-    
-    generation_status$link_F01_F02 <- ifelse(length(setdiff(f02.sel$LINK, f01.sel$LINK)) == 0, 
-                                             "All hospital outcome forms (F02) can be linked to a patient enrollment form (F01)",
-                                             paste("The following hospital outcome forms (F02) can't be linked to a patient enrollment form (F01):",  
-                                                   paste(setdiff(f02.sel$LINK, f01.sel$LINK), collapse = ", "))
-    )
-    
-    generation_status$link_F01_F03 <- ifelse(length(setdiff(f02.sel$LINK, f01.sel$LINK)) == 0, 
-                                             "All D28 follow up forms (F03)  can be linked to a patient enrollment form (F01)",
-                                             paste("The following D28 follow up forms can't be linked to a patient enrollment form:",  
-                                                   paste(setdiff(f03.sel$LINK, f01.sel$LINK), collapse = ", "))
-    )                                        
-    
-    generation_status$patid <- qc(all(!is.na(microbio$patid)), "Okay, all patients ids are provided",
-                                  paste0("Warning: there are ", sum(is.na(microbio$patid)), " rows with missing patid data."))
-    generation_status$specid <- qc(all(!is.na(microbio$specid)), "Okay, all specid are provided",
-                                   paste0("Warning: there are ", sum(is.na(microbio$specid)), " rows with missing specid data."))
-    generation_status$specdate <- qc(all(!is.na(microbio$specdate)), "Okay: all specdate are provided",
-                                     paste0("Warning: there are ", sum(is.na(microbio$specdate)), " rows with missing specdate data."))
-    generation_status$specdate2 <- qc(microbio$specdate <= Sys.Date(), "Okay: all specdate happen today or before today",
-                                      paste0("Warning: there are ", sum(microbio$specdate > Sys.Date()), " rows with specdate after today."))
-    generation_status$specgroup <- qc(all(!is.na(microbio$specgroup)), "Okay: all specgroup are provided",
-                                      paste0("Warning: there are ", sum(is.na(microbio$specgroup)), " rows with missing specgroup data."))
-    generation_status$orgname <- qc(all(!is.na(microbio$orgname)), "Okay: all orgname are provided",
-                                    paste0("Warning: there are ", sum(is.na(microbio$orgname)), " rows with missing orgname data."))
-    
-    
-    generation_status$generate_acorn_data <- TRUE
     
     # save datasets to be exported
+    generation_status$data_dictionnary <- data_dictionary
+    generation_status$lab_code <- lab_code
+    generation_status$enrol.log <- enrol.log
+    
     generation_status$patient <- patient
     generation_status$microbio <- microbio
     generation_status$corresp_org_antibio <- corresp_org_antibio
     generation_status$hai.surveys <- hai.surveys
-    generation_status$enrol.log <- enrol.log
     
+
     removeNotification(id = "message_run", session = session)
   })
   
-  output$button_download <- renderUI({
-    if(generation_status$generate_acorn_data) downloadButton("download_data", label = "Download ACORN Data")
+  output$button_link_download <- renderUI({
+    if(generation_status$generate_acorn_data) {
+      tagList(
+        downloadButton("download_ACORN_data", label = "Download ACORN Data"),
+        br(),
+        downloadLink("download_log_data", label = "Download Enrollment Log")
+      )
+    }
   })
   
   # Process on "Download ACORN Data" ----
-  output$download_data <- downloadHandler(
-    filename = paste0("ACORN_Data_", Sys.Date(), ".zip"),
+  output$download_ACORN_data <- downloadHandler(
+    filename = paste0("ACORN_Data_", Sys.Date(), ".RData"),
     content = function(file) {
+      
+      data_dictionnary <- generation_status$data_dictionnary
+      lab_code <- generation_status$lab_code
+      log <- generation_status$log
+      enrol.log <-  generation_status$enrol.log
+      
       patient <- generation_status$patient
       microbio <- generation_status$microbio
       corresp_org_antibio <- generation_status$corresp_org_antibio
       hai.surveys <- generation_status$hai.surveys
+      
+      
       meta <-  paste0("Dataset generated the ", Sys.Date())
+
+      save(data_dictionnary, lab_code, log, enrol.log,
+           patient, microbio, corresp_org_antibio, hai.surveys, 
+           meta,
+           file = file)
+    })
+  
+  # Process on "Download Log file" ----
+  output$download_log_data <- downloadHandler(
+    filename = paste0("ACORN_Logfile_", Sys.Date(), ".csv"),
+    content = function(file) {
       enrol.log <- generation_status$enrol.log
-      
-      write.csv(enrol.log, file = paste0("ACORN_Data_Enrol_Log", Sys.Date(), ".csv"), row.names = F)
-      save(patient, microbio, corresp_org_antibio, hai.surveys, meta, file = paste0("ACORN_Data_", Sys.Date(), ".RData"))
-      
-      #create the zip file
-      zip(file, c(paste0("ACORN_Data_Enrol_Log", Sys.Date(), ".csv"), 
-                  paste0("ACORN_Data_", Sys.Date(), ".RData")))
+      write.csv(enrol.log, file = file, row.names = F)
     })
   
   

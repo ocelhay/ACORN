@@ -19,15 +19,14 @@ list(
                        
                        p("Upload ODK data (requiring 5 .csv files):"),
                        fileInput("file_odk_data", label = NULL, multiple = TRUE, buttonLabel = "Browse ..."),
+                       br(),
+                       bsButton("launch_generate_data", label = "Generate ACORN Data (Upload Data First)", style = "primary", 
+                                disabled = TRUE, size = "default", block = FALSE)
                 ),
                 column(6,  offset = 1,
                        htmlOutput("feedback_data_generation"),
-                       bsButton("launch_generate_data", label = "Generate ACORN Data (Upload Data First)", style = "primary", 
-                                disabled = TRUE, size = "default", block = FALSE),
-                       br(), br(),
-                       htmlOutput("feedback_data_generation_2"),
-                       br(), br(),
-                       uiOutput("button_download")
+                       br(), 
+                       uiOutput("button_link_download")
                 )
               ),
               div(id = "closebutton", bsButton("close2", "Close", icon("times"), style = "danger", size = "small"))

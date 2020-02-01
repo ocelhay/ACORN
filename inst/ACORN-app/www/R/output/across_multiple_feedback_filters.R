@@ -2,7 +2,6 @@ output$feedback_filters <- renderText({
   req(patient())
   req(patient_filter())
   
-  # Total Patients
   start <- patient() %>% nrow()
   end <- patient_filter() %>% nrow()
   prop <- round(100 * end / start, 0)

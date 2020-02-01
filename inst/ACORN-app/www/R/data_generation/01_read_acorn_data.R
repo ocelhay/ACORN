@@ -1,40 +1,36 @@
 # Read in ACORN data dictionary ----
-print("Okay, start to read data dictionnary")  # Log R console
-path_data_dictionary_file <- input$file_data_dic[[1, 'datapath']]
+cat("[Log ACORN] start to read data dictionnary")
 
+path_data_dictionary_file <- input$file_data_dic[[1, 'datapath']]
 data_dictionary <- list()
-# data_dictionary$input.file <- read_excel(path_data_dictionary_file, sheet = "lab.filename",range = "B1:C2")
 data_dictionary$variables <- read_excel(path_data_dictionary_file, sheet = "variables")
-# data_dictionary$date.format <- read_excel(path_data_dictionary_file, sheet = "lab.filename",range = "D1:D2")
 data_dictionary$test.res <- read_excel(path_data_dictionary_file, sheet = "test.results")
 data_dictionary$local.spec <- read_excel(path_data_dictionary_file, sheet = "spec.types")
 data_dictionary$local.orgs <- read_excel(path_data_dictionary_file, sheet = "organisms")
 
-print("Okay, import data dictionnary") # Log R console
+cat("[Log ACORN] data dictionnary read")
 
 
 
-# Read in ACORN lab data
-print("Okay, start to read ACORN lab data")  # Log R console
+# Read in ACORN lab data ----
+cat("[Log ACORN] start to read lab data")
+
 path_lab_file <- input$file_lab_data[[1, 'datapath']]
-extension_file_lab_codes <- file_ext(path_lab_file)
 
-if(input$whonet_file == "WHONET file") {
-  amr.loc <- read.dbf(path_lab_file, as.is = T)
-}
+if(input$whonet_file == "WHONET file") amr.loc <- read.dbf(path_lab_file, as.is = T)
 
 if(input$whonet_file == "Not WHONET file") {
+  extension_file_lab_codes <- file_ext(path_lab_file)
   if (extension_file_lab_codes == "csv") { amr.loc <- read_csv(path_lab_file, guess_max = 10000) } else if
   (extension_file_lab_codes == "txt") { amr.loc <- read_tsv(path_lab_file, guess_max = 10000) } else if
   (extension_file_lab_codes %in% c("xls", "xlsx")) { amr.loc <- read_excel(path_lab_file, guess_max = 10000) }
 }
 
-print(paste0("Info: extension file of ACORN lab data is ", extension_file_lab_codes))  # Log R console
-print("Okay, import ACORN lab data")  # Log R console
+cat("[Log ACORN] lab data read")
 
 
 # Read in lab code and AST breakpoint data ----
-print("Okay, start to read lab codes")  # Log R console
+cat("[Log ACORN] start to read lab codes")
 
 path_lab_code_file <- input$file_lab_codes[[1, 'datapath']]
 read_lab_code <- function(sheet) read_excel(path_lab_code_file, sheet = sheet, 
@@ -59,19 +55,19 @@ lab_code <- list(
   notes = read_excel(path_lab_code_file, sheet = "notes")
 )
 
-shiny_lab_code_notes <<- lab_code$notes
-
-print("Okay, lab codes read")  # Log R console
+cat("[Log ACORN] lab codes read")
 
 # Read in ODK data ----
-print("Okay, start to read ODK data")  # Log R console
-print(paste0("Info: you have added ", dim(input$file_odk_data)[1], " files."))
+cat(paste0("[Log ACORN]", dim(input$file_odk_data)[1], " ODK files were added"))
+cat("[Log ACORN] start to read ODK data")
 
 odk_01 <- read.csv(input$file_odk_data[[1, 'datapath']], stringsAsFactors = FALSE) %>% mutate_all(as.character)
 odk_02 <- read.csv(input$file_odk_data[[2, 'datapath']], stringsAsFactors = FALSE) %>% mutate_all(as.character)
 odk_03 <- read.csv(input$file_odk_data[[3, 'datapath']], stringsAsFactors = FALSE) %>% mutate_all(as.character)
 odk_04 <- read.csv(input$file_odk_data[[4, 'datapath']], stringsAsFactors = FALSE) %>% mutate_all(as.character)
 odk_05 <- read.csv(input$file_odk_data[[5, 'datapath']], stringsAsFactors = FALSE) %>% mutate_all(as.character)
+
+
 
 if("BRTHDTC" %in% names(odk_01))  f01 <- odk_01
 if("BRTHDTC" %in% names(odk_02))  f01 <- odk_02
@@ -105,8 +101,8 @@ if("WARD_BEDS" %in% names(odk_05))  f04 <- odk_05
 
 
 # Log R console
-ifelse(exists("f01"), print("Okay, F01 data"), print("(!)ERROR(!) F01 not found"))
-ifelse(exists("f02"), print("Okay, F02 data"), print("(!)ERROR(!) F02 not found"))
-ifelse(exists("f02rep"), print("Okay, F02 rep data"), print("(!)ERROR(!) F02 rep not found"))
-ifelse(exists("f03"), print("Okay, F03 data"), print("(!)ERROR F03(!) not found"))
-ifelse(exists("f04"), print("Okay, F04 data"), print("(!)ERROR F04(!) not found"))
+ifelse(exists("f01"), print("[Log ACORN] F01 data read"), print("[Log ACORN] (!!!) ERROR F01 not read"))
+ifelse(exists("f02"), print("[Log ACORN] F02 data read"), print("[Log ACORN] (!!!) ERROR F02 not read"))
+ifelse(exists("f02rep"), print("[Log ACORN] F02 rep data read"), print("[Log ACORN] (!!!) ERROR F02 rep not read"))
+ifelse(exists("f03"), print("[Log ACORN] F03 data read"), print("[Log ACORN] (!!!) ERROR F03 not read"))
+ifelse(exists("f04"), print("[Log ACORN] F04 data read"), print("[Log ACORN] (!!!) ERROR F04 not read"))

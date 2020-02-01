@@ -83,13 +83,6 @@ h4 {
   position: fixed;
 }
 
-#feedback_patients {
-  top: calc(15%);;
-  left: calc(2%);;
-  z-index: 999999999;
-  position: fixed;
-}
-
 
 #pos_button_filter_more {
   position: absolute;

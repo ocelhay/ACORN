@@ -5,7 +5,6 @@ patient <- clin %>%
     patient_id = md5(USUBJID), # data anonymization with openssl::md5()
     date_enrollment = DMDTC,
     episode_id = md5(ACORN.EPID),
-    #episode_id = paste(md5(USUBJID), "-", DMDTC),
     age = AGEY,
     sex = SEX,
     date_admission = HPD_ADM_DATE,

@@ -423,66 +423,60 @@ Please note that "Susceptible" and "Intermediate" categories are here merged int
 
 ## A. baumannii
 
-```{r}
+```{r eval = FALSE}
 organism_input <- "Acinetobacter baumannii"
 matching_name_column <- "a_baumannii"
 nb <- microbio_filter() %>% filter(organism == organism_input) %>% nrow()
 
-data <- data_input %>%
-      filter(organism %in% organism_input) %>%
-      select(specimen_id, 9:ncol(data_input)) %>%
-      pivot_longer(-specimen_id) %>%
-      filter(value != "Not Tested") %>%
-      mutate(value = recode(value, I = "S")) %>%
-      group_by(name) %>%
-      count(value)
-
-    total_tested <- data %>%
-      group_by(name) %>%
-      summarise(total_org = sum(n))
-
-    sir_results <- data %>%
-      left_join(total_tested, by = "name") %>%
-      mutate(percent = round(100*n / total_org, 1),
-             resistance = case_when(
-               value == "S" ~ "Susceptible",
-               value == "R" ~ "Resistant")) %>%
-      mutate(resistance = factor(resistance, levels = c("Susceptible", "Resistant"))) %>%
-      complete(resistance, nesting(name))
-
-
-    sir_results <- left_join(sir_results, corresp, by = c('name' = 'antibio_code')) %>%
-      filter(UQ(as.symbol(matching_name_column)) == "show") %>%
-      ungroup() %>%
-      mutate(antibio_group = str_replace(antibio_group, "Other", "zzzOther")) %>%
-      mutate(antibio_name = str_replace(antibio_name, "Aggregate", "zzzAggregate")) %>%
-      arrange(antibio_group, antibio_name) %>%
-      mutate(antibio_group = str_replace(antibio_group, "zzzOther", "Other")) %>%
-      mutate(antibio_name = str_replace(antibio_name, "zzzAggregate", "Aggregate"))
-
-    categories_grouped <- sir_results %>%
-      select(antibio_group, antibio_name) %>%
-      distinct() %>%
-      group_by(name = antibio_group) %>%
-      do(categories = .$antibio_name) %>%
-      ungroup() %>%
-      mutate(name = str_replace(name, "Other", "zzzOther")) %>%
-      arrange(name) %>%
-      mutate(name = str_replace(name, "zzzOther", "Other"))
+# data <- data_input %>%
+#       filter(organism %in% organism_input) %>%
+#       select(specimen_id, 9:ncol(data_input)) %>%
+#       pivot_longer(-specimen_id) %>%
+#       filter(value != "Not Tested") %>%
+#       mutate(value = recode(value, I = "S")) %>%
+#       group_by(name) %>%
+#       count(value)
+# 
+#     total_tested <- data %>%
+#       group_by(name) %>%
+#       summarise(total_org = sum(n))
+# 
+#     sir_results <- data %>%
+#       left_join(total_tested, by = "name") %>%
+#       mutate(percent = round(100*n / total_org, 1),
+#              resistance = case_when(
+#                value == "S" ~ "Susceptible",
+#                value == "R" ~ "Resistant")) %>%
+#       mutate(resistance = factor(resistance, levels = c("Susceptible", "Resistant"))) %>%
+#       complete(resistance, nesting(name))
+# 
+# 
+#     sir_results <- left_join(sir_results, corresp, by = c('name' = 'antibio_code')) %>%
+#       filter(UQ(as.symbol(matching_name_column)) == "show") %>%
+#       ungroup() %>%
+#       mutate(antibio_group = str_replace(antibio_group, "Other", "zzzOther")) %>%
+#       mutate(antibio_name = str_replace(antibio_name, "Aggregate", "zzzAggregate")) %>%
+#       arrange(antibio_group, antibio_name) %>%
+#       mutate(antibio_group = str_replace(antibio_group, "zzzOther", "Other")) %>%
+#       mutate(antibio_name = str_replace(antibio_name, "zzzAggregate", "Aggregate"))
+# 
+#     categories_grouped <- sir_results %>%
+#       select(antibio_group, antibio_name) %>%
+#       distinct() %>%
+#       group_by(name = antibio_group) %>%
+#       do(categories = .$antibio_name) %>%
+#       ungroup() %>%
+#       mutate(name = str_replace(name, "Other", "zzzOther")) %>%
+#       arrange(name) %>%
+#       mutate(name = str_replace(name, "zzzOther", "Other"))
 ```
 
 
-Total number of isolates for A. baumannii: `r nb`
+Total number of isolates for A. baumannii: `r microbio_filter() %>% filter(organism == organism_input) %>% nrow()`
 
 
-Overall Susceptibility Graph (All Infections)
-
-
-
-
-Susceptibility Graph for HAI
-
-
-Susceptibility Graph for CAI
+- Overall Susceptibility Graph (All Infections)
+- Susceptibility Graph for HAI
+- Susceptibility Graph for CAI
 
 
