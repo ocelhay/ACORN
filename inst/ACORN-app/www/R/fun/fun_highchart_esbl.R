@@ -2,14 +2,14 @@ highchart_esbl <- function(data_input, organism_input) {
   
   total_tested <- data_input %>%
     filter(organism == organism_input) %>%
-    mutate(spec_quarter = round_date(specimen_date, "3 months")) %>%
+    mutate(spec_quarter = round_date(date_specimen, "3 months")) %>%
     group_by(spec_quarter) %>%
     summarise(total_2 = n_distinct(specimen_id)) %>%
     ungroup()
   
   esbl_results <- data_input %>% 
     filter(organism == organism_input) %>%
-    mutate(spec_quarter = round_date(specimen_date, "3 months"),
+    mutate(spec_quarter = round_date(date_specimen, "3 months"),
            esbl = replace_na(esbl, "Not Tested")) %>%
     group_by(spec_quarter, specimen_id) %>%
     filter(row_number(specimen_id) == 1) %>%

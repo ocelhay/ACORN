@@ -1,5 +1,5 @@
 # Read in ACORN data dictionary ----
-cat("[Log ACORN] start to read data dictionnary")
+print("[Log ACORN] start to read data dictionnary")
 
 path_data_dictionary_file <- input$file_data_dic[[1, 'datapath']]
 data_dictionary <- list()
@@ -8,12 +8,12 @@ data_dictionary$test.res <- read_excel(path_data_dictionary_file, sheet = "test.
 data_dictionary$local.spec <- read_excel(path_data_dictionary_file, sheet = "spec.types")
 data_dictionary$local.orgs <- read_excel(path_data_dictionary_file, sheet = "organisms")
 
-cat("[Log ACORN] data dictionnary read")
+print("[Log ACORN] data dictionnary read")
 
 
 
 # Read in ACORN lab data ----
-cat("[Log ACORN] start to read lab data")
+print("[Log ACORN] start to read lab data")
 
 path_lab_file <- input$file_lab_data[[1, 'datapath']]
 
@@ -26,11 +26,11 @@ if(input$whonet_file == "Not WHONET file") {
   (extension_file_lab_codes %in% c("xls", "xlsx")) { amr.loc <- read_excel(path_lab_file, guess_max = 10000) }
 }
 
-cat("[Log ACORN] lab data read")
+print("[Log ACORN] lab data read")
 
 
 # Read in lab code and AST breakpoint data ----
-cat("[Log ACORN] start to read lab codes")
+print("[Log ACORN] start to read lab codes")
 
 path_lab_code_file <- input$file_lab_codes[[1, 'datapath']]
 read_lab_code <- function(sheet) read_excel(path_lab_code_file, sheet = sheet, 
@@ -55,11 +55,11 @@ lab_code <- list(
   notes = read_excel(path_lab_code_file, sheet = "notes")
 )
 
-cat("[Log ACORN] lab codes read")
+print("[Log ACORN] lab codes read")
 
 # Read in ODK data ----
-cat(paste0("[Log ACORN]", dim(input$file_odk_data)[1], " ODK files were added"))
-cat("[Log ACORN] start to read ODK data")
+print(paste0("[Log ACORN]", dim(input$file_odk_data)[1], " ODK files were added"))
+print("[Log ACORN] start to read ODK data")
 
 odk_01 <- read.csv(input$file_odk_data[[1, 'datapath']], stringsAsFactors = FALSE) %>% mutate_all(as.character)
 odk_02 <- read.csv(input$file_odk_data[[2, 'datapath']], stringsAsFactors = FALSE) %>% mutate_all(as.character)

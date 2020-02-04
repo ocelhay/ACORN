@@ -9,6 +9,9 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 library(flextable)
+library(ggplot2)
+library(grid)
+library(gridExtra)
 ```
 
 Report generated the `r Sys.time()`.
@@ -421,62 +424,89 @@ patient_filter() %>%
 Please note that "Susceptible" and "Intermediate" categories are here merged into one category labelled "Susceptible", following <a href = "http://www.eucast.org/newsiandr/" target = "_blank"> EUCAST new definitions of S, I and R from 2019.</a>
 
 
-## A. baumannii
+## Streptococcus pneumoniae
 
-```{r eval = FALSE}
-organism_input <- "Acinetobacter baumannii"
-matching_name_column <- "a_baumannii"
+
+```{r}
+# dev
+# microbio_filter <- function() microbio
+# corresp_org_antibio <- function() corresp_org_antibio
+# organism_input <- "Acinetobacter baumannii"
+# matching_name_column <- "a_baumannii"
+
+organism_input <- "Streptococcus pneumoniae"
+matching_name_column <- "s_pneumoniae"
+
 nb <- microbio_filter() %>% filter(organism == organism_input) %>% nrow()
 
-# data <- data_input %>%
-#       filter(organism %in% organism_input) %>%
-#       select(specimen_id, 9:ncol(data_input)) %>%
-#       pivot_longer(-specimen_id) %>%
-#       filter(value != "Not Tested") %>%
-#       mutate(value = recode(value, I = "S")) %>%
-#       group_by(name) %>%
-#       count(value)
-# 
-#     total_tested <- data %>%
-#       group_by(name) %>%
-#       summarise(total_org = sum(n))
-# 
-#     sir_results <- data %>%
-#       left_join(total_tested, by = "name") %>%
-#       mutate(percent = round(100*n / total_org, 1),
-#              resistance = case_when(
-#                value == "S" ~ "Susceptible",
-#                value == "R" ~ "Resistant")) %>%
-#       mutate(resistance = factor(resistance, levels = c("Susceptible", "Resistant"))) %>%
-#       complete(resistance, nesting(name))
-# 
-# 
-#     sir_results <- left_join(sir_results, corresp, by = c('name' = 'antibio_code')) %>%
-#       filter(UQ(as.symbol(matching_name_column)) == "show") %>%
-#       ungroup() %>%
-#       mutate(antibio_group = str_replace(antibio_group, "Other", "zzzOther")) %>%
-#       mutate(antibio_name = str_replace(antibio_name, "Aggregate", "zzzAggregate")) %>%
-#       arrange(antibio_group, antibio_name) %>%
-#       mutate(antibio_group = str_replace(antibio_group, "zzzOther", "Other")) %>%
-#       mutate(antibio_name = str_replace(antibio_name, "zzzAggregate", "Aggregate"))
-# 
-#     categories_grouped <- sir_results %>%
-#       select(antibio_group, antibio_name) %>%
-#       distinct() %>%
-#       group_by(name = antibio_group) %>%
-#       do(categories = .$antibio_name) %>%
-#       ungroup() %>%
-#       mutate(name = str_replace(name, "Other", "zzzOther")) %>%
-#       arrange(name) %>%
-#       mutate(name = str_replace(name, "zzzOther", "Other"))
+data <- microbio_filter() %>%
+  filter(organism %in% organism_input) %>%
+  select(specimen_id, 9:ncol(microbio_filter())) %>%
+  pivot_longer(-specimen_id) %>%
+  filter(value %in% c("S", "I", "R")) %>%
+  mutate(value = recode(value, S = "Susceptible", I = "Susceptible", R = "Resistant")) %>%
+  group_by(name) %>%
+  count(value)
+
+total_tested <- data %>%
+  group_by(name) %>%
+  summarise(total_org = sum(n))
+
+sir_results <- data %>%
+  left_join(total_tested, by = "name") %>%
+  mutate(percent = round(100*n / total_org, 1))
+
+sir_results <- left_join(sir_results, corresp_org_antibio(), by = c('name' = 'antibio_code')) %>%
+  filter(UQ(as.symbol(matching_name_column)) == "show")
+
+
+cols_sir <- c("#2166ac", "#b2182b")  # resp. S, R
+
+print(sir_results)
+
+g1 <- ggplot(sir_results, aes(x = antibio_name, y = percent, fill = value)) +
+  geom_bar(stat = "identity", color = "gray10") +
+  labs(x = NULL, y = "Antibio", fill = "Status") +
+  scale_fill_manual(values = cols_sir) +
+  theme_minimal(base_size = 16) +
+  theme(panel.spacing = unit(2, "lines"), panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        axis.text.x = element_text(angle = 30, hjust = 0.5, vjust = 1),
+        legend.position = "top") +
+  scale_x_discrete()
+
+g2 <- ggplot(sir_results, aes(x = antibio_name, y = percent, fill = value)) +
+  geom_bar(stat = "identity", color = "gray10") +
+  labs(x = NULL, y = "Antibio", fill = "Status") +
+  scale_fill_manual(values = cols_sir) +
+  theme_minimal(base_size = 16) +
+  theme(panel.spacing = unit(2, "lines"), panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        axis.text.x = element_text(angle = 30, hjust = 0.5, vjust = 1),
+        legend.position = "top") +
+  scale_x_discrete()
+
+g3 <- ggplot(sir_results, aes(x = antibio_name, y = percent, fill = value)) +
+  geom_bar(stat = "identity", color = "gray10") +
+  labs(x = NULL, y = "Antibio", fill = "Status") +
+  scale_fill_manual(values = cols_sir) +
+  theme_minimal(base_size = 16) +
+  theme(panel.spacing = unit(2, "lines"), panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        axis.text.x = element_text(angle = 30, hjust = 0.5, vjust = 1),
+        legend.position = "top") +
+  scale_x_discrete()
+
+
+# t <- textGrob(paste0(organism_input, br(),
+#                      microbio_filter() %>% filter(organism == organism_input) %>% nrow()))
+
+t <- textGrob("Hello World")
+grid.arrange(t, g1, g2, g3, ncol = 2)
+# g1
 ```
-
-
-Total number of isolates for A. baumannii: `r microbio_filter() %>% filter(organism == organism_input) %>% nrow()`
-
 
 - Overall Susceptibility Graph (All Infections)
 - Susceptibility Graph for HAI
 - Susceptibility Graph for CAI
-
 

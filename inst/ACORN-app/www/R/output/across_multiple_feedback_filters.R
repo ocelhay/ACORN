@@ -92,8 +92,6 @@ output$feedback_filters_details <- renderText({
   # Empiric Antibiotics Prescribed
   if(! is.null(input$filter_type_antibio)) feedback_text <- add_text(paste0("Prescribed with ", paste(input$filter_type_antibio, collapse = ", ")))
   
-  print(feedback_text)
-  
   # Return text
   paste0(
     div(class = 'box_selected',

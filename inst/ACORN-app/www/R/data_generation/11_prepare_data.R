@@ -192,7 +192,7 @@ microbio <- amr %>%
     patient_id = md5(patid),
     specimen_id = md5(specid),
     episode_id = md5(ACORN.EPID),
-    specimen_date = as.Date(specdate),
+    date_specimen = as.Date(specdate),
     specimen_type = specgroup,
     isolate_id = md5(paste0(specid, orgnum.acorn)),
     orgnum = orgnum.acorn,

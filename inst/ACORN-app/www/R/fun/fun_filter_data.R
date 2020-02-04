@@ -81,13 +81,19 @@ fun_filter_hai <- function(data, input) {
   
   data <- data %>% filter(
     ward_type %in% input$filter_type_ward,
+    ward %in% input$filter_ward | is.na(ward),
     date_survey <= input$filter_enrollment[2],
     date_survey >= input$filter_enrollment[1]
   )
 }
 
-# Important: "No significant growth" should be categorised as "Growth"
+# Important: "No significant growth" should be categorised as growth
 fun_filter_growth_only <- function(dta) {
   return(dta %>%
-           filter(! tolower(organism) %in% c("no growth (specific organism)", "no growth")))
+           filter(! organism %in% c("No growth (specific organism)", "No growth")))
+}
+
+fun_filter_cultured_only <- function(dta) {
+  return(dta %>%
+           filter(! organism == "Not cultured"))
 }

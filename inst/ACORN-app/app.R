@@ -6,6 +6,7 @@ library(DT)
 library(flexdashboard)  # gaugeOutput()
 library(flextable)
 library(foreign)
+library(gridExtra)
 library(highcharter)  # highchartOutput()
 library(knitr)
 library(jsonlite)  # toJSON()
@@ -33,7 +34,7 @@ library(vov)  # swivel_vertical()
 #  Functions and global variables ----
 source("./www/R/fun/fun_filter_data.R", local = TRUE)
 
-cols_sir <- c("#2166ac", "#fddbc7", "#b2182b")  # S, I, R
+cols_sir <- c("#2166ac", "#fddbc7", "#b2182b")  # resp. S, I, R
 source("./www/R/fun/fun_highchart_sir.R", local = TRUE)
 source("./www/R/fun/fun_highchart_sir_evolution.R", local = TRUE)
 
@@ -297,7 +298,13 @@ ui <- fluidPage(
                       ),
                       # HAI ----
                       tabPanel(span(icon("hospital-alt"), "HAI"), value = "hai",
-                               plotOutput("bed_occupancy_ward", width = "80%") %>% withSpinner(),
+                               div(class = 'box_outputs',
+                                   h4("Wards Occupancy Rates"),
+                                   br(),
+                                   htmlOutput("bed_occupancy_ward_title"),
+                                   p("Use filters to narrow by date range, type of ward or ward."),
+                                   highchartOutput("bed_occupancy_ward", width = "80%") %>% withSpinner()
+                               ),
                                plotOutput("hai_rate_ward", width = "80%") %>% withSpinner()
                       ),
                       # Microbiology ----
@@ -329,7 +336,6 @@ ui <- fluidPage(
                                         div(class = 'box_outputs',
                                             h4("Isolates"),
                                             p("Most frequent 20 organisms in the plot and complete listing in the table."),
-                                            em("TODO: Need to remove isolates that are not cultured… this will require to edit the ACORN_lab_dictionary.xlsx...)"),
                                             highchartOutput("isolates_organism", height = "400px") %>% withSpinner(),
                                             br(), br(),
                                             DTOutput("isolates_organism_table", width = "95%") %>% withSpinner(),
@@ -422,9 +428,9 @@ ui <- fluidPage(
                                                         selected = "Salmonella typhi", inline = TRUE),
                                      conditionalPanel(condition = "output.test_salmonella_sir",
                                                       highchartOutput("salmonella_sir", height = "500px") %>% withSpinner(),
-                                                      h4("Overtime Resistance to Aggregate 3rd gen. ceph."),
+                                                      h4("Overtime Resistance to 3rd gen. cephalosporins"),
                                                       highchartOutput("salmonella_sir_evolution_ceph", height = "300px") %>% withSpinner(),
-                                                      h4("Overtime Resistance to Aggregate Fluoroquinolones"),
+                                                      h4("Overtime Resistance to Fluoroquinolones"),
                                                       highchartOutput("salmonella_sir_evolution_fluo", height = "300px") %>% withSpinner(),
                                      ),
                                      conditionalPanel(condition = "! output.test_salmonella_sir", span(h4("There is no data to display for this organism.")))
@@ -522,7 +528,7 @@ server <- function(input, output, session) {
   generation_status <- reactiveValues(
     uploaded_files = c(FALSE, FALSE, FALSE, FALSE),
     generate_acorn_data = FALSE,
-    log = "Data generation not started."
+    log = ""
   )
   
   observeEvent(input$file_data_dic, generation_status$uploaded_files[1] <- TRUE)
@@ -590,7 +596,7 @@ server <- function(input, output, session) {
     generation_status$corresp_org_antibio <- corresp_org_antibio
     generation_status$hai.surveys <- hai.surveys
     
-
+    
     removeNotification(id = "message_run", session = session)
   })
   
@@ -610,8 +616,13 @@ server <- function(input, output, session) {
     content = function(file) {
       
       data_dictionnary <- generation_status$data_dictionnary
+      
       lab_code <- generation_status$lab_code
+      version_CLSI <- generation_status$version_CLSI
+      version_EUCAST <- generation_status$version_EUCAST
+      
       log <- generation_status$log
+      
       enrol.log <-  generation_status$enrol.log
       
       patient <- generation_status$patient
@@ -619,10 +630,10 @@ server <- function(input, output, session) {
       corresp_org_antibio <- generation_status$corresp_org_antibio
       hai.surveys <- generation_status$hai.surveys
       
-      
       meta <-  paste0("Dataset generated the ", Sys.Date())
-
-      save(data_dictionnary, lab_code, log, enrol.log,
+      
+      save(data_dictionnary, lab_code, version_CLSI, version_EUCAST, 
+           log, enrol.log,
            patient, microbio, corresp_org_antibio, hai.surveys, 
            meta,
            file = file)
@@ -660,11 +671,15 @@ server <- function(input, output, session) {
       updatePrettyCheckboxGroup(session = session, inputId = "filter_type_ward", choices = sort(unique(patient$ward)), selected = sort(unique(patient$ward)), inline = TRUE, prettyOptions = list(shape = "curve"))
       updatePickerInput(session = session, "filter_ward", choices = sort(unique(patient$ward_text)), selected = sort(unique(patient$ward_text)))
       updateDateRangeInput(session = session, "filter_enrollment", start = min(patient$date_enrollment), end = max(patient$date_enrollment))
-      other_organism <- setdiff(unique(microbio$organism), 
-                                union(c("Acinetobacter baumannii", "Escherichia coli", "Klebsiella pneumoniae", "Staphylococcus aureus",
-                                        "Streptococcus pneumoniae"),
-                                      c("No Growth", "No growth", "Not cultured",
-                                        str_subset(unique(microbio$organism), "Salmonella"))))
+      other_organism <- sort(setdiff(unique(microbio$organism), 
+                                     union(c("Acinetobacter baumannii", "Escherichia coli", "Klebsiella pneumoniae", "Staphylococcus aureus",
+                                             "Streptococcus pneumoniae"),
+                                           c("No growth",
+                                             "No growth (specific organism)",
+                                             "No significant growth",
+                                             "Mixed growth",
+                                             "Not cultured",
+                                             str_subset(unique(microbio$organism), "Salmonella")))))
       updateSelectInput(session = session, "other_organism", choices = other_organism)
       
       
