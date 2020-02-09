@@ -13,16 +13,6 @@ output$profile_blood <- renderHighchart({
   df$color[df$name == "No"] <- "#a6cee3"
   df$color[df$name == "Unknown"] <- "#969696"
   
-  # highchart() %>%
-  #   hc_chart(type = "pie") %>% 
-  #   hc_xAxis(categories = df$name) %>% 
-  #   hc_add_series(df, name = "Blood Culture", showInLegend = FALSE) %>%
-  #   hc_tooltip(headerFormat = "", pointFormat = "{point.y} patients ({point.freq} %)") %>%
-  #   hc_plotOptions(pie = list(dataLabels = list(enabled = TRUE, 
-  #                                               distance = -30, 
-  #                                               format = '{point.name}: {point.y}',
-  #                                               style = list(fontSize = 12))))
-  
   df %>%
     hchart(type = "column", hcaes(x = name, y = y, color = color)) %>%
     hc_yAxis(title = "") %>%

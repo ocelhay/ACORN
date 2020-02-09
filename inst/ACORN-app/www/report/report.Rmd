@@ -16,92 +16,89 @@ library(gridExtra)
 
 Report generated the `r Sys.time()`.
 
-# Filters
-
-This report is generated from the **filtered** patient and microbiology datasets in the ACORN App. You are enoucraged to generate as many reports as needed, using several different filters.
+This report is generated from the **filtered** patient and microbiology datasets in the ACORN App. Using different filter values, you can generate as many reports as required.
 
 ```{r eval = TRUE, echo=FALSE, results="asis"}
 add_text <- function(text)  paste0(feedback_text, br(), text)
-  
-  # Summary
-  start <- patient() %>% nrow()
-  end <- patient_filter() %>% nrow()
-  prop <- round(100 * end / start, 0)
-  if(start == end) feedback_text <- paste0("All ", start, " patients selected")
-  if(start != end) feedback_text <- paste0(end, " patients selected (", prop, "% of ", start, ")")
-  
-  # Surveillance Category
-  if(input$filter_category == "CAI") feedback_text <- add_text("Community Acquired Infections")
-  if(input$filter_category == "HAI") feedback_text <- add_text("Hospital Acquired Infections")
-  
-  # Type of ward
-  if(! identical(input$filter_type_ward, sort(unique(patient()$ward)))) feedback_text <- add_text(paste0("Admitted in ", paste(input$filter_type_ward, collapse = ", "), " wards"))
-  
-  # Date of enrollment
-  if(input$filter_enrollment[1] > min(patient()$date_enrollment) | input$filter_enrollment[2] < max(patient()$date_enrollment)) {
-    feedback_text <- add_text(paste0("Enrolled between ", input$filter_enrollment[1], " and ", input$filter_enrollment[2]))
-  }
-  
-  # Age
-  if(input$filter_age_min > 0 | input$filter_age_max < 99) {
-    feedback_text <- add_text(paste0("Aged ", input$filter_age_min, " to ", input$filter_age_max, " ", input$filter_age_unit))
-  }
-  if(! input$filter_age_na) {
-    feedback_text <- add_text("Excluding missing ages")
-  }
-  
-  # Patient diagnosis
-  if(length(input$filter_diagnosis) != 3) {
-    feedback_text <- add_text(paste0("Patients diagnosed with ", paste(input$filter_diagnosis, collapse = " or "), " only"))
-  }
-  
-  # Diagnosis confirmation
-  if(input$confirmed_diagnosis %in% c("Diagnosis confirmed", "Diagnosis rejected")) feedback_text <- add_text(paste0(input$confirmed_diagnosis, " by clinical outcome"))
-  
-  # Outcomes
-  if(input$filter_outcome_clinical & !input$filter_outcome_d28)  feedback_text <- add_text("Patients with clinical outcome")
-  if(!input$filter_outcome_clinical & input$filter_outcome_d28)  feedback_text <- add_text("Patients with D28-outcome")
-  if(input$filter_outcome_clinical & input$filter_outcome_d28)  feedback_text <- add_text("Patients with clinical and D28-outcome")
-  
-  # Comorbidities
-  if(input$filter_comorb)  feedback_text <- add_text("At least one Comorbidity")
-  if(input$filter_cancer)  feedback_text <- add_text("With Cancer")
-  if(input$filter_renal)  feedback_text <- add_text("With Chronic Renal Failure")
-  if(input$filter_lung)  feedback_text <- add_text("With Chronic Lung Disease")
-  if(input$filter_diabetes)  feedback_text <- add_text("With Diabetes mellitus")
-  if(input$filter_malnutrition)  feedback_text <- add_text("With Malnutrition")
-  
-  # Clinical severity
-  if(input$filter_clinical_severity)  feedback_text <- add_text("With one qSOFA/Paediatric severity point")
-  
-  # Prior hospitalisation
-  if(input$filter_overnight_3months)  feedback_text <- add_text("With prior hospitalisation (in the past three months)")
-  
-  # Surgery
-  if(input$filter_surgery_3months)  feedback_text <- add_text("With surgery in the past three months")
-  
-  # Presence of medical devices
-  if(input$filter_medical_p_catheter)  feedback_text <- add_text("With Peripheral IV catheter")
-  if(input$filter_medical_c_catheter)  feedback_text <- add_text("With Central IV catheter")
-  if(input$filter_medical_u_catheter)  feedback_text <- add_text("With Urinary catheter")
-  if(input$filter_medical_ventilation)  feedback_text <- add_text("With Intubation / Mechanical ventilation")
-  
-  # Ward
-  if(! identical(input$filter_ward, sort(unique(patient()$ward_text))))  feedback_text <- add_text(paste0("Admitted in ", paste(input$filter_ward, collapse = ", "), " wards"))
-  
-  # Empiric Antibiotics Prescribed
-  if(! is.null(input$filter_type_antibio)) feedback_text <- add_text(paste0("Prescribed with ", paste(input$filter_type_antibio, collapse = ", ")))
-  
-  # Return text
-  return(HTML(feedback_text))
+
+# Summary
+start <- patient() %>% nrow()
+end <- patient_filter() %>% nrow()
+prop <- round(100 * end / start, 0)
+if(start == end) feedback_text <- paste0("All ", start, " patients selected")
+if(start != end) feedback_text <- paste0(end, " patients selected (", prop, "% of ", start, ")")
+
+# Surveillance Category
+if(input$filter_category == "CAI") feedback_text <- add_text("Community Acquired Infections")
+if(input$filter_category == "HAI") feedback_text <- add_text("Hospital Acquired Infections")
+
+# Type of ward
+if(! identical(input$filter_type_ward, sort(unique(patient()$ward)))) feedback_text <- add_text(paste0("Admitted in ", paste(input$filter_type_ward, collapse = ", "), " wards"))
+
+# Date of enrollment
+if(input$filter_enrollment[1] > min(patient()$date_enrollment) | input$filter_enrollment[2] < max(patient()$date_enrollment)) {
+  feedback_text <- add_text(paste0("Enrolled between ", input$filter_enrollment[1], " and ", input$filter_enrollment[2]))
+}
+
+# Age
+if(input$filter_age_min > 0 | input$filter_age_max < 99) {
+  feedback_text <- add_text(paste0("Aged ", input$filter_age_min, " to ", input$filter_age_max, " ", input$filter_age_unit))
+}
+if(! input$filter_age_na) {
+  feedback_text <- add_text("Excluding missing ages")
+}
+
+# Patient diagnosis
+if(length(input$filter_diagnosis) != 3) {
+  feedback_text <- add_text(paste0("Patients diagnosed with ", paste(input$filter_diagnosis, collapse = " or "), " only"))
+}
+
+# Diagnosis confirmation
+if(input$confirmed_diagnosis %in% c("Diagnosis confirmed", "Diagnosis rejected")) feedback_text <- add_text(paste0(input$confirmed_diagnosis, " by clinical outcome"))
+
+# Outcomes
+if(input$filter_outcome_clinical & !input$filter_outcome_d28)  feedback_text <- add_text("Patients with clinical outcome")
+if(!input$filter_outcome_clinical & input$filter_outcome_d28)  feedback_text <- add_text("Patients with D28-outcome")
+if(input$filter_outcome_clinical & input$filter_outcome_d28)  feedback_text <- add_text("Patients with clinical and D28-outcome")
+
+# Comorbidities
+if(input$filter_comorb)  feedback_text <- add_text("At least one Comorbidity")
+if(input$filter_cancer)  feedback_text <- add_text("With Cancer")
+if(input$filter_renal)  feedback_text <- add_text("With Chronic Renal Failure")
+if(input$filter_lung)  feedback_text <- add_text("With Chronic Lung Disease")
+if(input$filter_diabetes)  feedback_text <- add_text("With Diabetes mellitus")
+if(input$filter_malnutrition)  feedback_text <- add_text("With Malnutrition")
+
+# Clinical severity
+if(input$filter_clinical_severity)  feedback_text <- add_text("With one qSOFA/Paediatric severity point")
+
+# Prior hospitalisation
+if(input$filter_overnight_3months)  feedback_text <- add_text("With prior hospitalisation (in the past three months)")
+
+# Surgery
+if(input$filter_surgery_3months)  feedback_text <- add_text("With surgery in the past three months")
+
+# Presence of medical devices
+if(input$filter_medical_p_catheter)  feedback_text <- add_text("With Peripheral IV catheter")
+if(input$filter_medical_c_catheter)  feedback_text <- add_text("With Central IV catheter")
+if(input$filter_medical_u_catheter)  feedback_text <- add_text("With Urinary catheter")
+if(input$filter_medical_ventilation)  feedback_text <- add_text("With Intubation / Mechanical ventilation")
+
+# Ward
+if(! identical(input$filter_ward, sort(unique(patient()$ward_text))))  feedback_text <- add_text(paste0("Admitted in ", paste(input$filter_ward, collapse = ", "), " wards"))
+
+# Empiric Antibiotics Prescribed
+if(! is.null(input$filter_type_antibio)) feedback_text <- add_text(paste0("Prescribed with ", paste(input$filter_type_antibio, collapse = ", ")))
+
+# Return text
+return(HTML(feedback_text))
 ```
 
+(Include feedback on filters applied to microbio dataset).
 
 # Profile of Patients
 
-## Total Number of Patients 
-
-### Per Surveillance Category
+## Per Surveillance Category
 
 Type of ward:
 
@@ -114,9 +111,9 @@ patient_filter() %>%
   mutate(patients = replace_na(patients, 0)) %>%
   pivot_wider(names_from = surveillance_cat, values_from = patients) %>%
   
- 
+  
   # add totals
-  bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total"))) %>%
+  bind_rows(summarise_all(., ~ (if(is.numeric(.)) sum(.) else "Total"))) %>%
   mutate(Total = rowSums(.[-1])) %>%
   
   # create table
@@ -144,7 +141,7 @@ patient_filter() %>%
   mutate(age_category = as.character(age_category)) %>%
   
   # add totals
-  bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total"))) %>%
+  bind_rows(summarise_all(., ~ (if(is.numeric(.)) sum(.) else "Total"))) %>%
   mutate(Total = rowSums(.[-1])) %>%
   
   # create table
@@ -165,9 +162,9 @@ patient_filter() %>%
   complete(surveillance_cat, surveillance_diag) %>%
   mutate(patients = replace_na(patients, 0)) %>%
   pivot_wider(names_from = surveillance_cat, values_from = patients) %>%
- 
+  
   # add totals
-  bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total"))) %>%
+  bind_rows(summarise_all(., ~ (if(is.numeric(.)) sum(.) else "Total"))) %>%
   mutate(Total = rowSums(.[-1])) %>%
   
   # create table
@@ -192,7 +189,7 @@ patient_filter() %>%
   pivot_wider(names_from = surveillance_cat, values_from = patients) %>%
   
   # add totals
-  bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total"))) %>%
+  bind_rows(summarise_all(., ~ (if(is.numeric(.)) sum(.) else "Total"))) %>%
   mutate(Total = rowSums(.[-1])) %>%
   
   # create table
@@ -214,7 +211,7 @@ patient_filter() %>%
   pivot_wider(names_from = surveillance_cat, values_from = patients) %>%
   
   # add totals
-  bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total"))) %>%
+  bind_rows(summarise_all(., ~ (if(is.numeric(.)) sum(.) else "Total"))) %>%
   mutate(discharge_status = replace_na(discharge_status, "Unknown")) %>%
   mutate(Total = rowSums(.[-1])) %>%
   
@@ -239,7 +236,7 @@ patient_filter() %>%
   pivot_wider(names_from = surveillance_cat, values_from = patients) %>%
   
   # add totals
-  bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total"))) %>%
+  bind_rows(summarise_all(., ~ (if(is.numeric(.)) sum(.) else "Total"))) %>%
   mutate(Total = rowSums(.[-1])) %>%
   
   # create table
@@ -261,7 +258,7 @@ patient_filter() %>%
   pivot_wider(names_from = surveillance_cat, values_from = patients) %>%
   
   # add totals
-  bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total"))) %>%
+  bind_rows(summarise_all(., ~ (if(is.numeric(.)) sum(.) else "Total"))) %>%
   mutate(status_d28 = replace_na(status_d28, "Unknown")) %>%
   mutate(Total = rowSums(.[-1])) %>%
   
@@ -273,7 +270,7 @@ patient_filter() %>%
 
 
 
-### Per Diagnosis
+## Per Diagnosis
 
 Type of ward:
 
@@ -286,9 +283,9 @@ patient_filter() %>%
   mutate(patients = replace_na(patients, 0)) %>%
   pivot_wider(names_from = surveillance_diag, values_from = patients) %>%
   
- 
+  
   # add totals
-  bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total"))) %>%
+  bind_rows(summarise_all(., ~ (if(is.numeric(.)) sum(.) else "Total"))) %>%
   mutate(Total = rowSums(.[-1])) %>%
   
   # create table
@@ -316,7 +313,7 @@ patient_filter() %>%
   mutate(age_category = as.character(age_category)) %>%
   
   # add totals
-  bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total"))) %>%
+  bind_rows(summarise_all(., ~ (if(is.numeric(.)) sum(.) else "Total"))) %>%
   mutate(Total = rowSums(.[-1])) %>%
   
   # create table
@@ -340,7 +337,7 @@ patient_filter() %>%
   pivot_wider(names_from = surveillance_diag, values_from = patients) %>%
   
   # add totals
-  bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total"))) %>%
+  bind_rows(summarise_all(., ~ (if(is.numeric(.)) sum(.) else "Total"))) %>%
   mutate(Total = rowSums(.[-1])) %>%
   
   # create table
@@ -362,7 +359,7 @@ patient_filter() %>%
   pivot_wider(names_from = surveillance_diag, values_from = patients) %>%
   
   # add totals
-  bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total"))) %>%
+  bind_rows(summarise_all(., ~ (if(is.numeric(.)) sum(.) else "Total"))) %>%
   mutate(discharge_status = replace_na(discharge_status, "Unknown")) %>%
   mutate(Total = rowSums(.[-1])) %>%
   
@@ -387,7 +384,7 @@ patient_filter() %>%
   pivot_wider(names_from = surveillance_diag, values_from = patients) %>%
   
   # add totals
-  bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total"))) %>%
+  bind_rows(summarise_all(., ~ (if(is.numeric(.)) sum(.) else "Total"))) %>%
   mutate(Total = rowSums(.[-1])) %>%
   
   # create table
@@ -409,7 +406,7 @@ patient_filter() %>%
   pivot_wider(names_from = surveillance_diag, values_from = patients) %>%
   
   # add totals
-  bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total"))) %>%
+  bind_rows(summarise_all(., ~ (if(is.numeric(.)) sum(.) else "Total"))) %>%
   mutate(status_d28 = replace_na(status_d28, "Unknown")) %>%
   mutate(Total = rowSums(.[-1])) %>%
   
@@ -419,94 +416,277 @@ patient_filter() %>%
   autofit()
 ```
 
+
+## Blood Cultures
+
+Enrolments with blood cultures / Total enrolments.
+
+```{r}
+# Add surveillance category, surveillance diagnosis to microbio
+microbio2 <- left_join(microbio_filter() %>%
+                         mutate(episode_id = as.character(episode_id)), 
+                       patient_filter() %>% select(surveillance_cat, surveillance_diag, episode_id) %>% 
+                         mutate(episode_id = as.character(episode_id)),
+                       by = 'episode_id')
+
+left_join(
+  microbio2 %>%
+    filter(specimen_type == "Blood") %>%
+    group_by(surveillance_cat, surveillance_diag) %>%
+    summarise(blood = n_distinct(episode_id)),  # Number of blood specimen per month of enrollment
+  patient_filter() %>%
+    group_by(surveillance_cat, surveillance_diag) %>%
+    summarise(all = n_distinct(episode_id)),  # Number of episodes per Category / Diagnosis
+  by = c("surveillance_cat", "surveillance_diag")) %>%
+  mutate(percent = round(100 * blood/all, 1)) %>%
+  
+  flextable() %>%
+  set_header_labels(surveillance_cat = "", surveillance_diag = "", blood = "Enrolments with Blood Culture", all = "Total Enrolments", percent = "% Blood Culture") 
+```
+
+
+## Enrolments with Key Pathogens
+
+The six key pathogens are Acinetobacter baumannii, Escherichia coli, Klebsiella pneumoniae, Staphylococcus aureus, Streptococcus pneumoniae, and Salmonella sp.
+
+Per 1,000 Enrolments
+
+```{r}
+# microbio_filter <- function() return(microbio)
+# patient_filter <- function() return(patient)
+
+# Add surveillance category, surveillance diagnosis to microbio
+microbio2 <- left_join(microbio_filter() %>%
+                         mutate(episode_id = as.character(episode_id)), 
+                       patient_filter() %>% select(surveillance_cat, surveillance_diag, episode_id) %>% 
+                         mutate(episode_id = as.character(episode_id)),
+                       by = 'episode_id')
+
+left_join(
+  microbio2 %>%
+    filter(organism %in% c("Acinetobacter baumannii", "Escherichia coli", "Klebsiella pneumoniae",
+                           "Staphylococcus aureus", "Streptococcus pneumoniae", "Salmonella sp")) %>%
+    group_by(surveillance_cat, surveillance_diag) %>%
+    summarise(episode = n_distinct(episode_id)),
+  patient_filter() %>%
+    group_by(surveillance_cat, surveillance_diag) %>%
+    summarise(all = n_distinct(episode_id)),
+  by = c("surveillance_cat", "surveillance_diag")) %>%
+  mutate(per1000 = round(1000 * episode/all, 1)) %>%
+  
+  flextable() %>%
+  set_header_labels(surveillance_cat = "", surveillance_diag = "", episode = "Enrolments with key pathogens", all = "Total Enrolments", per1000 = "per 1,000") 
+```
+
+Per 1,000 blood cultures
+
+```{r}
+left_join(
+  microbio2 %>%
+    filter(organism %in% c("Acinetobacter baumannii", "Escherichia coli", "Klebsiella pneumoniae",
+                           "Staphylococcus aureus", "Streptococcus pneumoniae", "Salmonella sp")) %>%
+    filter(specimen_type == "Blood") %>%
+    group_by(surveillance_cat, surveillance_diag) %>%
+    summarise(episode = n_distinct(episode_id)),
+  patient_filter() %>%
+    group_by(surveillance_cat, surveillance_diag) %>%
+    summarise(all = n_distinct(episode_id)),
+  by = c("surveillance_cat", "surveillance_diag")) %>%
+  mutate(per1000 = round(1000 * episode/all, 1)) %>%
+  
+  flextable() %>%
+  set_header_labels(surveillance_cat = "", surveillance_diag = "", episode = "Enrolments with key pathogens with blood culture", all = "Total Enrolments", per1000 = "per 1,000") 
+```
+
+
 # Key Pathogens
 
-Please note that "Susceptible" and "Intermediate" categories are here merged into one category labelled "Susceptible", following <a href = "http://www.eucast.org/newsiandr/" target = "_blank"> EUCAST new definitions of S, I and R from 2019.</a>
+In the following figures, the "Susceptible" and "Intermediate" categories are merged into one category labelled "Susceptible", following EUCAST new definitions of S, I and R from 2019 (http://www.eucast.org/newsiandr/).
 
+```{r}
+cols_sir <- c("Resistant" = "#b2182b", "Susceptible" = "#2166ac")
+
+ggplot_sir <- function(mic = microbio_filter(), pat = patient_filter(), corresp = corresp_org_antibio(), organism_input, matching_name_column, title, surv_cat) {
+  
+  # mic = microbio
+  # pat = patient
+  # corresp = corresp_org_antibio
+  # organism_input = "Streptococcus pneumoniae"
+  # matching_name_column = "s_pneumoniae"
+  # title = "All Patients"
+  # surv_cat = "HAI"
+  
+  data <- left_join(
+    mic,
+    pat %>% select(episode_id, surveillance_cat) %>% 
+      mutate(episode_id = as.character(episode_id)),
+    by = 'episode_id') %>%
+    filter(organism %in% organism_input) %>%
+    filter(surveillance_cat %in% surv_cat)
+  
+  nb_isolates <- data %>% nrow()
+  
+  data <- data %>%
+    select(specimen_id, 9:ncol(data)) %>%
+    pivot_longer(-specimen_id) %>%
+    filter(value %in% c("S", "I", "R")) %>%
+    mutate(value = recode(value, S = "Susceptible", I = "Susceptible", R = "Resistant")) %>%
+    group_by(name) %>%
+    count(value)
+  
+  total_tested <- data %>%
+    group_by(name) %>%
+    summarise(total_org = sum(n))
+  
+  sir_results <- data %>%
+    left_join(total_tested, by = "name") %>%
+    mutate(percent = round(100*n / total_org, 1))
+  
+  sir_results <- left_join(sir_results, corresp, by = c('name' = 'antibio_code')) %>%
+    filter(UQ(as.symbol(matching_name_column)) == "show")
+  
+  if(sir_results %>% nrow() == 0) return(
+    ggplot() + 
+      theme_minimal(base_size = 18) +
+      theme(panel.spacing = unit(2, "lines"), panel.grid.minor = element_blank(),
+            panel.grid.major.x = element_blank(),
+            axis.text.x = element_text(angle = 30, hjust = 1, vjust = 1),
+            plot.title = element_text(size = 20),
+            legend.position = "top") +
+      labs(title = paste0(title, ": No data to display"), y = NULL, x = NULL))
+  
+  return(
+    ggplot(sir_results, aes(x = antibio_name, y = percent, fill = value)) +
+      geom_bar(stat = "identity", color = "gray10") +
+      labs(x = NULL, y = "Antibio", fill = "Status") +
+      scale_fill_manual(values = cols_sir) +
+      theme_minimal(base_size = 18) +
+      theme(panel.spacing = unit(2, "lines"), panel.grid.minor = element_blank(),
+            panel.grid.major.x = element_blank(),
+            axis.text.x = element_text(angle = 30, hjust = 1, vjust = 1),
+            plot.title = element_text(size = 20),
+            legend.position = "top") +
+      labs(title = paste0(title, ": ", nb_isolates, " isolates"), y = "%", x = NULL) +
+      scale_x_discrete()
+    )
+}
+```
+
+
+</br>
+
+## Acinetobacter baumannii
+
+```{r dpi = 200, fig.width = 14, fig.height = 12}
+org <- "Acinetobacter baumannii"
+match <- "a_baumannii"
+
+g1 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "All Infections", surv_cat = c("CAI", "HAI"))
+
+g2 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Community Acquired Infections", surv_cat = "CAI")
+
+g3 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Hospital Acquired Infections", surv_cat = "HAI")
+
+t <- textGrob(paste0(org, "\n",
+                     "Total of ", microbio_filter() %>% filter(organism == org) %>% nrow(), " isolates."),
+              gp = gpar(fontsize = 22))
+
+grid.arrange(t, g1, g2, g3, ncol = 2)
+```
+
+## Escherichia coli
+
+```{r dpi = 200, fig.width = 14, fig.height = 12}
+org <- "Escherichia coli"
+match <- "e_coli"
+
+g1 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "All Infections", surv_cat = c("CAI", "HAI"))
+
+g2 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Community Acquired Infections", surv_cat = "CAI")
+
+g3 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Hospital Acquired Infections", surv_cat = "HAI")
+
+t <- textGrob(paste0(org, "\n",
+                     "Total of ", microbio_filter() %>% filter(organism == org) %>% nrow(), " isolates."),
+              gp = gpar(fontsize = 22))
+
+grid.arrange(t, g1, g2, g3, ncol = 2)
+```
+
+## Klebsiella pneumoniae
+
+```{r dpi = 200, fig.width = 14, fig.height = 12}
+org <- "Klebsiella pneumoniae"
+match <- "k_pneumoniae"
+
+g1 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "All Infections", surv_cat = c("CAI", "HAI"))
+
+g2 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Community Acquired Infections", surv_cat = "CAI")
+
+g3 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Hospital Acquired Infections", surv_cat = "HAI")
+
+t <- textGrob(paste0(org, "\n",
+                     "Total of ", microbio_filter() %>% filter(organism == org) %>% nrow(), " isolates."),
+              gp = gpar(fontsize = 22))
+
+grid.arrange(t, g1, g2, g3, ncol = 2)
+```
+
+## Staphylococcus aureus
+
+```{r dpi = 200, fig.width = 14, fig.height = 12}
+org <- "Staphylococcus aureus"
+match <- "s_aureus"
+
+g1 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "All Infections", surv_cat = c("CAI", "HAI"))
+
+g2 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Community Acquired Infections", surv_cat = "CAI")
+
+g3 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Hospital Acquired Infections", surv_cat = "HAI")
+
+t <- textGrob(paste0(org, "\n",
+                     "Total of ", microbio_filter() %>% filter(organism == org) %>% nrow(), " isolates."),
+              gp = gpar(fontsize = 22))
+
+grid.arrange(t, g1, g2, g3, ncol = 2)
+```
 
 ## Streptococcus pneumoniae
 
+```{r dpi = 200, fig.width = 14, fig.height = 12}
+org <- "Streptococcus pneumoniae"
+match <- "s_pneumoniae"
 
-```{r}
-# dev
-# microbio_filter <- function() microbio
-# corresp_org_antibio <- function() corresp_org_antibio
-# organism_input <- "Acinetobacter baumannii"
-# matching_name_column <- "a_baumannii"
+g1 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "All Infections", surv_cat = c("CAI", "HAI"))
 
-organism_input <- "Streptococcus pneumoniae"
-matching_name_column <- "s_pneumoniae"
+g2 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Community Acquired Infections", surv_cat = "CAI")
 
-nb <- microbio_filter() %>% filter(organism == organism_input) %>% nrow()
+g3 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Hospital Acquired Infections", surv_cat = "HAI")
 
-data <- microbio_filter() %>%
-  filter(organism %in% organism_input) %>%
-  select(specimen_id, 9:ncol(microbio_filter())) %>%
-  pivot_longer(-specimen_id) %>%
-  filter(value %in% c("S", "I", "R")) %>%
-  mutate(value = recode(value, S = "Susceptible", I = "Susceptible", R = "Resistant")) %>%
-  group_by(name) %>%
-  count(value)
+t <- textGrob(paste0(org, "\n",
+                     "Total of ", microbio_filter() %>% filter(organism == org) %>% nrow(), " isolates."),
+              gp = gpar(fontsize = 22))
 
-total_tested <- data %>%
-  group_by(name) %>%
-  summarise(total_org = sum(n))
-
-sir_results <- data %>%
-  left_join(total_tested, by = "name") %>%
-  mutate(percent = round(100*n / total_org, 1))
-
-sir_results <- left_join(sir_results, corresp_org_antibio(), by = c('name' = 'antibio_code')) %>%
-  filter(UQ(as.symbol(matching_name_column)) == "show")
-
-
-cols_sir <- c("#2166ac", "#b2182b")  # resp. S, R
-
-print(sir_results)
-
-g1 <- ggplot(sir_results, aes(x = antibio_name, y = percent, fill = value)) +
-  geom_bar(stat = "identity", color = "gray10") +
-  labs(x = NULL, y = "Antibio", fill = "Status") +
-  scale_fill_manual(values = cols_sir) +
-  theme_minimal(base_size = 16) +
-  theme(panel.spacing = unit(2, "lines"), panel.grid.minor = element_blank(),
-        panel.grid.major.x = element_blank(),
-        axis.text.x = element_text(angle = 30, hjust = 0.5, vjust = 1),
-        legend.position = "top") +
-  scale_x_discrete()
-
-g2 <- ggplot(sir_results, aes(x = antibio_name, y = percent, fill = value)) +
-  geom_bar(stat = "identity", color = "gray10") +
-  labs(x = NULL, y = "Antibio", fill = "Status") +
-  scale_fill_manual(values = cols_sir) +
-  theme_minimal(base_size = 16) +
-  theme(panel.spacing = unit(2, "lines"), panel.grid.minor = element_blank(),
-        panel.grid.major.x = element_blank(),
-        axis.text.x = element_text(angle = 30, hjust = 0.5, vjust = 1),
-        legend.position = "top") +
-  scale_x_discrete()
-
-g3 <- ggplot(sir_results, aes(x = antibio_name, y = percent, fill = value)) +
-  geom_bar(stat = "identity", color = "gray10") +
-  labs(x = NULL, y = "Antibio", fill = "Status") +
-  scale_fill_manual(values = cols_sir) +
-  theme_minimal(base_size = 16) +
-  theme(panel.spacing = unit(2, "lines"), panel.grid.minor = element_blank(),
-        panel.grid.major.x = element_blank(),
-        axis.text.x = element_text(angle = 30, hjust = 0.5, vjust = 1),
-        legend.position = "top") +
-  scale_x_discrete()
-
-
-# t <- textGrob(paste0(organism_input, br(),
-#                      microbio_filter() %>% filter(organism == organism_input) %>% nrow()))
-
-t <- textGrob("Hello World")
 grid.arrange(t, g1, g2, g3, ncol = 2)
-# g1
 ```
 
-- Overall Susceptibility Graph (All Infections)
-- Susceptibility Graph for HAI
-- Susceptibility Graph for CAI
+## Salmonella sp 
 
+(not S. typhi or S. paratyphi)
+
+```{r dpi = 200, fig.width = 14, fig.height = 12}
+org <- "Salmonella sp"
+match <- "salmonella_species"
+
+g1 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "All Infections", surv_cat = c("CAI", "HAI"))
+
+g2 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Community Acquired Infections", surv_cat = "CAI")
+
+g3 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Hospital Acquired Infections", surv_cat = "HAI")
+
+t <- textGrob(paste0(org, "\n",
+                     "Total of ", microbio_filter() %>% filter(organism == org) %>% nrow(), " isolates."),
+              gp = gpar(fontsize = 22))
+
+grid.arrange(t, g1, g2, g3, ncol = 2)
+```

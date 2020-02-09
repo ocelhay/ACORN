@@ -9,8 +9,6 @@ output$evolution_blood_culture <- renderHighchart({
                           mutate(episode_id = as.character(episode_id)),
                         by = 'episode_id')
   
-  # shiny_microbio <<- microbio
-  
   dta <- left_join(
     patient_filter() %>%
       group_by(month = floor_date(date_enrollment, "month")) %>%
