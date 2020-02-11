@@ -88,7 +88,6 @@ ui <- fluidPage(
                                         )
                                 ),
                                 conditionalPanel(condition = "input.tabs != 'overview' & input.tabs != 'patients' & input.tabs != 'followup' & input.tabs != 'hai'",
-                                                 br(),
                                                  blur_in(duration = "slow",
                                                          div(class = 'box_outputs',
                                                              h4("Filter Specimens, Isolates:"),
@@ -96,7 +95,7 @@ ui <- fluidPage(
                                                                                  choices = c("Blood Collection" = "blood", "Other Specimens:" = "other_not_blood"), 
                                                                                  selected = c("blood", "other_not_blood"), inline = TRUE),
                                                              conditionalPanel("input.filter_method_collection.includes('other_not_blood')",
-                                                                              checkboxGroupButtons(inputId = "filter_method_other", label = NULL, choices = " ", selected = NULL, individual = TRUE, size = "sm", status = "primary",
+                                                                              checkboxGroupButtons(inputId = "filter_method_other", label = NULL, choices = " ", selected = NULL, individual = TRUE, size = "xs", status = "primary",
                                                                                                    checkIcon = list(yes = icon("check")))
                                                              ),
                                                              prettySwitch(inputId = "first_isolate", label = "Only first isolate per organism per patient", status = "primary", width = "100px")
@@ -362,7 +361,7 @@ ui <- fluidPage(
                                    content_main = span(
                                      conditionalPanel(condition = "output.test_abaumannii_sir",
                                                       highchartOutput("abaumannii_sir", height = "500px") %>% withSpinner(),
-                                                      h4("Overtime Resistance to Carbapenems"),
+                                                      h4("Resistance to Carbapenems Over Time"),
                                                       highchartOutput("abaumannii_sir_evolution", height = "300px") %>% withSpinner()
                                      ),
                                      conditionalPanel(condition = "! output.test_abaumannii_sir", span(h4("There is no data to display for this organism.")))
@@ -374,7 +373,7 @@ ui <- fluidPage(
                                    content_main = span(
                                      conditionalPanel(condition = "output.test_ecoli_sir",
                                                       highchartOutput("ecoli_sir", height = "600px") %>% withSpinner(), br(), br(),
-                                                      h4("Overtime Resistance to Carbapenems"),
+                                                      h4("Resistance to Carbapenems Over Time"),
                                                       highchartOutput("ecoli_sir_evolution", height = "300px") %>% withSpinner(),
                                                       h4("ESBL"),
                                                       highchartOutput("ecoli_esbl", height = "400px") %>% withSpinner()
@@ -388,7 +387,7 @@ ui <- fluidPage(
                                    content_main = span(
                                      conditionalPanel(condition = "output.test_kpneumoniae_sir",
                                                       highchartOutput("kpneumoniae_sir", height = "600px") %>% withSpinner(), br(), br(),
-                                                      h4("Overtime Resistance to Carbapenems"),
+                                                      h4("Resistance to Carbapenems Over Time"),
                                                       highchartOutput("kpneumoniae_sir_evolution", height = "300px") %>% withSpinner(),
                                                       h4("ESBL"),
                                                       highchartOutput("kpneumoniae_esbl", height = "400px") %>% withSpinner()
@@ -402,7 +401,7 @@ ui <- fluidPage(
                                    content_main = span(
                                      conditionalPanel(condition = "output.test_saureus_sir",
                                                       highchartOutput("saureus_sir", height = "500px") %>% withSpinner(),
-                                                      h4("Overtime Resistance to Oxacillin"),
+                                                      h4("Resistance to Oxacillin Over Time"),
                                                       highchartOutput("saureus_sir_evolution", height = "300px") %>% withSpinner(),
                                      ),
                                      conditionalPanel(condition = "! output.test_saureus_sir", span(h4("There is no data to display for this organism.")))
@@ -414,7 +413,7 @@ ui <- fluidPage(
                                    content_main = span(
                                      conditionalPanel(condition = "output.test_spneumoniae_sir",
                                                       highchartOutput("spneumoniae_sir", height = "500px") %>% withSpinner(),
-                                                      h4("Overtime Resistance to Penicillins"),
+                                                      h4("Resistance to Penicillins Over Time"),
                                                       highchartOutput("spneumoniae_sir_evolution", height = "300px") %>% withSpinner(),
                                      ),
                                      conditionalPanel(condition = "! output.test_spneumoniae_sir", span(h4("There is no data to display for this organism.")))
@@ -429,9 +428,9 @@ ui <- fluidPage(
                                                         selected = "Salmonella typhi", inline = TRUE),
                                      conditionalPanel(condition = "output.test_salmonella_sir",
                                                       highchartOutput("salmonella_sir", height = "500px") %>% withSpinner(),
-                                                      h4("Overtime Resistance to 3rd gen. cephalosporins"),
+                                                      h4("Resistance to 3rd gen. cephalosporins Over Time"),
                                                       highchartOutput("salmonella_sir_evolution_ceph", height = "300px") %>% withSpinner(),
-                                                      h4("Overtime Resistance to Fluoroquinolones"),
+                                                      h4("Resistance to Fluoroquinolones Over Time"),
                                                       highchartOutput("salmonella_sir_evolution_fluo", height = "300px") %>% withSpinner(),
                                      ),
                                      conditionalPanel(condition = "! output.test_salmonella_sir", span(h4("There is no data to display for this organism.")))

@@ -94,7 +94,19 @@ if(! is.null(input$filter_type_antibio)) feedback_text <- add_text(paste0("Presc
 return(HTML(feedback_text))
 ```
 
-(Include feedback on filters applied to microbio dataset).
+```{r}
+if(length(input$filter_method_collection) == 2)  feedback_text <- paste0("All methods of collection for specimens. ")
+if(length(input$filter_method_collection) == 1) {
+  if(input$filter_method_collection == "blood") feedback_text <- paste0("(Filter) Only Blood specimens.")
+  if(input$filter_method_collection == "other_not_blood") feedback_text <- paste0("(Filter) Methods of collection for specimens: ", paste(input$filter_method_other, collapse = ", "))
+}
+
+if(input$first_isolate)  feedback_text <- add_text(". Only first isolate per organism per patient.")
+
+# Return text
+return(HTML(feedback_text))
+```
+
 
 # Profile of Patients
 
@@ -675,7 +687,9 @@ grid.arrange(t, g1, g2, g3, ncol = 2)
 (not S. typhi or S. paratyphi)
 
 ```{r dpi = 200, fig.width = 14, fig.height = 12}
-org <- "Salmonella sp"
+vec <- unique(microbio_filter()$organism)
+org <- vec[str_detect(vec, "Salmonella") & vec != "Salmonella typhi" & vec != "Salmonella paratyphi"]
+
 match <- "salmonella_species"
 
 g1 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "All Infections", surv_cat = c("CAI", "HAI"))
