@@ -1,5 +1,5 @@
 ---
-title: "ACORN AMR Report"
+title: ""
 output: word_document
 editor_options: 
   chunk_output_type: console
@@ -14,22 +14,19 @@ library(grid)
 library(gridExtra)
 ```
 
-```{r}
-knitr::include_graphics("img_ACORN_logo.png")
-```
-
-![ACORN](img_ACORN_logo.png)
+![](img_ACORN_logo.png)
 
 
 ACORN (“A Clinically Oriented antimicrobial Resistance Network”) is intended to generate patient-focused and clinically actionable AMR surveillance data. Details of the ACORN project protocol can be found here: https://wellcomeopenresearch.org/articles/5-13.
 
 ACORN includes data on both community-acquired infections (CAI) and hospital-acquired infections (HAI). The six key ACORN pathogens are the WHO bloodstream infection priority pathogens Acinetobacter baumannii, Escherichia coli, Klebsiella pneumoniae, Staphylococcus aureus, Streptococcus pneumoniae, and Salmonella sp.
 
+
+# About this Report
+
 This report contains a summary report of patients enrolled into ACORN, their clinical infection syndromes, associated pathogens and resistance profiles, and outcomes. Care should be taken when interpreting rates and AMR profiles where there are small numbers of cases or bacterial isolates: point estimates may be unreliable.”
 
-</hr>
-
-This report was generated the `r Sys.time()` from the **possibly filtered** patient and microbiology datasets in the ACORN App. Using different filter values, you can generate as many reports as required.
+This report was generated the `r Sys.time()` from the possibly filtered patient and microbiology datasets in the ACORN App. Using different filter values, you can generate as many reports as required.
 
 ```{r eval = TRUE, echo=FALSE, results="asis"}
 add_text <- function(text)  paste0(feedback_text, br(), text)
@@ -38,7 +35,7 @@ add_text <- function(text)  paste0(feedback_text, br(), text)
 start <- patient() %>% nrow()
 end <- patient_filter() %>% nrow()
 prop <- round(100 * end / start, 0)
-if(start == end) feedback_text <- paste0("All ", start, " patients selected")
+if(start == end) feedback_text <- paste0("All ", start, " patients selected.")
 if(start != end) feedback_text <- paste0(end, " patients selected (", prop, "% of ", start, ")")
 
 # Surveillance Category
@@ -108,13 +105,13 @@ return(HTML(feedback_text))
 ```
 
 ```{r}
-if(length(input$filter_method_collection) == 2)  feedback_text <- paste0("All specimen types. ")
+if(length(input$filter_method_collection) == 2)  feedback_text <- paste0("All specimen types.")
 if(length(input$filter_method_collection) == 1) {
   if(input$filter_method_collection == "blood") feedback_text <- paste0("(Filter) Only Blood specimens.")
-  if(input$filter_method_collection == "other_not_blood") feedback_text <- paste0("(Filter) Specimen types: ", paste(input$filter_method_other, collapse = ", "))
+  if(input$filter_method_collection == "other_not_blood") feedback_text <- paste0("(Filter) Specimen types: ", paste(input$filter_method_other, collapse = ", "), ".")
 }
 
-if(input$first_isolate)  feedback_text <- add_text(". Only first isolate per organism per patient.")
+if(input$first_isolate)  feedback_text <- add_text("Only first isolate per organism per patient.")
 
 # Return text
 return(HTML(feedback_text))
@@ -123,12 +120,23 @@ return(HTML(feedback_text))
 
 # Profile of Patients
 
+
+```{r dpi = 200, fig.width = 10, fig.height = 8}
+patient_filter() %>%
+# patient %>%
+  ggplot(aes(x = date_enrollment)) +
+  geom_histogram(bins = 15) +
+  labs(title = "Enrolled Patients", x = "Date of Enrollment", y = "Patients") +
+  theme_light(base_size = 17)
+```
+
+
 ## Per Surveillance Category
 
 Type of ward:
 
 ```{r}
-patient_filter() %>%
+dta <- patient_filter() %>%
   group_by(ward, surveillance_cat) %>%
   summarise(patients = n()) %>%
   ungroup() %>%
@@ -136,27 +144,30 @@ patient_filter() %>%
   mutate(patients = replace_na(patients, 0)) %>%
   pivot_wider(names_from = surveillance_cat, values_from = patients) %>%
   
-  
   # add totals
   bind_rows(summarise_all(., ~ (if(is.numeric(.)) sum(.) else "Total"))) %>%
-  mutate(Total = rowSums(.[-1])) %>%
-  
-  # create table
-  flextable() %>%
+  mutate(Total = rowSums(.[-1]))
+
+# create table
+flextable(dta) %>%
   set_header_labels(ward = "") %>%
-  autofit()
+  autofit() %>%
+  bold(i = nrow(dta)) %>%
+  bold(j = ncol(dta)) %>%
+  bold(part = "header")
 ```
 
 </br>
 Age Category:
 
 ```{r}
-patient_filter() %>%
+dta <- patient_filter() %>%
   mutate(age_category = case_when(
-    age < 1 ~ "Less than 1",
-    age < 5 ~ "1 to  5",
-    TRUE ~ "Above 5")) %>%
-  mutate(age_category = factor(age_category, levels = c("Less than 1", "1 to  5", "Above 5"))) %>% 
+    age < 28 / 365 ~ "0-27 days",
+    age < 1 ~ "1 month to  1 year",
+    age < 5 ~ "1 to  5 years",
+    TRUE ~ "Above 5 years")) %>%
+  mutate(age_category = factor(age_category, levels = c("0-27 days", "1 month to  1 year", "1 to  5 years", "Above 5 years"))) %>%
   group_by(age_category, surveillance_cat) %>%
   summarise(patients = n()) %>%
   ungroup() %>%
@@ -167,12 +178,15 @@ patient_filter() %>%
   
   # add totals
   bind_rows(summarise_all(., ~ (if(is.numeric(.)) sum(.) else "Total"))) %>%
-  mutate(Total = rowSums(.[-1])) %>%
-  
-  # create table
-  flextable() %>%
+  mutate(Total = rowSums(.[-1]))
+
+# create table
+flextable(dta) %>%
   set_header_labels(age_category = "") %>%
-  autofit()
+  autofit() %>%
+  bold(i = nrow(dta)) %>%
+  bold(j = ncol(dta)) %>%
+  bold(part = "header")
 ```
 
 
@@ -180,7 +194,7 @@ patient_filter() %>%
 Suspected Diagnosis:
 
 ```{r}
-patient_filter() %>%
+dta <- patient_filter() %>%
   group_by(surveillance_diag, surveillance_cat) %>%
   summarise(patients = n()) %>%
   ungroup() %>%
@@ -190,19 +204,22 @@ patient_filter() %>%
   
   # add totals
   bind_rows(summarise_all(., ~ (if(is.numeric(.)) sum(.) else "Total"))) %>%
-  mutate(Total = rowSums(.[-1])) %>%
-  
-  # create table
-  flextable() %>%
+  mutate(Total = rowSums(.[-1]))
+
+# create table
+flextable(dta) %>%
   set_header_labels(surveillance_diag = "") %>%
-  autofit()
+  autofit() %>%
+  bold(i = nrow(dta)) %>%
+  bold(j = ncol(dta)) %>%
+  bold(part = "header")
 ```
 
 </br>
 Hospital Discharge Status:
 
 ```{r}
-patient_filter() %>%
+dta <- patient_filter() %>%
   group_by(discharge_status, surveillance_cat) %>%
   summarise(patients = n()) %>%
   ungroup() %>%
@@ -213,19 +230,22 @@ patient_filter() %>%
   # add totals
   bind_rows(summarise_all(., ~ (if(is.numeric(.)) sum(.) else "Total"))) %>%
   mutate(discharge_status = replace_na(discharge_status, "Unknown")) %>%
-  mutate(Total = rowSums(.[-1])) %>%
-  
-  # create table
-  flextable() %>%
+  mutate(Total = rowSums(.[-1]))
+
+# create table
+flextable(dta) %>%
   set_header_labels(discharge_status = "") %>%
-  autofit()
+  autofit() %>%
+  bold(i = nrow(dta)) %>%
+  bold(j = ncol(dta)) %>%
+  bold(part = "header")
 ```
 
 </br>
 Day 28 Status:
 
 ```{r}
-patient_filter() %>%
+dta <- patient_filter() %>%
   group_by(status_d28, surveillance_cat) %>%
   summarise(patients = n()) %>%
   ungroup() %>%
@@ -236,12 +256,15 @@ patient_filter() %>%
   # add totals
   bind_rows(summarise_all(., ~ (if(is.numeric(.)) sum(.) else "Total"))) %>%
   mutate(status_d28 = replace_na(status_d28, "Unknown")) %>%
-  mutate(Total = rowSums(.[-1])) %>%
-  
-  # create table
-  flextable() %>%
+  mutate(Total = rowSums(.[-1]))
+
+# create table
+flextable(dta) %>%
   set_header_labels(status_d28 = "") %>%
-  autofit()
+  autofit() %>%
+  bold(i = nrow(dta)) %>%
+  bold(j = ncol(dta)) %>%
+  bold(part = "header")
 ```
 
 
@@ -251,7 +274,7 @@ patient_filter() %>%
 Type of ward:
 
 ```{r}
-patient_filter() %>%
+dta <- patient_filter() %>%
   group_by(ward, surveillance_diag) %>%
   summarise(patients = n()) %>%
   ungroup() %>%
@@ -262,25 +285,28 @@ patient_filter() %>%
   
   # add totals
   bind_rows(summarise_all(., ~ (if(is.numeric(.)) sum(.) else "Total"))) %>%
-  mutate(Total = rowSums(.[-1])) %>%
-  
-  # create table
-  flextable() %>%
+  mutate(Total = rowSums(.[-1]))
+
+# create table
+flextable(dta) %>%
   set_header_labels(ward = "") %>%
-  autofit()
+  autofit() %>%
+  bold(i = nrow(dta)) %>%
+  bold(j = ncol(dta)) %>%
+  bold(part = "header")
 ```
 
 </br>
 Age Category:
 
 ```{r}
-patient_filter() %>%
+dta <- patient_filter() %>%
   mutate(age_category = case_when(
     age < 28 / 365 ~ "0-27 days",
     age < 1 ~ "1 month to  1 year",
     age < 5 ~ "1 to  5 years",
     TRUE ~ "Above 5 years")) %>%
-  mutate(age_category = factor(age_category, levels = c("Less than 1", "1 to  5", "Above 5"))) %>% 
+  mutate(age_category = factor(age_category, levels = c("0-27 days", "1 month to  1 year", "1 to  5 years", "Above 5 years"))) %>% 
   group_by(age_category, surveillance_diag) %>%
   summarise(patients = n()) %>%
   ungroup() %>%
@@ -291,43 +317,22 @@ patient_filter() %>%
   
   # add totals
   bind_rows(summarise_all(., ~ (if(is.numeric(.)) sum(.) else "Total"))) %>%
-  mutate(Total = rowSums(.[-1])) %>%
-  
-  # create table
-  flextable() %>%
+  mutate(Total = rowSums(.[-1]))
+
+# create table
+flextable(dta) %>%
   set_header_labels(age_category = "") %>%
-  autofit()
-```
-
-</br>
-Hospital Outcome:
-
-```{r}
-patient_filter() %>%
-  mutate(clinical_outcome = as.character(clinical_outcome)) %>%
-  mutate(clinical_outcome = recode(clinical_outcome, "TRUE" = "Hospital Outcome", "FALSE" = "No Hospital Outcome")) %>%
-  group_by(clinical_outcome, surveillance_diag) %>%
-  summarise(patients = n()) %>%
-  ungroup() %>%
-  complete(surveillance_diag, clinical_outcome) %>%
-  mutate(patients = replace_na(patients, 0)) %>%
-  pivot_wider(names_from = surveillance_diag, values_from = patients) %>%
-  
-  # add totals
-  bind_rows(summarise_all(., ~ (if(is.numeric(.)) sum(.) else "Total"))) %>%
-  mutate(Total = rowSums(.[-1])) %>%
-  
-  # create table
-  flextable() %>%
-  set_header_labels(clinical_outcome = "") %>%
-  autofit()
+  autofit() %>%
+  bold(i = nrow(dta)) %>%
+  bold(j = ncol(dta)) %>%
+  bold(part = "header")
 ```
 
 </br>
 Hospital Discharge Status:
 
 ```{r}
-patient_filter() %>%
+dta <- patient_filter() %>%
   group_by(discharge_status, surveillance_diag) %>%
   summarise(patients = n()) %>%
   ungroup() %>%
@@ -338,43 +343,23 @@ patient_filter() %>%
   # add totals
   bind_rows(summarise_all(., ~ (if(is.numeric(.)) sum(.) else "Total"))) %>%
   mutate(discharge_status = replace_na(discharge_status, "Unknown")) %>%
-  mutate(Total = rowSums(.[-1])) %>%
-  
-  # create table
-  flextable() %>%
+  mutate(Total = rowSums(.[-1]))
+
+# create table
+flextable(dta) %>%
   set_header_labels(discharge_status = "") %>%
-  autofit()
+  autofit() %>%
+  bold(i = nrow(dta)) %>%
+  bold(j = ncol(dta)) %>%
+  bold(part = "header")
 ```
 
-</br>
-Day 28 Outcome:
-
-```{r}
-patient_filter() %>%
-  mutate(d28_outcome = as.character(d28_outcome)) %>%
-  mutate(d28_outcome = recode(d28_outcome, "TRUE" = "Day 28 Outcome", "FALSE" = "No Day 28 Outcome")) %>%
-  group_by(d28_outcome, surveillance_diag) %>%
-  summarise(patients = n()) %>%
-  ungroup() %>%
-  complete(surveillance_diag, d28_outcome) %>%
-  mutate(patients = replace_na(patients, 0)) %>%
-  pivot_wider(names_from = surveillance_diag, values_from = patients) %>%
-  
-  # add totals
-  bind_rows(summarise_all(., ~ (if(is.numeric(.)) sum(.) else "Total"))) %>%
-  mutate(Total = rowSums(.[-1])) %>%
-  
-  # create table
-  flextable() %>%
-  set_header_labels(d28_outcome = "") %>%
-  autofit()
-```
 
 </br>
 Day 28 Status:
 
 ```{r}
-patient_filter() %>%
+dta <- patient_filter() %>%
   group_by(status_d28, surveillance_diag) %>%
   summarise(patients = n()) %>%
   ungroup() %>%
@@ -385,12 +370,15 @@ patient_filter() %>%
   # add totals
   bind_rows(summarise_all(., ~ (if(is.numeric(.)) sum(.) else "Total"))) %>%
   mutate(status_d28 = replace_na(status_d28, "Unknown")) %>%
-  mutate(Total = rowSums(.[-1])) %>%
-  
-  # create table
-  flextable() %>%
+  mutate(Total = rowSums(.[-1]))
+
+# create table
+flextable(dta) %>%
   set_header_labels(status_d28 = "") %>%
-  autofit()
+  autofit() %>%
+  bold(i = nrow(dta)) %>%
+  bold(j = ncol(dta)) %>%
+  bold(part = "header")
 ```
 
 
@@ -406,7 +394,7 @@ microbio2 <- left_join(microbio_filter() %>%
                          mutate(episode_id = as.character(episode_id)),
                        by = 'episode_id')
 
-left_join(
+dta <- left_join(
   microbio2 %>%
     filter(specimen_type == "Blood") %>%
     group_by(surveillance_cat, surveillance_diag) %>%
@@ -415,83 +403,33 @@ left_join(
     group_by(surveillance_cat, surveillance_diag) %>%
     summarise(all = n_distinct(episode_id)),  # Number of episodes per Category / Diagnosis
   by = c("surveillance_cat", "surveillance_diag")) %>%
-  mutate(percent = round(100 * blood/all, 1)) %>%
-  
-  flextable() %>%
-  set_header_labels(surveillance_cat = "", surveillance_diag = "", blood = "Enrolments with Blood Culture", all = "Total Enrolments", percent = "% Blood Culture") 
+  mutate(percent = round(100 * blood/all, 1))
+
+flextable(dta) %>%
+  set_header_labels(surveillance_cat = "", surveillance_diag = "", blood = "Enrolments with Blood Culture", all = "Total Enrolments", percent = "% Blood Culture")  %>%
+  bold(i = nrow(dta)) %>%
+  bold(j = ncol(dta)) %>%
+  bold(part = "header")
 ```
-
-
-## Enrolments with Key Pathogens
-
-The six key pathogens are Acinetobacter baumannii, Escherichia coli, Klebsiella pneumoniae, Staphylococcus aureus, Streptococcus pneumoniae, and Salmonella sp.
-
-Per 1,000 Enrolments
-
-```{r}
-# microbio_filter <- function() return(microbio)
-# patient_filter <- function() return(patient)
-
-# Add surveillance category, surveillance diagnosis to microbio
-microbio2 <- left_join(microbio_filter() %>%
-                         mutate(episode_id = as.character(episode_id)), 
-                       patient_filter() %>% select(surveillance_cat, surveillance_diag, episode_id) %>% 
-                         mutate(episode_id = as.character(episode_id)),
-                       by = 'episode_id')
-
-left_join(
-  microbio2 %>%
-    filter(organism %in% c("Acinetobacter baumannii", "Escherichia coli", "Klebsiella pneumoniae",
-                           "Staphylococcus aureus", "Streptococcus pneumoniae", "Salmonella sp")) %>%
-    group_by(surveillance_cat, surveillance_diag) %>%
-    summarise(episode = n_distinct(episode_id)),
-  patient_filter() %>%
-    group_by(surveillance_cat, surveillance_diag) %>%
-    summarise(all = n_distinct(episode_id)),
-  by = c("surveillance_cat", "surveillance_diag")) %>%
-  mutate(per1000 = round(1000 * episode/all, 1)) %>%
-  
-  flextable() %>%
-  set_header_labels(surveillance_cat = "", surveillance_diag = "", episode = "Enrolments with key pathogens", all = "Total Enrolments", per1000 = "per 1,000")
-```
-
-Per 1,000 blood cultures
-
-```{r}
-left_join(
-  microbio2 %>%
-    filter(organism %in% c("Acinetobacter baumannii", "Escherichia coli", "Klebsiella pneumoniae",
-                           "Staphylococcus aureus", "Streptococcus pneumoniae", "Salmonella sp")) %>%
-    filter(specimen_type == "Blood") %>%
-    group_by(surveillance_cat, surveillance_diag) %>%
-    summarise(episode = n_distinct(episode_id)),
-  patient_filter() %>%
-    group_by(surveillance_cat, surveillance_diag) %>%
-    summarise(all = n_distinct(episode_id)),
-  by = c("surveillance_cat", "surveillance_diag")) %>%
-  mutate(per1000 = round(1000 * episode/all, 1)) %>%
-  
-  flextable() %>%
-  set_header_labels(surveillance_cat = "", surveillance_diag = "", episode = "Enrolments with key pathogens with blood culture", all = "Total Enrolments", per1000 = "per 1,000") 
-```
-
 
 # Key Pathogens
+
+The six key pathogens are Acinetobacter baumannii, Escherichia coli, Klebsiella pneumoniae, Staphylococcus aureus, Streptococcus pneumoniae, and Salmonella sp.
 
 In the following figures, the "Susceptible" and "Intermediate" categories are merged into one category labelled "Susceptible", following EUCAST new definitions of S, I and R from 2019 (http://www.eucast.org/newsiandr/).
 
 ```{r}
-cols_sir <- c("Resistant" = "#b2182b", "Susceptible" = "#2166ac")
+cols_sir <- c("Resistant" = "#b2182b", "Susceptible" = NA)
 
 ggplot_sir <- function(mic = microbio_filter(), pat = patient_filter(), corresp = corresp_org_antibio(), organism_input, matching_name_column, title, surv_cat) {
   
   # mic = microbio
   # pat = patient
   # corresp = corresp_org_antibio
-  # organism_input = "Streptococcus pneumoniae"
-  # matching_name_column = "s_pneumoniae"
+  # organism_input = "Escherichia coli"
+  # matching_name_column = "e_coli"
   # title = "All Patients"
-  # surv_cat = "HAI"
+  # surv_cat = "CAI"
   
   data <- left_join(
     mic,
@@ -509,18 +447,24 @@ ggplot_sir <- function(mic = microbio_filter(), pat = patient_filter(), corresp 
     filter(value %in% c("S", "I", "R")) %>%
     mutate(value = recode(value, S = "Susceptible", I = "Susceptible", R = "Resistant")) %>%
     group_by(name) %>%
-    count(value)
+    count(value) %>%
+    ungroup()
   
   total_tested <- data %>%
     group_by(name) %>%
-    summarise(total_org = sum(n))
+    summarise(total_org = sum(n)) %>%
+    ungroup()
   
   sir_results <- data %>%
     left_join(total_tested, by = "name") %>%
     mutate(percent = round(100*n / total_org, 1))
   
   sir_results <- left_join(sir_results, corresp, by = c('name' = 'antibio_code')) %>%
-    filter(UQ(as.symbol(matching_name_column)) == "show")
+    filter(UQ(as.symbol(matching_name_column)) == "show") %>%
+    mutate(antibio = paste0(antibio_group, ", ", antibio_name)) %>%
+    select(antibio, value, percent) %>%
+    complete(antibio, value, fill = list(percent = 0)) %>%
+    mutate(value  = factor(value, levels = c("Resistant", "Susceptible")))
   
   if(sir_results %>% nrow() == 0) return(
     ggplot() + 
@@ -529,23 +473,23 @@ ggplot_sir <- function(mic = microbio_filter(), pat = patient_filter(), corresp 
             panel.grid.major.x = element_blank(),
             axis.text.x = element_text(angle = 30, hjust = 1, vjust = 1),
             plot.title = element_text(size = 20),
-            legend.position = "top") +
+            legend.position = "none") +
       labs(title = paste0(title, ": No data to display"), y = NULL, x = NULL))
   
   return(
-    ggplot(sir_results, aes(x = antibio_name, y = percent, fill = value)) +
-      geom_bar(stat = "identity", color = "gray10") +
-      labs(x = NULL, y = "Antibio", fill = "Status") +
+    ggplot(sir_results, aes(x = reorder(antibio, desc(antibio)), y = percent, fill = value)) +
+      geom_col(color = NA, position = position_stack(reverse = TRUE)) +
+      labs(x = NULL, y = "Antibio") +
       scale_fill_manual(values = cols_sir) +
+      coord_flip(ylim = c(0, 100)) +
       theme_minimal(base_size = 18) +
       theme(panel.spacing = unit(2, "lines"), panel.grid.minor = element_blank(),
-            panel.grid.major.x = element_blank(),
-            axis.text.x = element_text(angle = 30, hjust = 1, vjust = 1),
+            panel.grid.major.y = element_blank(),
             plot.title = element_text(size = 20),
-            legend.position = "top") +
-      labs(title = paste0(title, ": ", nb_isolates, " isolates"), y = "%", x = NULL) +
+            legend.position = "none") +
+      labs(title = paste0(title, ": ", nb_isolates, " isolates"), y = "% of Resistant Isolates", x = NULL, fill = NULL) +
       scale_x_discrete()
-    )
+  )
 }
 ```
 
@@ -554,7 +498,7 @@ ggplot_sir <- function(mic = microbio_filter(), pat = patient_filter(), corresp 
 
 ## Acinetobacter baumannii
 
-```{r dpi = 200, fig.width = 14, fig.height = 12}
+```{r dpi = 200, fig.width = 12, fig.height = 17}
 org <- "Acinetobacter baumannii"
 match <- "a_baumannii"
 
@@ -564,16 +508,68 @@ g2 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Co
 
 g3 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Hospital Acquired Infections", surv_cat = "HAI")
 
-t <- textGrob(paste0(org, "\n",
-                     "Total of ", microbio_filter() %>% filter(organism == org) %>% nrow(), " isolates."),
-              gp = gpar(fontsize = 22))
-
-grid.arrange(t, g1, g2, g3, ncol = 2)
+grid.arrange(g1, g2, g3, ncol = 1)
 ```
+
+</br>
+
+**Acinetobacter baumannii (cont.)**
+
+Per 1,000 Enrolments
+
+```{r}
+# Add surveillance category, surveillance diagnosis to microbio
+microbio2 <- left_join(microbio_filter() %>%
+                         mutate(episode_id = as.character(episode_id)), 
+                       patient_filter() %>% select(surveillance_cat, surveillance_diag, episode_id) %>% 
+                         mutate(episode_id = as.character(episode_id)),
+                       by = 'episode_id')
+
+dta <- left_join(
+  microbio2 %>%
+    filter(organism == org) %>%
+    group_by(surveillance_cat, surveillance_diag) %>%
+    summarise(episode = n_distinct(episode_id)),
+  patient_filter() %>%
+    group_by(surveillance_cat, surveillance_diag) %>%
+    summarise(all = n_distinct(episode_id)),
+  by = c("surveillance_cat", "surveillance_diag")) %>%
+  mutate(per1000 = round(1000 * episode/all, 1))
+
+flextable(dta) %>%
+  set_header_labels(surveillance_cat = "", surveillance_diag = "", episode = "Enrolments", all = "Total Enrolments", per1000 = "per 1,000") %>%
+  bold(i = nrow(dta)) %>%
+  bold(j = ncol(dta)) %>%
+  bold(part = "header")
+```
+
+Per 1,000 blood cultures
+
+```{r}
+dta <- left_join(
+  microbio2 %>%
+    filter(organism == org) %>%
+    filter(specimen_type == "Blood") %>%
+    group_by(surveillance_cat, surveillance_diag) %>%
+    summarise(episode = n_distinct(episode_id)),
+  patient_filter() %>%
+    group_by(surveillance_cat, surveillance_diag) %>%
+    summarise(all = n_distinct(episode_id)),
+  by = c("surveillance_cat", "surveillance_diag")) %>%
+  mutate(per1000 = round(1000 * episode/all, 1))
+
+flextable(dta) %>%
+  set_header_labels(surveillance_cat = "", surveillance_diag = "", episode = "Enrolments with blood culture", all = "Total Enrolments", per1000 = "per 1,000") %>%
+  bold(i = nrow(dta)) %>%
+  bold(j = ncol(dta)) %>%
+  bold(part = "header")
+```
+
+</br>
 
 ## Escherichia coli
 
-```{r dpi = 200, fig.width = 14, fig.height = 12}
+```{r dpi = 200, fig.width = 12, fig.height = 17}
 org <- "Escherichia coli"
 match <- "e_coli"
 
@@ -583,16 +579,68 @@ g2 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Co
 
 g3 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Hospital Acquired Infections", surv_cat = "HAI")
 
-t <- textGrob(paste0(org, "\n",
-                     "Total of ", microbio_filter() %>% filter(organism == org) %>% nrow(), " isolates."),
-              gp = gpar(fontsize = 22))
-
-grid.arrange(t, g1, g2, g3, ncol = 2)
+grid.arrange(g1, g2, g3, ncol = 1)
 ```
+
+</br>
+
+**Escherichia coli (cont.)**
+
+Per 1,000 Enrolments
+
+```{r}
+# Add surveillance category, surveillance diagnosis to microbio
+microbio2 <- left_join(microbio_filter() %>%
+                         mutate(episode_id = as.character(episode_id)), 
+                       patient_filter() %>% select(surveillance_cat, surveillance_diag, episode_id) %>% 
+                         mutate(episode_id = as.character(episode_id)),
+                       by = 'episode_id')
+
+dta <- left_join(
+  microbio2 %>%
+    filter(organism == org) %>%
+    group_by(surveillance_cat, surveillance_diag) %>%
+    summarise(episode = n_distinct(episode_id)),
+  patient_filter() %>%
+    group_by(surveillance_cat, surveillance_diag) %>%
+    summarise(all = n_distinct(episode_id)),
+  by = c("surveillance_cat", "surveillance_diag")) %>%
+  mutate(per1000 = round(1000 * episode/all, 1))
+
+flextable(dta) %>%
+  set_header_labels(surveillance_cat = "", surveillance_diag = "", episode = "Enrolments", all = "Total Enrolments", per1000 = "per 1,000") %>%
+  bold(i = nrow(dta)) %>%
+  bold(j = ncol(dta)) %>%
+  bold(part = "header")
+```
+
+Per 1,000 blood cultures
+
+```{r}
+dta <- left_join(
+  microbio2 %>%
+    filter(organism == org) %>%
+    filter(specimen_type == "Blood") %>%
+    group_by(surveillance_cat, surveillance_diag) %>%
+    summarise(episode = n_distinct(episode_id)),
+  patient_filter() %>%
+    group_by(surveillance_cat, surveillance_diag) %>%
+    summarise(all = n_distinct(episode_id)),
+  by = c("surveillance_cat", "surveillance_diag")) %>%
+  mutate(per1000 = round(1000 * episode/all, 1))
+
+flextable(dta) %>%
+  set_header_labels(surveillance_cat = "", surveillance_diag = "", episode = "Enrolments with blood culture", all = "Total Enrolments", per1000 = "per 1,000") %>%
+  bold(i = nrow(dta)) %>%
+  bold(j = ncol(dta)) %>%
+  bold(part = "header")
+```
+
+</br>
 
 ## Klebsiella pneumoniae
 
-```{r dpi = 200, fig.width = 14, fig.height = 12}
+```{r dpi = 200, fig.width = 12, fig.height = 17}
 org <- "Klebsiella pneumoniae"
 match <- "k_pneumoniae"
 
@@ -602,16 +650,68 @@ g2 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Co
 
 g3 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Hospital Acquired Infections", surv_cat = "HAI")
 
-t <- textGrob(paste0(org, "\n",
-                     "Total of ", microbio_filter() %>% filter(organism == org) %>% nrow(), " isolates."),
-              gp = gpar(fontsize = 22))
-
-grid.arrange(t, g1, g2, g3, ncol = 2)
+grid.arrange(g1, g2, g3, ncol = 1)
 ```
+
+</br>
+
+**Klebsiella pneumoniae (cont.)**
+
+Per 1,000 Enrolments
+
+```{r}
+# Add surveillance category, surveillance diagnosis to microbio
+microbio2 <- left_join(microbio_filter() %>%
+                         mutate(episode_id = as.character(episode_id)), 
+                       patient_filter() %>% select(surveillance_cat, surveillance_diag, episode_id) %>% 
+                         mutate(episode_id = as.character(episode_id)),
+                       by = 'episode_id')
+
+dta <- left_join(
+  microbio2 %>%
+    filter(organism == org) %>%
+    group_by(surveillance_cat, surveillance_diag) %>%
+    summarise(episode = n_distinct(episode_id)),
+  patient_filter() %>%
+    group_by(surveillance_cat, surveillance_diag) %>%
+    summarise(all = n_distinct(episode_id)),
+  by = c("surveillance_cat", "surveillance_diag")) %>%
+  mutate(per1000 = round(1000 * episode/all, 1))
+
+flextable(dta) %>%
+  set_header_labels(surveillance_cat = "", surveillance_diag = "", episode = "Enrolments", all = "Total Enrolments", per1000 = "per 1,000") %>%
+  bold(i = nrow(dta)) %>%
+  bold(j = ncol(dta)) %>%
+  bold(part = "header")
+```
+
+Per 1,000 blood cultures
+
+```{r}
+dta <- left_join(
+  microbio2 %>%
+    filter(organism == org) %>%
+    filter(specimen_type == "Blood") %>%
+    group_by(surveillance_cat, surveillance_diag) %>%
+    summarise(episode = n_distinct(episode_id)),
+  patient_filter() %>%
+    group_by(surveillance_cat, surveillance_diag) %>%
+    summarise(all = n_distinct(episode_id)),
+  by = c("surveillance_cat", "surveillance_diag")) %>%
+  mutate(per1000 = round(1000 * episode/all, 1))
+
+flextable(dta) %>%
+  set_header_labels(surveillance_cat = "", surveillance_diag = "", episode = "Enrolments with blood culture", all = "Total Enrolments", per1000 = "per 1,000") %>%
+  bold(i = nrow(dta)) %>%
+  bold(j = ncol(dta)) %>%
+  bold(part = "header")
+```
+
+</br>
 
 ## Staphylococcus aureus
 
-```{r dpi = 200, fig.width = 14, fig.height = 12}
+```{r dpi = 200, fig.width = 12, fig.height = 17}
 org <- "Staphylococcus aureus"
 match <- "s_aureus"
 
@@ -621,16 +721,68 @@ g2 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Co
 
 g3 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Hospital Acquired Infections", surv_cat = "HAI")
 
-t <- textGrob(paste0(org, "\n",
-                     "Total of ", microbio_filter() %>% filter(organism == org) %>% nrow(), " isolates."),
-              gp = gpar(fontsize = 22))
-
-grid.arrange(t, g1, g2, g3, ncol = 2)
+grid.arrange(g1, g2, g3, ncol = 1)
 ```
+
+</br>
+
+**Staphylococcus aureus (cont.)**
+
+Per 1,000 Enrolments
+
+```{r}
+# Add surveillance category, surveillance diagnosis to microbio
+microbio2 <- left_join(microbio_filter() %>%
+                         mutate(episode_id = as.character(episode_id)), 
+                       patient_filter() %>% select(surveillance_cat, surveillance_diag, episode_id) %>% 
+                         mutate(episode_id = as.character(episode_id)),
+                       by = 'episode_id')
+
+dta <- left_join(
+  microbio2 %>%
+    filter(organism == org) %>%
+    group_by(surveillance_cat, surveillance_diag) %>%
+    summarise(episode = n_distinct(episode_id)),
+  patient_filter() %>%
+    group_by(surveillance_cat, surveillance_diag) %>%
+    summarise(all = n_distinct(episode_id)),
+  by = c("surveillance_cat", "surveillance_diag")) %>%
+  mutate(per1000 = round(1000 * episode/all, 1))
+
+flextable(dta) %>%
+  set_header_labels(surveillance_cat = "", surveillance_diag = "", episode = "Enrolments", all = "Total Enrolments", per1000 = "per 1,000") %>%
+  bold(i = nrow(dta)) %>%
+  bold(j = ncol(dta)) %>%
+  bold(part = "header")
+```
+
+Per 1,000 blood cultures
+
+```{r}
+dta <- left_join(
+  microbio2 %>%
+    filter(organism == org) %>%
+    filter(specimen_type == "Blood") %>%
+    group_by(surveillance_cat, surveillance_diag) %>%
+    summarise(episode = n_distinct(episode_id)),
+  patient_filter() %>%
+    group_by(surveillance_cat, surveillance_diag) %>%
+    summarise(all = n_distinct(episode_id)),
+  by = c("surveillance_cat", "surveillance_diag")) %>%
+  mutate(per1000 = round(1000 * episode/all, 1))
+
+flextable(dta) %>%
+  set_header_labels(surveillance_cat = "", surveillance_diag = "", episode = "Enrolments with blood culture", all = "Total Enrolments", per1000 = "per 1,000") %>%
+  bold(i = nrow(dta)) %>%
+  bold(j = ncol(dta)) %>%
+  bold(part = "header")
+```
+
+</br>
 
 ## Streptococcus pneumoniae
 
-```{r dpi = 200, fig.width = 14, fig.height = 12}
+```{r dpi = 200, fig.width = 12, fig.height = 17}
 org <- "Streptococcus pneumoniae"
 match <- "s_pneumoniae"
 
@@ -640,18 +792,69 @@ g2 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Co
 
 g3 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Hospital Acquired Infections", surv_cat = "HAI")
 
-t <- textGrob(paste0(org, "\n",
-                     "Total of ", microbio_filter() %>% filter(organism == org) %>% nrow(), " isolates."),
-              gp = gpar(fontsize = 22))
-
-grid.arrange(t, g1, g2, g3, ncol = 2)
+grid.arrange(g1, g2, g3, ncol = 1)
 ```
 
-## Salmonella sp 
+</br>
 
+**Streptococcus pneumoniae (cont.)**
+
+Per 1,000 Enrolments
+
+```{r}
+# Add surveillance category, surveillance diagnosis to microbio
+microbio2 <- left_join(microbio_filter() %>%
+                         mutate(episode_id = as.character(episode_id)), 
+                       patient_filter() %>% select(surveillance_cat, surveillance_diag, episode_id) %>% 
+                         mutate(episode_id = as.character(episode_id)),
+                       by = 'episode_id')
+
+dta <- left_join(
+  microbio2 %>%
+    filter(organism == org) %>%
+    group_by(surveillance_cat, surveillance_diag) %>%
+    summarise(episode = n_distinct(episode_id)),
+  patient_filter() %>%
+    group_by(surveillance_cat, surveillance_diag) %>%
+    summarise(all = n_distinct(episode_id)),
+  by = c("surveillance_cat", "surveillance_diag")) %>%
+  mutate(per1000 = round(1000 * episode/all, 1))
+
+flextable(dta) %>%
+  set_header_labels(surveillance_cat = "", surveillance_diag = "", episode = "Enrolments", all = "Total Enrolments", per1000 = "per 1,000") %>%
+  bold(i = nrow(dta)) %>%
+  bold(j = ncol(dta)) %>%
+  bold(part = "header")
+```
+
+Per 1,000 blood cultures
+
+```{r}
+dta <- left_join(
+  microbio2 %>%
+    filter(organism == org) %>%
+    filter(specimen_type == "Blood") %>%
+    group_by(surveillance_cat, surveillance_diag) %>%
+    summarise(episode = n_distinct(episode_id)),
+  patient_filter() %>%
+    group_by(surveillance_cat, surveillance_diag) %>%
+    summarise(all = n_distinct(episode_id)),
+  by = c("surveillance_cat", "surveillance_diag")) %>%
+  mutate(per1000 = round(1000 * episode/all, 1))
+
+flextable(dta) %>%
+  set_header_labels(surveillance_cat = "", surveillance_diag = "", episode = "Enrolments with blood culture", all = "Total Enrolments", per1000 = "per 1,000") %>%
+  bold(i = nrow(dta)) %>%
+  bold(j = ncol(dta)) %>%
+  bold(part = "header")
+```
+
+</br>
+
+## Salmonella sp 
 (not S. typhi or S. paratyphi)
 
-```{r dpi = 200, fig.width = 14, fig.height = 12}
+```{r dpi = 200, fig.width = 12, fig.height = 17}
 vec <- unique(microbio_filter()$organism)
 org <- vec[str_detect(vec, "Salmonella") & vec != "Salmonella typhi" & vec != "Salmonella paratyphi"]
 
@@ -663,9 +866,62 @@ g2 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Co
 
 g3 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Hospital Acquired Infections", surv_cat = "HAI")
 
-t <- textGrob(paste0(org, "\n",
-                     "Total of ", microbio_filter() %>% filter(organism == org) %>% nrow(), " isolates."),
-              gp = gpar(fontsize = 22))
-
-grid.arrange(t, g1, g2, g3, ncol = 2)
+grid.arrange(g1, g2, g3, ncol = 1)
 ```
+
+
+</br>
+
+**Salmonella sp (cont.)**
+
+Per 1,000 Enrolments
+
+```{r}
+# Add surveillance category, surveillance diagnosis to microbio
+microbio2 <- left_join(microbio_filter() %>%
+                         mutate(episode_id = as.character(episode_id)), 
+                       patient_filter() %>% select(surveillance_cat, surveillance_diag, episode_id) %>% 
+                         mutate(episode_id = as.character(episode_id)),
+                       by = 'episode_id')
+
+dta <- left_join(
+  microbio2 %>%
+    filter(organism == org) %>%
+    group_by(surveillance_cat, surveillance_diag) %>%
+    summarise(episode = n_distinct(episode_id)),
+  patient_filter() %>%
+    group_by(surveillance_cat, surveillance_diag) %>%
+    summarise(all = n_distinct(episode_id)),
+  by = c("surveillance_cat", "surveillance_diag")) %>%
+  mutate(per1000 = round(1000 * episode/all, 1))
+
+flextable(dta) %>%
+  set_header_labels(surveillance_cat = "", surveillance_diag = "", episode = "Enrolments", all = "Total Enrolments", per1000 = "per 1,000") %>%
+  bold(i = nrow(dta)) %>%
+  bold(j = ncol(dta)) %>%
+  bold(part = "header")
+```
+
+Per 1,000 blood cultures
+
+```{r}
+dta <- left_join(
+  microbio2 %>%
+    filter(organism == org) %>%
+    filter(specimen_type == "Blood") %>%
+    group_by(surveillance_cat, surveillance_diag) %>%
+    summarise(episode = n_distinct(episode_id)),
+  patient_filter() %>%
+    group_by(surveillance_cat, surveillance_diag) %>%
+    summarise(all = n_distinct(episode_id)),
+  by = c("surveillance_cat", "surveillance_diag")) %>%
+  mutate(per1000 = round(1000 * episode/all, 1))
+
+flextable(dta) %>%
+  set_header_labels(surveillance_cat = "", surveillance_diag = "", episode = "Enrolments with blood culture", all = "Total Enrolments", per1000 = "per 1,000") %>%
+  bold(i = nrow(dta)) %>%
+  bold(j = ncol(dta)) %>%
+  bold(part = "header")
+```
+
+</br>

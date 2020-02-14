@@ -71,7 +71,7 @@ ui <- fluidPage(
                             div(id = "floatingleft",
                                 uiOutput('hospital_image'), 
                                 uiOutput('data_info'),
-                                downloadLink("report", label = span(icon("file-downlad"), "Generate Report (.docx)")),
+                                downloadLink("report", label = span(icon("file-word"), "Generate Report (.docx)")),
                                 blur_in(duration = "slow", htmlOutput("feedback_filters"))
                             ),
                             
@@ -303,7 +303,7 @@ ui <- fluidPage(
                                    br(),
                                    htmlOutput("bed_occupancy_ward_title"),
                                    p("Use filters to narrow by date range, type of ward or ward."),
-                                   highchartOutput("bed_occupancy_ward", width = "80%") %>% withSpinner()
+                                   plotOutput("bed_occupancy_ward", width = "80%") %>% withSpinner()
                                ),
                                plotOutput("hai_rate_ward", width = "80%") %>% withSpinner()
                       ),
@@ -763,7 +763,7 @@ server <- function(input, output, session) {
   # output$test_data <- reactive({ifelse(data_provided(), TRUE, FALSE)})
   # outputOptions(output, "test_data", suspendWhenHidden = FALSE)
   
-  # pdf Report
+  # Generated Report
   feedback_download <- reactiveValues(download_flag = 0)
   
   output$report <- downloadHandler(
@@ -773,8 +773,12 @@ server <- function(input, output, session) {
       if(feedback_download$download_flag > 0) {
         showNotification(HTML("Generation of the report typically takes 5 to 30 seconds"), duration = NULL, type = "message", id = "report_generation", session = session)
       }
+      
       tempReport <- file.path(tempdir(), "report.Rmd")
+      tempLogo <- file.path(tempdir(), "img_ACORN_logo.png")
       file.copy("./www/report/report.Rmd", tempReport, overwrite = TRUE)
+      file.copy("./www/img_ACORN_logo.png", tempLogo, overwrite = TRUE)
+      
       rmarkdown::render(tempReport, output_file = file)
       removeNotification(id = "report_generation", session = session)
       showNotification(HTML("Report Generated"), duration = 4, type = "message", id = "report_generated", session = session)

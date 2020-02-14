@@ -4,18 +4,23 @@ output$hai_rate_ward <- renderPlot({
   
   dta <- left_join(
     hai_surveys_filter() %>%
+    # hai.surveys %>%
       mutate(beds = as.numeric(beds),
              patients = as.numeric(patients)) %>%
       mutate(occupancy = round(100*patients / beds)) %>%
       select(-ward) %>%
       rename(date_enrollment = date_survey, ward = ward_type) %>%
       group_by(date_enrollment, ward) %>%
-      summarise(total_patients = sum(patients)),
+      summarise(total_patients = sum(patients)) %>%
+      ungroup() %>%
+      complete(ward, date_enrollment, fill = list(total_patients = 9999999999)),
     patient() %>%
+    # patient %>%
       filter(surveillance_cat == "HAI") %>%
       group_by(date_enrollment, ward) %>%
       summarise(hai_patients = n()) %>%
-      ungroup(),
+      ungroup() %>%
+      complete(ward, date_enrollment, fill = list(hai_patients = 0)),
     by = c("date_enrollment", "ward")) %>%
     mutate(infection_rate = round(100*hai_patients/total_patients, 1))
   
