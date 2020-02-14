@@ -50,7 +50,7 @@ output$profile_diagnosis_pneumonia <- renderHighchart({
   req(patient_filter())
   req(nrow(patient_filter() %>% filter(surveillance_diag == "Pneumonia")) > 0)
   
-  pf_patient_id <- microbio() %>% filter(specimen_type == "Pleural fluid") %>% pull(patient_id)
+  pf_patient_id <- microbio() %>% filter(specimen_type == "Lower respiratory tract specimen") %>% pull(patient_id)
   
   patient_filter() %>%
     filter(surveillance_diag == "Pneumonia") %>%
@@ -63,6 +63,6 @@ output$profile_diagnosis_pneumonia <- renderHighchart({
     hc_colors("#33a02c") %>%
     hc_yAxis(title = "") %>%
     hc_xAxis(title = "") %>%
-    hc_title(text = "Pneumonia patients with a sputum (specimen type is pleural fluid)", style = list(fontSize = "11px")) %>%
+    hc_title(text = "Pneumonia patients with a sputum", style = list(fontSize = "11px")) %>%
     hc_tooltip(headerFormat = "", pointFormat = "{point.y} of {point.total} ({point.freq} %)")
 })

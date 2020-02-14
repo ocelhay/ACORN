@@ -15,16 +15,16 @@ generation_status$log <- c(generation_status$log,
                                   "KO, some dates of enrollments for HAI patients in the patient dataset do not have a matching date in the HAI survey dataset"))
 
 generation_status$log <- c(generation_status$log, 
-                           ifelse(length(setdiff(f02.sel$LINK, f01.sel$LINK)) == 0, 
+                           ifelse(length(unlinkable_elements_F02) == 0, 
                                   "All hospital outcome forms (F02) can be linked to a patient enrollment form (F01)",
                                   paste("The following hospital outcome forms (F02) can't be linked to a patient enrollment form (F01):",  
-                                        paste(setdiff(f02.sel$LINK, f01.sel$LINK), collapse = ", "))))
+                                        paste(unlinkable_elements_F02, collapse = ", "))))
 
 generation_status$log <- c(generation_status$log, 
-                           ifelse(length(setdiff(f02.sel$LINK, f01.sel$LINK)) == 0, 
+                           ifelse(length(unlinkable_elements_F03) == 0, 
                                   "All D28 follow up forms (F03)  can be linked to a patient enrollment form (F01)",
-                                  paste("The following D28 follow up forms can't be linked to a patient enrollment form:",  
-                                        paste(setdiff(f03.sel$LINK, f01.sel$LINK), collapse = ", "))))
+                                  paste("The following D28 follow up forms (F03) can’t be linked to a patient enrollment form (F01):",  
+                                        paste(unlinkable_elements_F03, collapse = ", "))))
 
 generation_status$log <- c(generation_status$log, 
                            ifelse(all(!is.na(microbio$patid)), "Okay, all patients ids are provided",

@@ -14,9 +14,22 @@ library(grid)
 library(gridExtra)
 ```
 
-Report generated the `r Sys.time()`.
+```{r}
+knitr::include_graphics("img_ACORN_logo.png")
+```
 
-This report is generated from the **filtered** patient and microbiology datasets in the ACORN App. Using different filter values, you can generate as many reports as required.
+![ACORN](img_ACORN_logo.png)
+
+
+ACORN (“A Clinically Oriented antimicrobial Resistance Network”) is intended to generate patient-focused and clinically actionable AMR surveillance data. Details of the ACORN project protocol can be found here: https://wellcomeopenresearch.org/articles/5-13.
+
+ACORN includes data on both community-acquired infections (CAI) and hospital-acquired infections (HAI). The six key ACORN pathogens are the WHO bloodstream infection priority pathogens Acinetobacter baumannii, Escherichia coli, Klebsiella pneumoniae, Staphylococcus aureus, Streptococcus pneumoniae, and Salmonella sp.
+
+This report contains a summary report of patients enrolled into ACORN, their clinical infection syndromes, associated pathogens and resistance profiles, and outcomes. Care should be taken when interpreting rates and AMR profiles where there are small numbers of cases or bacterial isolates: point estimates may be unreliable.”
+
+</hr>
+
+This report was generated the `r Sys.time()` from the **possibly filtered** patient and microbiology datasets in the ACORN App. Using different filter values, you can generate as many reports as required.
 
 ```{r eval = TRUE, echo=FALSE, results="asis"}
 add_text <- function(text)  paste0(feedback_text, br(), text)
@@ -95,10 +108,10 @@ return(HTML(feedback_text))
 ```
 
 ```{r}
-if(length(input$filter_method_collection) == 2)  feedback_text <- paste0("All methods of collection for specimens. ")
+if(length(input$filter_method_collection) == 2)  feedback_text <- paste0("All specimen types. ")
 if(length(input$filter_method_collection) == 1) {
   if(input$filter_method_collection == "blood") feedback_text <- paste0("(Filter) Only Blood specimens.")
-  if(input$filter_method_collection == "other_not_blood") feedback_text <- paste0("(Filter) Methods of collection for specimens: ", paste(input$filter_method_other, collapse = ", "))
+  if(input$filter_method_collection == "other_not_blood") feedback_text <- paste0("(Filter) Specimen types: ", paste(input$filter_method_other, collapse = ", "))
 }
 
 if(input$first_isolate)  feedback_text <- add_text(". Only first isolate per organism per patient.")
@@ -185,31 +198,6 @@ patient_filter() %>%
   autofit()
 ```
 
-
-</br>
-Hospital Outcome:
-
-```{r}
-patient_filter() %>%
-  mutate(clinical_outcome = as.character(clinical_outcome)) %>%
-  mutate(clinical_outcome = recode(clinical_outcome, "TRUE" = "Hospital Outcome", "FALSE" = "No Hospital Outcome")) %>%
-  group_by(clinical_outcome, surveillance_cat) %>%
-  summarise(patients = n()) %>%
-  ungroup() %>%
-  complete(surveillance_cat, clinical_outcome) %>%
-  mutate(patients = replace_na(patients, 0)) %>%
-  pivot_wider(names_from = surveillance_cat, values_from = patients) %>%
-  
-  # add totals
-  bind_rows(summarise_all(., ~ (if(is.numeric(.)) sum(.) else "Total"))) %>%
-  mutate(Total = rowSums(.[-1])) %>%
-  
-  # create table
-  flextable() %>%
-  set_header_labels(clinical_outcome = "") %>%
-  autofit()
-```
-
 </br>
 Hospital Discharge Status:
 
@@ -230,30 +218,6 @@ patient_filter() %>%
   # create table
   flextable() %>%
   set_header_labels(discharge_status = "") %>%
-  autofit()
-```
-
-</br>
-Day 28 Outcome:
-
-```{r}
-patient_filter() %>%
-  mutate(d28_outcome = as.character(d28_outcome)) %>%
-  mutate(d28_outcome = recode(d28_outcome, "TRUE" = "Day 28 Outcome", "FALSE" = "No Day 28 Outcome")) %>%
-  group_by(d28_outcome, surveillance_cat) %>%
-  summarise(patients = n()) %>%
-  ungroup() %>%
-  complete(surveillance_cat, d28_outcome) %>%
-  mutate(patients = replace_na(patients, 0)) %>%
-  pivot_wider(names_from = surveillance_cat, values_from = patients) %>%
-  
-  # add totals
-  bind_rows(summarise_all(., ~ (if(is.numeric(.)) sum(.) else "Total"))) %>%
-  mutate(Total = rowSums(.[-1])) %>%
-  
-  # create table
-  flextable() %>%
-  set_header_labels(d28_outcome = "") %>%
   autofit()
 ```
 
@@ -312,9 +276,10 @@ Age Category:
 ```{r}
 patient_filter() %>%
   mutate(age_category = case_when(
-    age < 1 ~ "Less than 1",
-    age < 5 ~ "1 to  5",
-    TRUE ~ "Above 5")) %>%
+    age < 28 / 365 ~ "0-27 days",
+    age < 1 ~ "1 month to  1 year",
+    age < 5 ~ "1 to  5 years",
+    TRUE ~ "Above 5 years")) %>%
   mutate(age_category = factor(age_category, levels = c("Less than 1", "1 to  5", "Above 5"))) %>% 
   group_by(age_category, surveillance_diag) %>%
   summarise(patients = n()) %>%
@@ -487,7 +452,7 @@ left_join(
   mutate(per1000 = round(1000 * episode/all, 1)) %>%
   
   flextable() %>%
-  set_header_labels(surveillance_cat = "", surveillance_diag = "", episode = "Enrolments with key pathogens", all = "Total Enrolments", per1000 = "per 1,000") 
+  set_header_labels(surveillance_cat = "", surveillance_diag = "", episode = "Enrolments with key pathogens", all = "Total Enrolments", per1000 = "per 1,000")
 ```
 
 Per 1,000 blood cultures

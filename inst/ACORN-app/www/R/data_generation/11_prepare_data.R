@@ -193,7 +193,10 @@ microbio <- amr %>%
     specimen_id = md5(specid),
     episode_id = md5(ACORN.EPID),
     date_specimen = as.Date(specdate),
-    specimen_type = specgroup,
+    specimen_type = recode(specgroup,
+                           blood = "Blood", csf = "CSF", sterile.fluid = "Sterile fluids", lower.resp = "Lower respiratory tract specimen",
+                           pleural.fluid = "Pleural fluid", throat = "Throat swab", urine = "Urine", gu = "Genito-urinary swab", stool = "Stool",
+                           other = "Other specimens"),
     isolate_id = md5(paste0(specid, orgnum.acorn)),
     orgnum = orgnum.acorn,
     organism = orgname,
@@ -208,5 +211,3 @@ microbio <- amr %>%
   filter(patient_id %in% patient$patient_id)  # select only records from patient in patient_id.
 
 corresp_org_antibio <- lab_code$orgs.antibio
-
-

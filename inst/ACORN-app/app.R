@@ -654,10 +654,6 @@ server <- function(input, output, session) {
       load("./www/data/Mock_ACORN_Dataset.RData")
       data_provided(TRUE)
       patient(patient)
-      microbio <- microbio %>% mutate(specimen_type = recode(specimen_type,
-                                                             blood = "Blood", csf = "CSF", sterile.fluid = "Sterile fluids", lower.resp = "Lower respiratory tract specimen",
-                                                             pleural.fluid = "Pleural fluid", throat = "Throat swab", urine = "Urine", gu = "Genito-urinary swab", stool = "Stool",
-                                                             other = "Other specimens"))
       microbio(microbio)
       
       corresp_org_antibio(corresp_org_antibio)
@@ -712,7 +708,7 @@ server <- function(input, output, session) {
       hideTab(inputId = "tabs", target = "patients")
       hideTab(inputId = "tabs", target = "followup")
       hideTab(inputId = "tabs", target = "microbiology")
-      hideTab(inputId = "tabs", target = "resistance")
+      hideTab(inputId = "tabs", target = "amr")
       hideTab(inputId = "tabs", target = "hai")
     }
   )
@@ -725,10 +721,6 @@ server <- function(input, output, session) {
     
     data_provided(TRUE)
     patient(patient)
-    microbio <- microbio %>% mutate(specimen_type = recode(specimen_type,
-                                                           blood = "Blood", csf = "CSF", sterile.fluid = "Sterile fluids", lower.resp = "Lower respiratory tract specimen",
-                                                           pleural.fluid = "Pleural fluid", throat = "Throat swab", urine = "Urine", gu = "Genito-urinary swab", stool = "Stool",
-                                                           other = "Other specimens"))
     microbio(microbio)
     
     corresp_org_antibio(corresp_org_antibio)
