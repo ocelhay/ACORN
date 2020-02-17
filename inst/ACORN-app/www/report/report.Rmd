@@ -418,18 +418,37 @@ The six key pathogens are Acinetobacter baumannii, Escherichia coli, Klebsiella 
 
 In the following figures, the "Susceptible" and "Intermediate" categories are merged into one category labelled "Susceptible", following EUCAST new definitions of S, I and R from 2019 (http://www.eucast.org/newsiandr/).
 
-```{r}
+```{r fun_ggplot_sir}
 cols_sir <- c("Resistant" = "#b2182b", "Susceptible" = NA)
 
 ggplot_sir <- function(mic = microbio_filter(), pat = patient_filter(), corresp = corresp_org_antibio(), organism_input, matching_name_column, title, surv_cat) {
+  
+  if(length(organism_input) == 0) return(
+    ggplot() + 
+      theme_minimal(base_size = 18) +
+      theme(panel.spacing = unit(2, "lines"), panel.grid.minor = element_blank(),
+            panel.grid.major.x = element_blank(),
+            axis.text.x = element_text(angle = 30, hjust = 1, vjust = 1),
+            plot.title = element_text(size = 20),
+            legend.position = "none") +
+      labs(title = paste0(title, ": No data to display"), y = NULL, x = NULL)
+    )
   
   # mic = microbio
   # pat = patient
   # corresp = corresp_org_antibio
   # organism_input = "Escherichia coli"
   # matching_name_column = "e_coli"
-  # title = "All Patients"
+  # title = "CAI Patients"
   # surv_cat = "CAI"
+  
+  # mic <- shiny_microbio_filter
+  # pat <- shiny_patient_filter
+  # organism_input = "Escherichia coli"
+  # matching_name_column = "e_coli"
+  # surv_cat = "CAI"
+  # title = "CAI Patients"
+  # corresp = corresp_org_antibio
   
   data <- left_join(
     mic,
@@ -474,7 +493,8 @@ ggplot_sir <- function(mic = microbio_filter(), pat = patient_filter(), corresp 
             axis.text.x = element_text(angle = 30, hjust = 1, vjust = 1),
             plot.title = element_text(size = 20),
             legend.position = "none") +
-      labs(title = paste0(title, ": No data to display"), y = NULL, x = NULL))
+      labs(title = paste0(title, ": No data to display"), y = NULL, x = NULL)
+    )
   
   return(
     ggplot(sir_results, aes(x = reorder(antibio, desc(antibio)), y = percent, fill = value)) +
@@ -527,7 +547,7 @@ microbio2 <- left_join(microbio_filter() %>%
 
 dta <- left_join(
   microbio2 %>%
-    filter(organism == org) %>%
+    filter(organism %in% org) %>%
     group_by(surveillance_cat, surveillance_diag) %>%
     summarise(episode = n_distinct(episode_id)),
   patient_filter() %>%
@@ -548,7 +568,7 @@ Per 1,000 blood cultures
 ```{r}
 dta <- left_join(
   microbio2 %>%
-    filter(organism == org) %>%
+    filter(organism %in% org) %>%
     filter(specimen_type == "Blood") %>%
     group_by(surveillance_cat, surveillance_diag) %>%
     summarise(episode = n_distinct(episode_id)),
@@ -598,7 +618,7 @@ microbio2 <- left_join(microbio_filter() %>%
 
 dta <- left_join(
   microbio2 %>%
-    filter(organism == org) %>%
+    filter(organism %in% org) %>%
     group_by(surveillance_cat, surveillance_diag) %>%
     summarise(episode = n_distinct(episode_id)),
   patient_filter() %>%
@@ -619,7 +639,7 @@ Per 1,000 blood cultures
 ```{r}
 dta <- left_join(
   microbio2 %>%
-    filter(organism == org) %>%
+    filter(organism %in% org) %>%
     filter(specimen_type == "Blood") %>%
     group_by(surveillance_cat, surveillance_diag) %>%
     summarise(episode = n_distinct(episode_id)),
@@ -669,7 +689,7 @@ microbio2 <- left_join(microbio_filter() %>%
 
 dta <- left_join(
   microbio2 %>%
-    filter(organism == org) %>%
+    filter(organism %in% org) %>%
     group_by(surveillance_cat, surveillance_diag) %>%
     summarise(episode = n_distinct(episode_id)),
   patient_filter() %>%
@@ -690,7 +710,7 @@ Per 1,000 blood cultures
 ```{r}
 dta <- left_join(
   microbio2 %>%
-    filter(organism == org) %>%
+    filter(organism %in% org) %>%
     filter(specimen_type == "Blood") %>%
     group_by(surveillance_cat, surveillance_diag) %>%
     summarise(episode = n_distinct(episode_id)),
@@ -740,7 +760,7 @@ microbio2 <- left_join(microbio_filter() %>%
 
 dta <- left_join(
   microbio2 %>%
-    filter(organism == org) %>%
+    filter(organism %in% org) %>%
     group_by(surveillance_cat, surveillance_diag) %>%
     summarise(episode = n_distinct(episode_id)),
   patient_filter() %>%
@@ -761,7 +781,7 @@ Per 1,000 blood cultures
 ```{r}
 dta <- left_join(
   microbio2 %>%
-    filter(organism == org) %>%
+    filter(organism %in% org) %>%
     filter(specimen_type == "Blood") %>%
     group_by(surveillance_cat, surveillance_diag) %>%
     summarise(episode = n_distinct(episode_id)),
@@ -811,7 +831,7 @@ microbio2 <- left_join(microbio_filter() %>%
 
 dta <- left_join(
   microbio2 %>%
-    filter(organism == org) %>%
+    filter(organism %in% org) %>%
     group_by(surveillance_cat, surveillance_diag) %>%
     summarise(episode = n_distinct(episode_id)),
   patient_filter() %>%
@@ -832,7 +852,7 @@ Per 1,000 blood cultures
 ```{r}
 dta <- left_join(
   microbio2 %>%
-    filter(organism == org) %>%
+    filter(organism %in% org) %>%
     filter(specimen_type == "Blood") %>%
     group_by(surveillance_cat, surveillance_diag) %>%
     summarise(episode = n_distinct(episode_id)),
@@ -859,13 +879,9 @@ vec <- unique(microbio_filter()$organism)
 org <- vec[str_detect(vec, "Salmonella") & vec != "Salmonella typhi" & vec != "Salmonella paratyphi"]
 
 match <- "salmonella_species"
-
 g1 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "All Infections", surv_cat = c("CAI", "HAI"))
-
 g2 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Community Acquired Infections", surv_cat = "CAI")
-
 g3 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Hospital Acquired Infections", surv_cat = "HAI")
-
 grid.arrange(g1, g2, g3, ncol = 1)
 ```
 
@@ -886,7 +902,7 @@ microbio2 <- left_join(microbio_filter() %>%
 
 dta <- left_join(
   microbio2 %>%
-    filter(organism == org) %>%
+    filter(organism %in% org) %>%
     group_by(surveillance_cat, surveillance_diag) %>%
     summarise(episode = n_distinct(episode_id)),
   patient_filter() %>%
@@ -907,7 +923,7 @@ Per 1,000 blood cultures
 ```{r}
 dta <- left_join(
   microbio2 %>%
-    filter(organism == org) %>%
+    filter(organism %in% org) %>%
     filter(specimen_type == "Blood") %>%
     group_by(surveillance_cat, surveillance_diag) %>%
     summarise(episode = n_distinct(episode_id)),
