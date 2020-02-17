@@ -39,10 +39,6 @@ cols_sir <- c("#2166ac", "#fddbc7", "#b2182b")  # resp. S, I, R
 source("./www/R/fun/fun_highchart_sir.R", local = TRUE)
 source("./www/R/fun/fun_highchart_sir_evolution.R", local = TRUE)
 
-source("./www/R/fun/fun_highchart_esbl.R", local = TRUE)
-cols_esbl <-  c("#2166ac", "#b2182b", "#2c3e50")
-
-
 # Define UI ----
 ui <- fluidPage(
   
@@ -63,7 +59,7 @@ ui <- fluidPage(
            conditionalPanel(condition = "input.tabs == 'welcome'",
                             tags$a(href='http://acornamr.net', tags$img(src = 'img_ACORN_logo.png', class = 'logo')),
                             h3("A Clinically Oriented antimicrobial Resistance Network"),
-                            actionLink("credits_link", div(id = "credits",icon("hand-point-right"), "Acknowledgements & Credits")),
+                            # actionLink("credits_link", div(id = "credits",icon("hand-point-right"), "Acknowledgements & Credits")),
                             img(src = "img_ecoli_LOMWRU.png", alt = "Multi-drug resistant Escherichia coli", id = 'ecoli'),
                             p("Antibiotic susceptibility testing of a multi-drug resistant ", em("Escherichia coli"), "isolated from the urine of a 51 year old Lao patient with a perinephric abscess.")
            ),
@@ -92,7 +88,7 @@ ui <- fluidPage(
                                                          div(class = 'box_outputs',
                                                              h4("Filter Specimens, Isolates:"),
                                                              prettyCheckboxGroup(inputId = "filter_method_collection", label = NULL,  shape = "curve", status = "primary",
-                                                                                 choices = c("Blood Collection" = "blood", "Other Specimens:" = "other_not_blood"), 
+                                                                                 choices = c("Blood culture" = "blood", "Other Specimens:" = "other_not_blood"), 
                                                                                  selected = c("blood", "other_not_blood"), inline = TRUE),
                                                              conditionalPanel("input.filter_method_collection.includes('other_not_blood')",
                                                                               checkboxGroupButtons(inputId = "filter_method_other", label = NULL, choices = " ", selected = NULL, individual = TRUE, size = "xs", status = "primary",
@@ -118,10 +114,11 @@ ui <- fluidPage(
                                           bs_append(title = "What is ACORN?", content = includeMarkdown('www/markdown/faq_1.md')) %>%
                                           bs_append(title = "Why is ACORN needed?", content = includeMarkdown('www/markdown/faq_2.md')) %>%
                                           bs_append(title = "Where is ACORN surveillance being done?", content = includeMarkdown('www/markdown/faq_3.md')) %>%
-                                          bs_append(title = "What are target pathogens?", content = HTML("TODO: placeholder for Paul content")),
+                                          bs_append(title = "What are target pathogens?", content = includeMarkdown('www/markdown/faq_4.md')) %>%
+                                          bs_append(title = "Acknowledgements & Credits", content = includeMarkdown('www/markdown/md_credits.md')),
                                         br(),
                                         h4(icon("envelope"), "Contact the ACORN Team"),
-                                        includeMarkdown('www/markdown/faq_4.md')
+                                        includeMarkdown('www/markdown/faq_contact.md')
                                  ),
                                  column(5,
                                         htmlOutput("online_offline"),
@@ -300,9 +297,7 @@ ui <- fluidPage(
                       tabPanel(span(icon("hospital-alt"), "HAI"), value = "hai",
                                div(class = 'box_outputs',
                                    h4("Wards Occupancy Rates"),
-                                   br(),
                                    htmlOutput("bed_occupancy_ward_title"),
-                                   p("Use filters to narrow by date range, type of ward or ward."),
                                    plotOutput("bed_occupancy_ward", width = "80%") %>% withSpinner()
                                ),
                                plotOutput("hai_rate_ward", width = "80%") %>% withSpinner()
@@ -375,8 +370,8 @@ ui <- fluidPage(
                                                       highchartOutput("ecoli_sir", height = "600px") %>% withSpinner(), br(), br(),
                                                       h4("Resistance to Carbapenems Over Time"),
                                                       highchartOutput("ecoli_sir_evolution", height = "300px") %>% withSpinner(),
-                                                      h4("ESBL"),
-                                                      highchartOutput("ecoli_esbl", height = "400px") %>% withSpinner()
+                                                      h4("Resistance to 3rd gen. cephalosporins Over Time"),
+                                                      highchartOutput("ecoli_sir_evolution_ceph", height = "300px") %>% withSpinner()
                                      ),
                                      conditionalPanel(condition = "! output.test_ecoli_sir", span(h4("There is no data to display for this organism.")))
                                    )
@@ -389,8 +384,8 @@ ui <- fluidPage(
                                                       highchartOutput("kpneumoniae_sir", height = "600px") %>% withSpinner(), br(), br(),
                                                       h4("Resistance to Carbapenems Over Time"),
                                                       highchartOutput("kpneumoniae_sir_evolution", height = "300px") %>% withSpinner(),
-                                                      h4("ESBL"),
-                                                      highchartOutput("kpneumoniae_esbl", height = "400px") %>% withSpinner()
+                                                      h4("Resistance to 3rd gen. cephalosporins Over Time"),
+                                                      highchartOutput("kpneumoniae_sir_evolution_ceph", height = "300px") %>% withSpinner()
                                      ),
                                      conditionalPanel(condition = "! output.test_kpneumoniae_sir", span(h4("There is no data to display for this organism.")))
                                    )
@@ -413,7 +408,7 @@ ui <- fluidPage(
                                    content_main = span(
                                      conditionalPanel(condition = "output.test_spneumoniae_sir",
                                                       highchartOutput("spneumoniae_sir", height = "500px") %>% withSpinner(),
-                                                      h4("Resistance to Penicillins Over Time"),
+                                                      h4("Resistance to Penicillin Over Time"),
                                                       highchartOutput("spneumoniae_sir_evolution", height = "300px") %>% withSpinner(),
                                      ),
                                      conditionalPanel(condition = "! output.test_spneumoniae_sir", span(h4("There is no data to display for this organism.")))
@@ -479,14 +474,14 @@ server <- function(input, output, session) {
   
   observe_helpers(help_dir = "./www/help_mds")
   
-  # Opening Credits Modal
-  observeEvent(input$credits_link, {
-    showModal(modalDialog(
-      title = "Acknowledgements & Credits",
-      includeMarkdown('www/markdown/md_credits.md'),
-      easyClose = TRUE
-    ))
-  })
+  # # Opening Credits Modal
+  # observeEvent(input$credits_link, {
+  #   showModal(modalDialog(
+  #     title = "Acknowledgements & Credits",
+  #     includeMarkdown('www/markdown/md_credits.md'),
+  #     easyClose = TRUE
+  #   ))
+  # })
   
   
   # Pushbar for filters ----

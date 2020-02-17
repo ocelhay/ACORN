@@ -3,7 +3,7 @@ output$bed_occupancy_ward_title <- renderText({
   req(hai_surveys_filter())
   req(nrow(hai_surveys_filter() > 0))
   
-  return(paste0(h4("All ", paste0(input$filter_type_ward, collapse = " & "), " wards.")))
+  return(paste0(br(), p("All ", paste0(input$filter_type_ward, collapse = " & "), " wards. Use filters to narrow by date range, type of ward or ward.")))
 })
 
 output$bed_occupancy_ward <- renderPlot({

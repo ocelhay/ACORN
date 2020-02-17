@@ -45,7 +45,7 @@ output$n_isolate <- renderText({
         div(class = "n_box",
             div(class = "icon_box", icon("microscope")),
             h3(n),
-            span(strong("Isolates"), "from cultures that have grown")
+            span(strong("Isolates"), "from cultures that have growth")
         )
       )
     )

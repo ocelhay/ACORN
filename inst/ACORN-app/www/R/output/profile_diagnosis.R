@@ -7,11 +7,6 @@ output$profile_diagnosis <- renderHighchart({
     ungroup() %>%
     mutate(color = surveillance_diag, freq = round(100*y / sum(y))) %>%
     mutate(color = recode(color, Meningitis = "#1f78b4", Pneumonia = "#33a02c", Sepsis = "#e31a1c"))
-  
-  
-  
-  # dta <<- df
-  # export_items <- c("downloadPNG", "downloadJPEG", "viewFullscreen", "downloadCSV")
     
   
   highchart() %>% 
@@ -19,9 +14,7 @@ output$profile_diagnosis <- renderHighchart({
     hc_xAxis(categories = as.list(df$surveillance_diag)) %>%
     hc_add_series(data = df, type = "bar", hcaes(x = surveillance_diag, y = y, color = color),
                   showInLegend = FALSE, tooltip = list(headerFormat = "", 
-                                                       pointFormat = "Patients with {point.surveillance_diag}: {point.y} ({point.freq} %)")) 
-#   %>%
-#     hc_exporting(enabled = TRUE ) #, buttons = list(contextButton = list(menuItemDefinitions = export_items)))
+                                                       pointFormat = "Patients with {point.surveillance_diag}: {point.y} ({point.freq} %)"))
 })
 
 

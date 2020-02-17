@@ -55,7 +55,7 @@ list(
                        bs_append(title = h4('Clinical Severity'),
                                  content = span(
                                    p("Select Only Patients with:"),
-                                   prettySwitch(inputId = "filter_clinical_severity", label = "One qSOFA/Paediatric severity point", status = "primary", width = "100px")
+                                   prettySwitch(inputId = "filter_clinical_severity", label = "At least one qSOFA/Paediatric severity point", status = "primary", width = "100px")
                                  )) %>%
                        bs_append(title = h4('Prior hospitalisation'),
                                  content = span(

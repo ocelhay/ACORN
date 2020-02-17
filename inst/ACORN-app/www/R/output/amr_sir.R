@@ -46,14 +46,10 @@ output$test_ecoli_sir <- reactive({
 })
 outputOptions(output, "test_ecoli_sir", suspendWhenHidden = FALSE)
 
-output$ecoli_esbl <- renderHighchart({
+output$ecoli_sir_evolution_ceph <- renderHighchart({
   organism_input <- "Escherichia coli"
-  req(microbio_filter() %>% filter(organism == organism_input))
-  
-  microbio_filter_shiny <<- microbio_filter()
-  organism_input_shiny <<- "Escherichia coli"
-  
-  highchart_esbl(data_input = microbio_filter(), organism_input = organism_input)
+  highchart_sir_evolution(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), 
+                          combine_SI = input$combine_SI, filter_antibio = "Aggregate 3rd gen. ceph.")
 })
 
 output$nb_isolates_ecoli <- renderText({
@@ -84,10 +80,10 @@ output$test_kpneumoniae_sir <- reactive({
 })
 outputOptions(output, "test_kpneumoniae_sir", suspendWhenHidden = FALSE)
 
-output$kpneumoniae_esbl <- renderHighchart({
+output$kpneumoniae_sir_evolution_ceph <- renderHighchart({
   organism_input <- "Klebsiella pneumoniae"
-  req(microbio_filter() %>% filter(organism == organism_input))
-  highchart_esbl(data_input = microbio_filter(), organism_input = organism_input)
+  highchart_sir_evolution(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), 
+                          combine_SI = input$combine_SI, filter_antibio = "Aggregate 3rd gen. ceph.")
 })
 
 output$nb_isolates_kpneumoniae <- renderText({

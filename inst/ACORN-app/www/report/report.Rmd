@@ -19,7 +19,7 @@ library(gridExtra)
 
 ACORN (“A Clinically Oriented antimicrobial Resistance Network”) is intended to generate patient-focused and clinically actionable AMR surveillance data. Details of the ACORN project protocol can be found here: https://wellcomeopenresearch.org/articles/5-13.
 
-ACORN includes data on both community-acquired infections (CAI) and hospital-acquired infections (HAI). The six key ACORN pathogens are the WHO bloodstream infection priority pathogens Acinetobacter baumannii, Escherichia coli, Klebsiella pneumoniae, Staphylococcus aureus, Streptococcus pneumoniae, and Salmonella sp.
+ACORN includes data on both community-acquired infections (CAI) and hospital-acquired infections (HAI). The six key ACORN pathogens are the WHO bloodstream infection priority pathogens *Acinetobacter baumannii*, *Escherichia coli*, *Klebsiella pneumoniae*, *Staphylococcus aureus*, *Streptococcus pneumoniae*, and *Salmonella sp.*
 
 
 # About this Report

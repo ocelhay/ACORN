@@ -22,7 +22,7 @@ output$isolates_growth_pct <- renderText({
     nrow()
   total <- microbio_filter() %>% nrow()
   
-  paste(br(), br(), h4(paste0(round(100*n/total, 1), "%")), span("of cultures have grown."))
+  paste(br(), br(), h4(paste0(round(100*n/total, 1), "%")), span("of cultures have growth."))
 })
 
 
