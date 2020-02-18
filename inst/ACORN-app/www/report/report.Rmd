@@ -386,7 +386,7 @@ flextable(dta) %>%
 
 Enrolments with blood cultures / Total enrolments.
 
-```{r}
+```{r blood_cultures}
 # Add surveillance category, surveillance diagnosis to microbio
 microbio2 <- left_join(microbio_filter() %>%
                          mutate(episode_id = as.character(episode_id)), 
@@ -497,7 +497,7 @@ ggplot_sir <- function(mic = microbio_filter(), pat = patient_filter(), corresp 
     )
   
   return(
-    ggplot(sir_results, aes(x = reorder(antibio, desc(antibio)), y = percent, fill = value)) +
+    ggplot(sir_results, aes(x = antibio, y = percent, fill = value)) +
       geom_col(color = NA, position = position_stack(reverse = TRUE)) +
       labs(x = NULL, y = "Antibio") +
       scale_fill_manual(values = cols_sir) +
