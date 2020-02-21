@@ -59,7 +59,6 @@ ui <- fluidPage(
            conditionalPanel(condition = "input.tabs == 'welcome'",
                             tags$a(href='http://acornamr.net', tags$img(src = 'img_ACORN_logo.png', class = 'logo')),
                             h3("A Clinically Oriented antimicrobial Resistance Network"),
-                            # actionLink("credits_link", div(id = "credits",icon("hand-point-right"), "Acknowledgements & Credits")),
                             img(src = "img_ecoli_LOMWRU.png", alt = "Multi-drug resistant Escherichia coli", id = 'ecoli'),
                             p("Antibiotic susceptibility testing of a multi-drug resistant ", em("Escherichia coli"), "isolated from the urine of a 51 year old Lao patient with a perinephric abscess.")
            ),
@@ -689,6 +688,9 @@ server <- function(input, output, session) {
       showTab(inputId = "tabs", target = "microbiology")
       showTab(inputId = "tabs", target = "amr")
       showTab(inputId = "tabs", target = "hai")
+      
+      # siwtch to Overview tab
+      updateTabsetPanel(session, "tabs", selected = "overview")
     }
   )
   
@@ -753,10 +755,10 @@ server <- function(input, output, session) {
     showTab(inputId = "tabs", target = "microbiology")
     showTab(inputId = "tabs", target = "amr")
     showTab(inputId = "tabs", target = "hai")
+    
+    # siwtch to Overview tab
+    updateTabsetPanel(session, "tabs", selected = "overview")
   })
-  
-  # output$test_data <- reactive({ifelse(data_provided(), TRUE, FALSE)})
-  # outputOptions(output, "test_data", suspendWhenHidden = FALSE)
   
   # Generated Report
   feedback_download <- reactiveValues(download_flag = 0)

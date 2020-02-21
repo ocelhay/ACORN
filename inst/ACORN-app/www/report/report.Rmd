@@ -497,7 +497,8 @@ ggplot_sir <- function(mic = microbio_filter(), pat = patient_filter(), corresp 
     )
   
   return(
-    ggplot(sir_results, aes(x = antibio, y = percent, fill = value)) +
+    # ggplot(sir_results, aes(x = antibio, y = percent, fill = value)) +
+    ggplot(sir_results, aes(x = stats::reorder(antibio, desc(antibio)), y = percent, fill = value)) +
       geom_col(color = NA, position = position_stack(reverse = TRUE)) +
       labs(x = NULL, y = "Antibio") +
       scale_fill_manual(values = cols_sir) +
