@@ -76,6 +76,20 @@ fun_filter_microbio <- function(data, patient, input) {
   return(data)
 }
 
+# For the report, only blood specimens are used
+fun_filter_microbio_report <- function(data, patient, input) {
+  
+  if( is.null(data) ) return(NULL)
+  
+  data <- data %>% filter(patient_id %in% patient$patient_id)  # it is expected that patient IS patient_filter()
+  
+  data <- data %>% filter(specimen_type == "Blood")
+  
+  if(input$first_isolate)  data <- data %>% group_by(patient_id, organism) %>% top_n(1, specimen_id) %>% ungroup()
+  
+  return(data)
+}
+
 fun_filter_hai <- function(data, input) {
   if( is.null(data) ) return(NULL)
   
