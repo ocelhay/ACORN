@@ -32,7 +32,7 @@ library(timevis)  # timevisOutput()
 library(vov)  # swivel_vertical()
 
 
-version <- "0.96"
+version <- "0.97"
 
 #  Functions and global variables ----
 source("./www/R/fun/fun_filter_data.R", local = TRUE)

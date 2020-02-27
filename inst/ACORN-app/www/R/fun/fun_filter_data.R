@@ -12,7 +12,9 @@ fun_filter_patient <- function(data, input) {
     )
   
   if(! is.null(input$filter_type_antibio)) data <- data %>% filter_at(input$filter_type_antibio, all_vars( . == "Yes"))
+  print(input$filter_category)
   if(input$filter_category != "all") data <- data %>% filter(surveillance_cat == input$filter_category)
+  print(nrow(data))
   if(! input$filter_ward_na) data <- data %>% filter(! is.na(ward_text))
   
   if(input$filter_age_unit == "days") {
@@ -62,16 +64,19 @@ fun_filter_patient <- function(data, input) {
 }
 
 fun_filter_microbio <- function(data, patient, input) {
+  # it is expected that patient argument = patient_filter()
   
   if( is.null(data) ) return(NULL)
   
-  data <- data %>% filter(patient_id %in% patient$patient_id)  # it is expected that patient IS patient_filter()
+  shiny_patient <<- patient
+  data <- data %>% filter(episode_id %in% patient$episode_id)
   
   if(! "blood" %in% input$filter_method_collection) data <- data %>% filter(specimen_type != "Blood")
   if(! "other_not_blood" %in% input$filter_method_collection) data <- data %>% filter(specimen_type == "Blood")
   data <- data %>% filter(specimen_type %in% c("Blood", input$filter_method_other))
   
-  if(input$first_isolate)  data <- data %>% group_by(patient_id, organism) %>% top_n(1, specimen_id) %>% ungroup()
+  if(input$first_isolate)  data <- data %>% group_by(episode_id, organism) %>% 
+    top_n(1, specimen_id) %>% ungroup()
   
   return(data)
 }
