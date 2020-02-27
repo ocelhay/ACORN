@@ -1,7 +1,7 @@
 Package: ACORN
 Type: Package
 Title: Shiny app for the exploration of ACORN data
-Version: 0.95
+Version: 0.96
 Author: Olivier Celhay, Paul Turner
 Maintainer: Olivier Celhay <olivier.celhay@gmail.com>
 Description: This is essentially the source code for the shiny app that has been bundled as a R package for easy deployment. 

@@ -77,7 +77,7 @@ fun_filter_microbio <- function(data, patient, input) {
 }
 
 # For the report, only blood specimens are used
-fun_filter_microbio_report <- function(data, patient, input) {
+fun_filter_microbio_blood <- function(data, patient, input) {
   
   if( is.null(data) ) return(NULL)
   

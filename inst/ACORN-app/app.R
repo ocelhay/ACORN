@@ -32,7 +32,7 @@ library(timevis)  # timevisOutput()
 library(vov)  # swivel_vertical()
 
 
-version <- "0.9.5"
+version <- "0.9.6"
 
 #  Functions and global variables ----
 source("./www/R/fun/fun_filter_data.R", local = TRUE)
@@ -512,8 +512,8 @@ server <- function(input, output, session) {
     fun_filter_microbio(data = microbio(), patient = patient_filter(), input = input)
   )
   
-  microbio_filter_report <- reactive(
-    fun_filter_microbio_report(data = microbio(), patient = patient_filter(), input = input)
+  microbio_filter_blood <- reactive(
+    fun_filter_microbio_blood(data = microbio(), patient = patient_filter(), input = input)
   )
   
   hai_surveys_filter <- reactive(

@@ -433,7 +433,7 @@ In the following figures, the "Susceptible" and "Intermediate" categories are me
 
 ```{r fun_test_data}
 # Test is there is at least one isolate for the pathogen
-test_data <- function(mic = microbio_filter_report(), pat = patient_filter(), organism_input) {
+test_data <- function(mic = microbio_filter_blood(), pat = patient_filter(), organism_input) {
   data <- left_join(
     mic,
     pat %>% select(episode_id, surveillance_cat) %>% 
@@ -450,7 +450,7 @@ test_data <- function(mic = microbio_filter_report(), pat = patient_filter(), or
 ```{r fun_ggplot_sir}
 cols_sir <- c("Resistant" = "#b2182b", "Susceptible" = NA)
 
-ggplot_sir <- function(mic = microbio_filter_report(), pat = patient_filter(), corresp = corresp_org_antibio(), organism_input, matching_name_column, title, surv_cat) {
+ggplot_sir <- function(mic = microbio_filter_blood(), pat = patient_filter(), corresp = corresp_org_antibio(), organism_input, matching_name_column, title, surv_cat) {
   
   if(length(organism_input) == 0) return(
     ggplot() + 
@@ -464,13 +464,13 @@ ggplot_sir <- function(mic = microbio_filter_report(), pat = patient_filter(), c
   )
   
   # TODO: remove once finalised
-  # mic = microbio
+  # mic = microbio %>% filter(specimen_type == "Blood")
   # pat = patient
   # corresp = corresp_org_antibio
   # organism_input = "Escherichia coli"
   # matching_name_column = "e_coli"
-  # title = "CAI Patients"
-  # surv_cat = "CAI"
+  # title = "All Infections"
+  # surv_cat = c("CAI", "HAI")
   
   data <- left_join(
     mic,
@@ -479,8 +479,6 @@ ggplot_sir <- function(mic = microbio_filter_report(), pat = patient_filter(), c
     by = 'episode_id') %>%
     filter(organism %in% organism_input) %>%
     filter(surveillance_cat %in% surv_cat)
-  
-  # nb_isolates <- data %>% nrow()
   
   data <- data %>%
     select(specimen_id, 9:ncol(data)) %>%
@@ -541,20 +539,23 @@ ggplot_sir <- function(mic = microbio_filter_report(), pat = patient_filter(), c
 table_1000enrol <- function(mic, org) {
   
   # Add surveillance category, surveillance diagnosis to microbio
-  microbio2 <- left_join(mic %>%
+  mic2 <- left_join(mic %>%
                            mutate(episode_id = as.character(episode_id)), 
                          patient_filter() %>% select(surveillance_cat, surveillance_diag, episode_id) %>% 
                            mutate(episode_id = as.character(episode_id)),
                          by = 'episode_id')
   
   dta <- left_join(
-    microbio2 %>%
+    # First dataset
+    mic2 %>%
       filter(organism %in% org) %>%
       mutate(surveillance_cat = factor(surveillance_cat, levels = c("CAI", "HAI")),
              surveillance_diag = factor(surveillance_diag, levels = c("Meningitis", "Pneumonia", "Sepsis"))) %>%
       group_by(surveillance_cat, surveillance_diag, .drop = FALSE) %>%
       summarise(episode = n_distinct(episode_id)),
+    # Second dataset
     patient_filter() %>%
+    # mic2 %>%
       mutate(surveillance_cat = factor(surveillance_cat, levels = c("CAI", "HAI")),
              surveillance_diag = factor(surveillance_diag, levels = c("Meningitis", "Pneumonia", "Sepsis"))) %>%
       group_by(surveillance_cat, surveillance_diag) %>%
@@ -581,21 +582,24 @@ table_1000enrol <- function(mic, org) {
 ```{r fun_table_1000blood}
 table_1000blood <- function(mic, org) {
   
-  microbio2 <- left_join(mic %>%
+  mic2 <- left_join(mic %>%
                            mutate(episode_id = as.character(episode_id)), 
                          patient_filter() %>% select(surveillance_cat, surveillance_diag, episode_id) %>% 
                            mutate(episode_id = as.character(episode_id)),
                          by = 'episode_id')
   
   dta <- left_join(
-    microbio2 %>%
+    # First dataset
+    mic2 %>%
       filter(organism %in% org) %>%
       filter(specimen_type == "Blood") %>%
       mutate(surveillance_cat = factor(surveillance_cat, levels = c("CAI", "HAI")),
              surveillance_diag = factor(surveillance_diag, levels = c("Meningitis", "Pneumonia", "Sepsis"))) %>%
       group_by(surveillance_cat, surveillance_diag, .drop = FALSE) %>%
       summarise(episode = n_distinct(episode_id)),
-    patient_filter() %>%
+    # Second dataset
+    # patient_filter() %>%
+    mic2 %>%
       mutate(surveillance_cat = factor(surveillance_cat, levels = c("CAI", "HAI")),
              surveillance_diag = factor(surveillance_diag, levels = c("Meningitis", "Pneumonia", "Sepsis"))) %>%
       group_by(surveillance_cat, surveillance_diag) %>%
@@ -608,7 +612,7 @@ table_1000blood <- function(mic, org) {
   if(nrow(dta) >= 1) {
     return(
       flextable(dta) %>%
-        set_header_labels(surveillance_cat = "", surveillance_diag = "", episode = "Enrolments w/ Blood Culture", all = "Total Enrolments", per1000 = "per 1,000") %>%
+        set_header_labels(surveillance_cat = "", surveillance_diag = "", episode = "Enrolments w/ Blood Culture", all = "Total Enrolments w/ Blood Culture", per1000 = "per 1,000") %>%
         bold(j = ncol(dta)) %>%
         bold(part = "header") %>%
         merge_v(j = ~ surveillance_cat) %>%
@@ -626,7 +630,7 @@ table_1000blood <- function(mic, org) {
 ```{r}
 org <- "Acinetobacter baumannii"
 match <- "a_baumannii"
-show <- test_data(mic = microbio_filter_report(), pat = patient_filter(), organism_input = org)
+show <- test_data(mic = microbio_filter_blood(), pat = patient_filter(), organism_input = org)
 ```
 
 `r if(!show){"There are no isolates for this pathogen."}`
@@ -638,16 +642,16 @@ g3 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Ho
 grid.arrange(g1, g2, g3, ncol = 1)
 ```
 
-`r if(show){"*Acinetobacter baumannii* per 1,000 enrolments:"}`
+`r if(show){"*Acinetobacter baumannii* bacteraemia per 1,000 enrolments:"}`
 
 ```{r, eval = show}
 table_1000enrol(mic = microbio_filter(), org = org)
 ```
 
-`r if(show){"*Acinetobacter baumannii* per 1,000 blood cultures:"}`
+`r if(show){"*Acinetobacter baumannii* bacteraemia per 1,000 blood cultures:"}`
 
 ```{r, eval = show}
-table_1000blood(mic = microbio_filter_report(), org = org)
+table_1000blood(mic = microbio_filter_blood(), org = org)
 ```
 
 
@@ -656,7 +660,7 @@ table_1000blood(mic = microbio_filter_report(), org = org)
 ```{r}
 org <- "Escherichia coli"
 match <- "e_coli"
-show <- test_data(mic = microbio_filter_report(), pat = patient_filter(), organism_input = org)
+show <- test_data(mic = microbio_filter_blood(), pat = patient_filter(), organism_input = org)
 ```
 
 `r if(!show){"There are no isolates for this pathogen."}`
@@ -668,16 +672,16 @@ g3 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Ho
 grid.arrange(g1, g2, g3, ncol = 1)
 ```
 
-`r if(show){"*Escherichia coli* per 1,000 enrolments:"}`
+`r if(show){"*Escherichia coli* bacteraemia per 1,000 enrolments:"}`
 
 ```{r, eval = show}
 table_1000enrol(mic = microbio_filter(), org = org)
 ```
 
-`r if(show){"*Escherichia coli* per 1,000 blood cultures:"}`
+`r if(show){"*Escherichia coli* bacteraemia per 1,000 blood cultures:"}`
 
 ```{r, eval = show}
-table_1000blood(mic = microbio_filter_report(), org = org)
+table_1000blood(mic = microbio_filter_blood(), org = org)
 ```
 
 ## *Klebsiella pneumoniae* {#k_pneumoniae}
@@ -685,7 +689,7 @@ table_1000blood(mic = microbio_filter_report(), org = org)
 ```{r}
 org <- "Klebsiella pneumoniae"
 match <- "k_pneumoniae"
-show <- test_data(mic = microbio_filter_report(), pat = patient_filter(), organism_input = org)
+show <- test_data(mic = microbio_filter_blood(), pat = patient_filter(), organism_input = org)
 ```
 
 `r if(!show){"There are no isolates for this pathogen."}`
@@ -697,16 +701,16 @@ g3 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Ho
 grid.arrange(g1, g2, g3, ncol = 1)
 ```
 
-`r if(show){"*Klebsiella pneumoniae* per 1,000 enrolments:"}`
+`r if(show){"*Klebsiella pneumoniae* bacteraemia per 1,000 enrolments:"}`
 
 ```{r, eval = show}
 table_1000enrol(mic = microbio_filter(), org = org)
 ```
 
-`r if(show){"*Klebsiella pneumoniae* per 1,000 blood cultures:"}`
+`r if(show){"*Klebsiella pneumoniae* bacteraemia per 1,000 blood cultures:"}`
 
 ```{r, eval = show}
-table_1000blood(mic = microbio_filter_report(), org = org)
+table_1000blood(mic = microbio_filter_blood(), org = org)
 ```
 
 ## *Staphylococcus aureus* {#s_aureus}
@@ -714,7 +718,7 @@ table_1000blood(mic = microbio_filter_report(), org = org)
 ```{r}
 org <- "Staphylococcus aureus"
 match <- "s_aureus"
-show <- test_data(mic = microbio_filter_report(), pat = patient_filter(), organism_input = org)
+show <- test_data(mic = microbio_filter_blood(), pat = patient_filter(), organism_input = org)
 ```
 
 `r if(!show){"There are no isolates for this pathogen."}`
@@ -726,16 +730,16 @@ g3 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Ho
 grid.arrange(g1, g2, g3, ncol = 1)
 ```
 
-`r if(show){"*Staphylococcus aureus* per 1,000 enrolments:"}`
+`r if(show){"*Staphylococcus aureus* bacteraemia per 1,000 enrolments:"}`
 
 ```{r, eval = show}
 table_1000enrol(mic = microbio_filter(), org = org)
 ```
 
-`r if(show){"*Staphylococcus aureus* per 1,000 blood cultures:"}`
+`r if(show){"*Staphylococcus aureus* bacteraemia per 1,000 blood cultures:"}`
 
 ```{r, eval = show}
-table_1000blood(mic = microbio_filter_report(), org = org)
+table_1000blood(mic = microbio_filter_blood(), org = org)
 ```
 
 ## *Streptococcus pneumoniae* {#s_pneumoniae}
@@ -743,7 +747,7 @@ table_1000blood(mic = microbio_filter_report(), org = org)
 ```{r}
 org <- "Streptococcus pneumoniae"
 match <- "s_pneumoniae"
-show <- test_data(mic = microbio_filter_report(), pat = patient_filter(), organism_input = org)
+show <- test_data(mic = microbio_filter_blood(), pat = patient_filter(), organism_input = org)
 ```
 
 `r if(!show){"There are no isolates for this pathogen."}`
@@ -755,16 +759,16 @@ g3 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Ho
 grid.arrange(g1, g2, g3, ncol = 1)
 ```
 
-`r if(show){"*Streptococcus pneumoniae* per 1,000 enrolments:"}`
+`r if(show){"*Streptococcus pneumoniae* bacteraemia per 1,000 enrolments:"}`
 
 ```{r, eval = show}
 table_1000enrol(mic = microbio_filter(), org = org)
 ```
 
-`r if(show){"*Streptococcus pneumoniae* per 1,000 blood cultures:"}`
+`r if(show){"*Streptococcus pneumoniae* bacteraemia per 1,000 blood cultures:"}`
 
 ```{r, eval = show}
-table_1000blood(mic = microbio_filter_report(), org = org)
+table_1000blood(mic = microbio_filter_blood(), org = org)
 ```
 
 
@@ -772,10 +776,10 @@ table_1000blood(mic = microbio_filter_report(), org = org)
 
 
 ```{r}
-vec <- unique(microbio_filter_report()$organism)
+vec <- unique(microbio_filter_blood()$organism)
 org <- vec[str_detect(vec, "Salmonella")]
 match <- "salmonella_species"
-show <- test_data(mic = microbio_filter_report(), pat = patient_filter(), organism_input = org)
+show <- test_data(mic = microbio_filter_blood(), pat = patient_filter(), organism_input = org)
 ```
 
 `r if(!show){"There are no isolates for this pathogen."}`
@@ -787,14 +791,14 @@ g3 <- ggplot_sir(organism_input = org, matching_name_column = match, title = "Ho
 grid.arrange(g1, g2, g3, ncol = 1)
 ```
 
-`r if(show){"*Salmonella* combined per 1,000 enrolments:"}`
+`r if(show){"*Salmonella* combined bacteraemia per 1,000 enrolments:"}`
 
 ```{r, eval = show}
 table_1000enrol(mic = microbio_filter(), org = org)
 ```
 
-`r if(show){"*Salmonella* combined per 1,000 blood cultures:"}`
+`r if(show){"*Salmonella* combined bacteraemia per 1,000 blood cultures:"}`
 
 ```{r, eval = show}
-table_1000blood(mic = microbio_filter_report(), org = org)
+table_1000blood(mic = microbio_filter_blood(), org = org)
 ```
