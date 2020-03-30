@@ -69,7 +69,7 @@ ui <- fluidPage(
                                 uiOutput('hospital_image'), 
                                 uiOutput('data_info'),
                                 downloadLink("report", label = span(icon("file-word"), "Generate Report (.docx)")),
-                                blur_in(duration = "slow", htmlOutput("feedback_filters"))
+                                htmlOutput("feedback_filters")
                             ),
                             
                             div(id = "floatingfilter",
