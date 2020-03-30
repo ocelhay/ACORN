@@ -61,6 +61,13 @@ h4 {
   font-size: 1em;
 }
 
+#resetfilter {
+  float: right;
+  border: 3px solid;
+  border-color: #18BC9C;
+  padding: 2px;
+}
+
 
 #floatingleft{
   top: calc(0%);;

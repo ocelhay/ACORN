@@ -1,6 +1,7 @@
 # Load packages ----
 library(bsplus)  # bs_accordion()
 library(data.table)
+# require digest 0.6.23 as we experience issues with subsequent versions
 library(digest)
 library(DT)
 library(flexdashboard)  # gaugeOutput()
@@ -32,7 +33,7 @@ library(timevis)  # timevisOutput()
 library(vov)  # swivel_vertical()
 
 
-version <- "0.97"
+version <- "1.0"
 
 #  Functions and global variables ----
 source("./www/R/fun/fun_filter_data.R", local = TRUE)
@@ -76,10 +77,13 @@ ui <- fluidPage(
                                 blur_in(duration = "slow",
                                         div(class = 'box_outputs',
                                             h4("Filter Patients:"),
+                                            div(id = "resetfilter",
+                                                actionLink(inputId = "reset_filters", label = span(icon("times"), " Reset Patients Filters"))
+                                            ),
                                             prettyRadioButtons(inputId = "filter_category", label = NULL,  shape = "curve",
                                                                choices = c("Community Acquired Infections" = "CAI", "Hospital Acquired Infections" = "HAI", "All Infections" = "all"), 
                                                                selected = "all"),
-                                            prettyCheckboxGroup(inputId = "filter_type_ward", label = NULL, status = "primary", choices = "INCEPTION", selected = "INCEPTION"),
+                                            prettyCheckboxGroup(inputId = "filter_type_ward", label = NULL, status = "primary", choices = "INCEPTION_TYPE_WARD", selected = "INCEPTION_TYPE_WARD"),
                                             bsButton("open", label = "Additional Filters", icon = icon('cog'), style = "primary", type = "toggle", value = FALSE, 
                                                      size = "default", block = TRUE)
                                         )
@@ -494,7 +498,46 @@ server <- function(input, output, session) {
   observeEvent(input$generate_data, ignoreInit = TRUE, { pushbar_open(id = "Pushbar_Generate_Data") })  
   observeEvent(input$close2, { pushbar_close() })
   
-  
+  # Reset all patients filters ----
+  observeEvent(input$reset_filters, {
+    updatePrettyRadioButtons(session, inputId = "filter_category", selected = "all")
+    updatePrettyCheckboxGroup(session = session, inputId = "filter_type_ward", 
+                              choices = sort(unique(patient()$ward)), selected = sort(unique(patient()$ward)), 
+                              inline = TRUE, prettyOptions = list(shape = "curve"))
+    
+    # filters in across_pushbar_filter.R:
+    updateDateRangeInput(session = session, "filter_enrollment", start = min(patient()$date_enrollment), end = max(patient()$date_enrollment))
+    updateNumericInput(session, "filter_age_min", value = 0)
+    updateNumericInput(session, "filter_age_max", value = 99)
+    updateSelectInput(session, "filter_age_unit", selected = "years")
+    
+    
+    updatePrettySwitch(session, "filter_age_na", value = TRUE)
+    updatePrettyCheckboxGroup(session, "filter_diagnosis", selected = c("Meningitis", "Pneumonia", "Sepsis"))
+    updatePrettyRadioButtons(session, "confirmed_diagnosis", selected = "No filter on diagnosis confirmation")
+    
+    updatePrettySwitch(session, "filter_outcome_clinical", value = FALSE)
+    updatePrettySwitch(session, "filter_outcome_d28", value = FALSE)
+    
+    updatePrettySwitch(session, "filter_comorb", value = FALSE)
+    updatePrettySwitch(session, "filter_cancer", value = FALSE)
+    updatePrettySwitch(session, "filter_renal", value = FALSE)
+    updatePrettySwitch(session, "filter_lung", value = FALSE)
+    updatePrettySwitch(session, "filter_diabetes", value = FALSE)
+    updatePrettySwitch(session, "filter_malnutrition", value = FALSE)
+    updatePrettySwitch(session, "filter_clinical_severity", value = FALSE)
+    updatePrettySwitch(session, "filter_overnight_3months", value = FALSE)
+    updatePrettySwitch(session, "filter_surgery_3months", value = FALSE)
+    updatePrettySwitch(session, "filter_medical_p_catheter", value = FALSE)
+    updatePrettySwitch(session, "filter_medical_c_catheter", value = FALSE)
+    updatePrettySwitch(session, "filter_medical_u_catheter", value = FALSE)
+    updatePrettySwitch(session, "filter_medical_ventilation", value = FALSE)
+    
+    updatePickerInput(session = session, "filter_ward", choices = sort(unique(patient()$ward_text)), selected = sort(unique(patient()$ward_text)))
+    updatePrettySwitch(session, "filter_ward_na", value = TRUE)
+    updatePickerInput(session, "filter_type_antibio", selected = NULL)
+  }
+  )
   
   # Reactive data management ----
   data_provided <- reactiveVal(FALSE)
@@ -664,7 +707,10 @@ server <- function(input, output, session) {
                                  choices = sort(setdiff(unique(microbio$specimen_type), "Blood")), 
                                  selected = sort(setdiff(unique(microbio$specimen_type), "Blood")),
                                  size = "sm", status = "primary", checkIcon = list(yes = icon("check")))
-      updatePrettyCheckboxGroup(session = session, inputId = "filter_type_ward", choices = sort(unique(patient$ward)), selected = sort(unique(patient$ward)), inline = TRUE, prettyOptions = list(shape = "curve"))
+      
+      updatePrettyCheckboxGroup(session = session, inputId = "filter_type_ward", 
+                                choices = sort(unique(patient$ward)), selected = sort(unique(patient$ward)), 
+                                inline = TRUE, prettyOptions = list(shape = "curve"))
       updatePickerInput(session = session, "filter_ward", choices = sort(unique(patient$ward_text)), selected = sort(unique(patient$ward_text)))
       updateDateRangeInput(session = session, "filter_enrollment", start = min(patient$date_enrollment), end = max(patient$date_enrollment))
       other_organism <- sort(setdiff(unique(microbio$organism), 

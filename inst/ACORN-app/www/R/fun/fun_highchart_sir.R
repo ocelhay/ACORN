@@ -126,9 +126,6 @@ highchart_sir <- function(data_input, organism_input, corresp, combine_SI) {
         x
       })
     
-    shiny_categories_grouped <<- categories_grouped
-    shiny_sir_results <<- sir_results
-    
     return(
       sir_results %>%
         hchart(type = "bar", hcaes(x = "antibio_name", y = "n", group = "resistance")) %>%
