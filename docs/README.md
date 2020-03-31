@@ -1,5 +1,7 @@
 # ACORN
 
+A Clinically Oriented antimicrobial Resistance Network (ACORN) is a Wellcome funded project led by the Mahidol-Oxford Tropical Medicine Research Unit and the Oxford University of Oxford Clinical Research Unit.
+
 [Access the online app](https://moru.shinyapps.io/acornamr/) in which you can visualise a demo dataset or previously generated ACORN Data. 
 To generate ACORN Data, use the offline version, available on the [GitHub repository of the project.](https://github.com/ocelhay/ACORN)
 
@@ -15,7 +17,7 @@ To fill these gaps, the major aim of ACORN is to develop and test a comprehensiv
 ## Where is ACORN surveillance being done? 
 
 The ACORN pilot will occur at Angkor Hospital for Children (Siem Reap, Cambodia), Mahosot Hospital (Vientiane, Lao PDR), and the National Hospital for Tropical Diseases (Hanoi, Vietnam).
-If you have questions about the project, please contact ACORN investigators Prof Paul Turner or Prof Rogier van Doorn.
+If you have questions about the project, please contact ACORN investigators [Prof Paul Turner](mailto:Pault@tropmedres.ac) or [Prof Rogier van Doorn](mailto:rvandoorn@oucru.org).
 
 
 
