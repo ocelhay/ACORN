@@ -1,5 +1,3 @@
-# ACORN
-
 A Clinically Oriented antimicrobial Resistance Network (ACORN) is a Wellcome funded project led by the Mahidol-Oxford Tropical Medicine Research Unit and the Oxford University of Oxford Clinical Research Unit.
 
 [Access the online app](https://moru.shinyapps.io/acornamr/) in which you can visualise a demo dataset or previously generated ACORN Data. 
