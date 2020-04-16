@@ -15,7 +15,6 @@ To fill these gaps, the major aim of ACORN is to develop and test a comprehensiv
 ## Where is ACORN surveillance being done? 
 
 The ACORN pilot will occur at Angkor Hospital for Children (Siem Reap, Cambodia), Mahosot Hospital (Vientiane, Lao PDR), and the National Hospital for Tropical Diseases (Hanoi, Vietnam).
-If you have questions about the project, please contact ACORN investigators [Prof Paul Turner](mailto:Pault@tropmedres.ac) or [Prof Rogier van Doorn](mailto:rvandoorn@oucru.org).
 
 
 
