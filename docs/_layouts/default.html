@@ -22,9 +22,7 @@
 
         <p>{{ site.description | default: site.github.project_tagline }}</p>
 
-        {% if site.github.is_project_page %}
-        <p class="view"><a href="{{ site.github.repository_url }}">View the Project on GitHub <small>{{ site.github.repository_nwo }}</small></a></p>
-        {% endif %}
+        Access the online app in which you can visualise a demo dataset or previously generated ACORN Data. To generate ACORN Data, use the offline version, available on the GitHub repository of the project.
 
         {% if site.github.is_user_page %}
         <p class="view"><a href="{{ site.github.owner_url }}">View My GitHub Profile</a></p>
@@ -45,7 +43,7 @@
       </section>
       <footer>
         {% if site.github.is_project_page %}
-        <p>If you have questions about the project, please contact ACORN investigators [Prof Paul Turner](mailto:Pault@tropmedres.ac) or [Prof Rogier van Doorn](mailto:rvandoorn@oucru.org).</p>
+        <p>If you have questions about the project, please contact ACORN investigators <a href="mailto:Pault@tropmedres.ac?Subject=ACORN" target="_top">Prof Paul Turner</a> or <a href="mailto:rvandoorn@oucru.org?Subject=ACORN" target="_top">Prof Rogier van Doorn</a></p>
         {% endif %}
       </footer>
     </div>
