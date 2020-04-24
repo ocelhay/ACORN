@@ -1,38 +1,4 @@
-# Load packages ----
-library(bsplus)  # bs_accordion()
-library(data.table)
-# require digest 0.6.23 as we experience issues with subsequent versions
-library(digest)
-library(DT)
-library(flexdashboard)  # gaugeOutput()
-library(flextable)
-library(foreign)
-library(grid)  # textGrob()
-library(gridExtra)
-library(highcharter)  # highchartOutput()
-library(knitr)
-library(jsonlite)  # toJSON()
-library(lubridate)  # floor_date()
-library(markdown)
-library(openssl)
-library(purrr)  # map()
-library(pushbar)  # pushbar_deps()
-library(RColorBrewer)
-library(readxl)
-library(shiny)
-library(shinyBS)
-# require shinycssloaders 0.2.0 as we experience issues with subsequent versions
-library(shinycssloaders)  # withSpinner()
-library(shinyhelper)  # helper()
-library(shinythemes)  # shinytheme()
-# require shinyWidgets 0.4.9 as we experience issues with subsequent versions
-library(shinyWidgets)  # switchInput()
-library(tidyverse)  # App requires recent version for the implementation of na.rm in unite()
-library(tools)  # file_ext()
-library(timevis)  # timevisOutput()
-library(vov)  # swivel_vertical()
-
-
+source("./www/R/source_app_launch.R", local = TRUE)
 version <- "1.2"
 
 #  Functions and global variables ----
