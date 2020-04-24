@@ -53,7 +53,7 @@ f03.sel <- f03 %>% select(LINK1, D28_DATE, D28_STATUS, D28_DEATH_DATE)
 
 # We need to check if there are no elements of F02 or F03 that can't be linked to F01 (typos ...)
 unlinkable_elements_F02 <- setdiff(f02.sel$LINK, f01.sel$LINK)
-unlinkable_elements_F03 <- setdiff(f02.sel$LINK1, f01.sel$LINK1)
+unlinkable_elements_F03 <- setdiff(f03.sel$LINK1, f01.sel$LINK1)
 
 
 # Link f01 (enrolment) to f02 (hosp discharge) and f03 (d28 outcome)
