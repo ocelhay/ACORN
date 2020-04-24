@@ -1,3 +1,5 @@
+[![](https://img.shields.io/badge/devel%20version-1.2-blue.svg)](https://github.com/ocelhay/ACORN/)
+
 A Clinically Oriented antimicrobial Resistance Network (ACORN) is a Wellcome funded project led by the Mahidol-Oxford Tropical Medicine Research Unit and the Oxford University of Oxford Clinical Research Unit. This is the code repository for the ACORN Project.
 
 
