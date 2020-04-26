@@ -19,6 +19,8 @@ library(gridExtra)
 include_graphics("img_ACORN_logo.png")
 ```
 
+**Version `r version`**
+<hr>
 
 ACORN (“A Clinically Oriented antimicrobial Resistance Network”) is intended to generate patient-focused and clinically actionable AMR surveillance data. Details of the ACORN project protocol can be found here: https://wellcomeopenresearch.org/articles/5-13.
 
