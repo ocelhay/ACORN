@@ -378,7 +378,7 @@ flextable(dta) %>%
 
 ## Enrolments with Blood Cultures  {#bc}
 
-Enrolments with blood cultures / Total enrolments.
+Enrolments with Blood Culture / Total enrolments.
 
 ```{r blood_cultures}
 # Add surveillance category, surveillance diagnosis to microbio
@@ -392,10 +392,10 @@ dta <- left_join(
   microbio2 %>%
     filter(specimen_type == "Blood") %>%
     group_by(surveillance_cat, surveillance_diag) %>%
-    summarise(blood = n_distinct(episode_id)),  # Number of blood specimen per month of enrollment
+    summarise(blood = n_distinct(episode_id)),
   patient_filter() %>%
     group_by(surveillance_cat, surveillance_diag) %>%
-    summarise(all = n_distinct(episode_id)),  # Number of episodes per Category / Diagnosis
+    summarise(all = n_distinct(episode_id)),
   by = c("surveillance_cat", "surveillance_diag")) %>%
   mutate(percent = round(100 * blood/all, 1)) %>%
   ungroup() %>%
