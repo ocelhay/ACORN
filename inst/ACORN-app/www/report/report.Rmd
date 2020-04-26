@@ -45,26 +45,24 @@ Links to the sections:
 ## Data Summary
 
 ```{r eval = TRUE, echo=FALSE, results="asis"}
-add_text <- function(text)  paste0(feedback_text, br(), text)
+add_text <- function(text)  paste0(feedback_text, " ~~~ ", text)
 
 # Summary
 start <- patient() %>% nrow()
 end <- patient_filter() %>% nrow()
 prop <- round(100 * end / start, 0)
 if(start == end) feedback_text <- paste0("All ", start, " patients selected.")
-if(start != end) feedback_text <- paste0(end, " patients selected (", prop, "% of ", start, ")")
+if(start != end) feedback_text <- paste0(end, " patients selected (", prop, "% of ", start, ").")
 
 # Surveillance Category
-if(input$filter_category == "CAI") feedback_text <- add_text("Community Acquired Infections")
-if(input$filter_category == "HAI") feedback_text <- add_text("Hospital Acquired Infections")
+if(input$filter_category == "CAI") feedback_text <- add_text("Community Acquired Infections.")
+if(input$filter_category == "HAI") feedback_text <- add_text("Hospital Acquired Infections.")
 
 # Type of ward
 if(! identical(input$filter_type_ward, sort(unique(patient()$ward)))) feedback_text <- add_text(paste0("Admitted in ", paste(input$filter_type_ward, collapse = ", "), " wards"))
 
-# Date of enrollment
-if(input$filter_enrollment[1] > min(patient()$date_enrollment) | input$filter_enrollment[2] < max(patient()$date_enrollment)) {
-  feedback_text <- add_text(paste0("Enrolled between ", input$filter_enrollment[1], " and ", input$filter_enrollment[2]))
-}
+# Date of enrollment (always displayed)
+feedback_text <- add_text(paste0("Patients enrolled between ", min(patient()$date_enrollment), " and ", max(patient()$date_enrollment), "."))
 
 # Age
 if(input$filter_age_min > 0 | input$filter_age_max < 99) {
@@ -131,8 +129,6 @@ if(input$first_isolate)  feedback_text <- add_text("Only first isolate per organ
 # Return text
 return(HTML(feedback_text))
 ```
-
-Patients enrolled between `r min(patient()$date_enrollment)` and `r max(patient()$date_enrollment)`.
 
 
 ## Patients Per Surveillance Category {#surv_category}
