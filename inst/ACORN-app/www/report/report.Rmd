@@ -133,17 +133,6 @@ return(HTML(feedback_text))
 Patients enrolled between `r min(patient()$date_enrollment)` and `r max(patient()$date_enrollment)`.
 
 
-
-```{r dpi = 200, fig.width = 10, fig.height = 6, eval = FALSE}
-patient_filter() %>%
-  # patient %>%
-  ggplot(aes(x = date_enrollment)) +
-  geom_histogram(bins = 15) +
-  labs(title = "Enrolled Patients", x = "Date of Enrollment", y = "Patients") +
-  theme_light(base_size = 17)
-```
-
-
 ## Patients Per Surveillance Category {#surv_category}
 
 Type of ward:
