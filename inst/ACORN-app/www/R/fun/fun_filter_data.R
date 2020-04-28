@@ -61,33 +61,33 @@ fun_filter_patient <- function(data, input) {
   return(data)
 }
 
-fun_filter_microbio <- function(data, patient, input) {
-  # it is expected that patient argument = patient_filter()
-  
+fun_filter_microbio <- function(data, patient, input) { # it is expected that patient argument = patient_filter()
   if( is.null(data) ) return(NULL)
   
+  # select only microbio data for the filtered episodes
   data <- data %>% filter(episode_id %in% patient$episode_id)
   
+  # filter by type of specimen
   if(! "blood" %in% input$filter_method_collection) data <- data %>% filter(specimen_type != "Blood")
   if(! "other_not_blood" %in% input$filter_method_collection) data <- data %>% filter(specimen_type == "Blood")
   data <- data %>% filter(specimen_type %in% c("Blood", input$filter_method_other))
   
-  if(input$first_isolate)  data <- data %>% group_by(episode_id, organism) %>% 
-    top_n(1, specimen_id) %>% ungroup()
+  if(input$first_isolate)  data <- data %>% group_by(episode_id, organism) %>% top_n(1, specimen_id) %>% ungroup()
   
   return(data)
 }
 
-# For the report, only blood specimens are used
-fun_filter_microbio_blood <- function(data, patient, input) {
-  
+
+fun_filter_microbio_blood <- function(data, patient, input) { # it is expected that patient argument = patient_filter()
   if( is.null(data) ) return(NULL)
   
-  data <- data %>% filter(patient_id %in% patient$patient_id)  # it is expected that patient IS patient_filter()
+  # select only microbio data for the filtered episodes
+  data <- data %>% filter(episode_id %in% patient$episode_id)
   
+  # filter by type of specimen
   data <- data %>% filter(specimen_type == "Blood")
   
-  if(input$first_isolate)  data <- data %>% group_by(patient_id, organism) %>% top_n(1, specimen_id) %>% ungroup()
+  if(input$first_isolate)  data <- data %>% group_by(episode_id, organism) %>% top_n(1, specimen_id) %>% ungroup()
   
   return(data)
 }

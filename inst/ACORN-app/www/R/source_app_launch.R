@@ -31,3 +31,6 @@ library(tidyverse)  # App requires recent version for the implementation of na.r
 library(tools)  # file_ext()
 library(timevis)  # timevisOutput()
 library(vov)  # swivel_vertical()
+
+
+cols_sir <- c("#2166ac", "#fddbc7", "#b2182b")  # resp. S, I, R

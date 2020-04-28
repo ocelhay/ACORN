@@ -1,12 +1,9 @@
 source("./www/R/source_app_launch.R", local = TRUE)
+
 version <- "1.2"
 
-#  Functions and global variables ----
-source("./www/R/fun/fun_filter_data.R", local = TRUE)
-
-cols_sir <- c("#2166ac", "#fddbc7", "#b2182b")  # resp. S, I, R
-source("./www/R/fun/fun_highchart_sir.R", local = TRUE)
-source("./www/R/fun/fun_highchart_sir_evolution.R", local = TRUE)
+# Source all functions
+for(file in list.files("./www/R/fun/"))  source(paste0("./www/R/fun/", file), local = TRUE)
 
 # Define UI ----
 ui <- fluidPage(
@@ -65,7 +62,7 @@ ui <- fluidPage(
                                                                               checkboxGroupButtons(inputId = "filter_method_other", label = NULL, choices = " ", selected = NULL, individual = TRUE, size = "xs", status = "primary",
                                                                                                    checkIcon = list(yes = icon("check")))
                                                              ),
-                                                             prettySwitch(inputId = "first_isolate", label = "Only first isolate per organism per patient", status = "primary", width = "100px")
+                                                             prettySwitch(inputId = "first_isolate", label = span(tags$strong("Only first isolate"), tags$small(" per organism per patient episode")), status = "primary", width = "100px")
                                                          )
                                                  )
                                 )
