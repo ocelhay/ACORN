@@ -1,6 +1,6 @@
 Package: ACORN
 Type: Package
-Title: Shiny app for the exploration of ACORN data
+Title: App for the exploration of ACORN data
 Version: 1.2
 Author: Olivier Celhay, Paul Turner
 Maintainer: Olivier Celhay <olivier.celhay@gmail.com>

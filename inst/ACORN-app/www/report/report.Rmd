@@ -265,7 +265,7 @@ if(length(input$filter_method_collection) == 1) {
   if(input$filter_method_collection == "blood") feedback_text <- paste0("(Filter) Only Blood specimens.")
   if(input$filter_method_collection == "other_not_blood") feedback_text <- paste0("(Filter) Specimen types: ", paste(input$filter_method_other, collapse = ", "), ".")
 }
-if(input$first_isolate)  feedback_text <- add_text("Only first isolate per organism per patient.")
+feedback_text <- add_text(input$deduplication_method)
 
 # Return text
 return(HTML(feedback_text))

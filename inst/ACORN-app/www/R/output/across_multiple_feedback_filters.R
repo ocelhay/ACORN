@@ -20,7 +20,6 @@ output$feedback_filters_details <- renderText({
   req(patient())
   req(patient_filter())
   
-  
   add_text <- function(text)  paste0(feedback_text, br(), icon("caret-right"), text)
   
   # Summary
@@ -99,7 +98,6 @@ output$feedback_filters_details <- renderText({
     )
   )
 })
-
 
 output$gauge_selection <- renderGauge({
   req(patient_filter())

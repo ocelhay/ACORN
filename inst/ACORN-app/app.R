@@ -59,10 +59,15 @@ ui <- fluidPage(
                                                                                  choices = c("Blood culture" = "blood", "Other Specimens:" = "other_not_blood"), 
                                                                                  selected = c("blood", "other_not_blood"), inline = TRUE),
                                                              conditionalPanel("input.filter_method_collection.includes('other_not_blood')",
-                                                                              checkboxGroupButtons(inputId = "filter_method_other", label = NULL, choices = " ", selected = NULL, individual = TRUE, size = "xs", status = "primary",
-                                                                                                   checkIcon = list(yes = icon("check")))
+                                                                              pickerInput(inputId = "filter_method_other", label = NULL, multiple = TRUE,
+                                                                                          choices = " ", selected = NULL,
+                                                                                          options = list(
+                                                                                            `actions-box` = TRUE, `deselect-all-text` = "None...",
+                                                                                            `select-all-text` = "Select All", `none-selected-text` = "None Selected"))
                                                              ),
-                                                             prettySwitch(inputId = "first_isolate", label = span(tags$strong("Only first isolate"), tags$small(" per organism per patient episode")), status = "primary", width = "100px")
+                                                             selectInput(inputId = "deduplication_method", label = NULL, choices = c("No deduplication of isolates", "Deduplication by patient-episode", "Deduplication by patient ID")) %>% 
+                                                               helper(content = "deduplication", colour = "red"),
+                                                             br(), br(), br()
                                                          )
                                                  )
                                 )
@@ -515,11 +520,13 @@ server <- function(input, output, session) {
   )
   
   microbio_filter <- reactive(
-    fun_filter_microbio(data = microbio(), patient = patient_filter(), input = input)
+    fun_filter_microbio(data = microbio(), patient = patient_filter(), input = input) %>%
+      fun_deduplication(method = input$deduplication_method)
   )
   
   microbio_filter_blood <- reactive(
-    fun_filter_microbio_blood(data = microbio(), patient = patient_filter(), input = input)
+    fun_filter_microbio_blood(data = microbio(), patient = patient_filter(), input = input) %>%
+      fun_deduplication(method = input$deduplication_method)
   )
   
   hai_surveys_filter <- reactive(
@@ -666,10 +673,9 @@ server <- function(input, output, session) {
       data_details(meta)
       hai_surveys(hai.surveys)
       
-      updateCheckboxGroupButtons(session = session, "filter_method_other", 
-                                 choices = sort(setdiff(unique(microbio$specimen_type), "Blood")), 
-                                 selected = sort(setdiff(unique(microbio$specimen_type), "Blood")),
-                                 size = "sm", status = "primary", checkIcon = list(yes = icon("check")))
+      updatePickerInput(session = session, "filter_method_other", 
+                        choices = sort(setdiff(unique(microbio$specimen_type), "Blood")), 
+                        selected = sort(setdiff(unique(microbio$specimen_type), "Blood")))
       
       updatePrettyCheckboxGroup(session = session, inputId = "filter_type_ward", 
                                 choices = sort(unique(patient$ward)), selected = sort(unique(patient$ward)), 
@@ -739,9 +745,9 @@ server <- function(input, output, session) {
     data_details(meta)
     hai_surveys(hai.surveys)
     
-    updateCheckboxGroupButtons(session = session, "filter_method_other", choices = sort(setdiff(unique(microbio$specimen_type), "Blood")), 
-                               selected = sort(setdiff(unique(microbio$specimen_type), "Blood")),
-                               size = "sm", status = "primary", checkIcon = list(yes = icon("check")))
+    updatePickerInput(session = session, "filter_method_other", choices = sort(setdiff(unique(microbio$specimen_type), "Blood")), 
+                      selected = sort(setdiff(unique(microbio$specimen_type), "Blood")),
+                      size = "sm", status = "primary", checkIcon = list(yes = icon("check")))
     updatePrettyCheckboxGroup(session = session, "filter_type_ward", choices = sort(unique(patient$ward)), selected = sort(unique(patient$ward)), inline = TRUE, prettyOptions = list(shape = "curve"))
     updatePickerInput(session = session, "filter_ward", choices = sort(unique(patient$ward_text)), selected = sort(unique(patient$ward_text)))
     updateDateRangeInput(session = session, "filter_enrollment", start = min(patient$date_enrollment), end = max(patient$date_enrollment))
