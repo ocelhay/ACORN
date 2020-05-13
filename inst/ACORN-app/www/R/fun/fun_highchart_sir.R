@@ -18,6 +18,7 @@ highchart_sir <- function(data_input, organism_input, corresp, combine_SI) {
     
     data <- data_input %>% 
       filter(organism %in% organism_input) %>%
+      fun_deduplication() %>%
       select(specimen_id, 9:ncol(data_input)) %>%
       pivot_longer(-specimen_id) %>%
       filter(value != "Not Tested") %>%
@@ -80,7 +81,8 @@ highchart_sir <- function(data_input, organism_input, corresp, combine_SI) {
   if(!combine_SI) {
     
     data <- data_input %>% 
-      filter(organism %in% organism_input) %>%
+      filter(organism %in% organism_input) %>% 
+      fun_deduplication() %>%
       select(specimen_id, 9:ncol(data_input)) %>%
       pivot_longer(-specimen_id) %>%
       filter(value != "Not Tested") %>%

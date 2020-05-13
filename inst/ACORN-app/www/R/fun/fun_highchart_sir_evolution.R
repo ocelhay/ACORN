@@ -17,7 +17,8 @@ highchart_sir_evolution <- function(data_input, organism_input, corresp, combine
   
   if(combine_SI) {
   sir_results <- data_input %>% 
-    filter(organism %in% organism_input) %>%
+    filter(organism %in% organism_input) %>% 
+    fun_deduplication() %>%
     select(specimen_id, date_specimen, 9:ncol(data_input)) %>%
     pivot_longer(-c(specimen_id:date_specimen)) %>%
     filter(value %in% c("S", "I", "R")) %>%
@@ -32,7 +33,8 @@ highchart_sir_evolution <- function(data_input, organism_input, corresp, combine
   
   if(! combine_SI) {
     sir_results <- data_input %>% 
-      filter(organism %in% organism_input) %>%
+      filter(organism %in% organism_input) %>% 
+      fun_deduplication() %>%
       select(specimen_id, date_specimen, 9:ncol(data_input)) %>%
       pivot_longer(-c(specimen_id:date_specimen)) %>%
       filter(value %in% c("S", "I", "R")) %>%

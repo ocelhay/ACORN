@@ -3,6 +3,7 @@ output$specimens_specimens_type <- renderHighchart({
   req(nrow(microbio_filter()) > 0)
   
   dta <- microbio_filter() %>%
+    fun_deduplication() %>%
     group_by(specimen_id) %>%
     filter(row_number() == 1) %>%
     ungroup() %>%
@@ -27,11 +28,11 @@ output$culture_specimen_type <- renderHighchart({
   req(nrow(microbio_filter()) > 0)
   
   # Specimens with at least one element that has grown
-  spec_grown <- microbio_filter() %>%
-    fun_filter_growth_only() %>%
+  spec_grown <- microbio_filter_growth() %>%
     pull(specimen_id)
   
   dta <- microbio_filter() %>%
+    fun_deduplication() %>%
     mutate(growth = case_when(specimen_id %in% spec_grown ~ "Growth", TRUE ~ "No Growth")) %>%
     mutate(culture_result = case_when(organism == "Not cultured" ~ "Not cultured", TRUE ~ growth)) %>%
     group_by(specimen_type, culture_result) %>%

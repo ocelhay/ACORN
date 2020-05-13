@@ -114,7 +114,7 @@ outputOptions(output, "test_saureus_sir", suspendWhenHidden = FALSE)
 
 output$nb_isolates_saureus <- renderText({
   organism_input <- "Staphylococcus aureus"
-  nb <- microbio_filter() %>% filter(organism == organism_input) %>% nrow()
+  nb <- microbio_filter() %>% filter(organism == organism_input) %>% fun_deduplication() %>% nrow()
   ifelse (nb != 0, paste0(span("Total of ", br(), nb, " isolates")), HTML("There are no isolates"))
 })
 
@@ -202,14 +202,15 @@ output$test_other_sir <- reactive({
   organism_input <- input$other_organism
   ifelse (nrow(microbio_filter() %>% 
                  filter(organism == organism_input) %>% 
+                 fun_deduplication() %>% 
                  filter_at(vars(AMK:thirdgenceph), any_vars(!is.na(.)))) == 0, FALSE, TRUE)
 })
 outputOptions(output, "test_other_sir", suspendWhenHidden = FALSE)
 
 output$nb_isolates_other <- renderText({
   organism_input <- input$other_organism
-  req(microbio_filter() %>% filter(organism == organism_input))
-  nb <- microbio_filter() %>% filter(organism == organism_input) %>% nrow()
+  req(microbio_filter() %>% filter(organism == organism_input) %>% fun_deduplication())
+  nb <- microbio_filter() %>% filter(organism == organism_input) %>% fun_deduplication() %>% nrow()
   ifelse (nb != 0, paste0(span(strong(organism_input), br(), "Total of ", br(), nb, " isolates")), HTML("There are no isolates"))
 })
 

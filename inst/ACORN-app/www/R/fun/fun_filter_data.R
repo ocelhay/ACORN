@@ -66,7 +66,7 @@ fun_filter_patient <- function(data, input) {
 # and keeps specimen based on filter_method_collection/filter_method_other.
 # it is expected that patient argument = patient_filter()
 fun_filter_microbio <- function(data, patient, input) { 
-  if( is.null(data) ) return(NULL)
+  if(is.null(data)) return(NULL)
   
   # select only microbio data for the filtered episodes
   data <- data %>% filter(episode_id %in% patient$episode_id)
@@ -79,35 +79,21 @@ fun_filter_microbio <- function(data, patient, input) {
   return(data)
 }
 
-# Function that removes episode_id that are not in patient dataset in argument, 
-# and keeps only "Blood" specimen type.
-# it is expected that patient argument = patient_filter()
-fun_filter_microbio_blood <- function(data, patient, input) { 
-  if( is.null(data) ) return(NULL)
-  
-  data <- data %>% 
-    filter(episode_id %in% patient$episode_id,
-           specimen_type == "Blood")
-  
-  if(input$first_isolate)  data <- data %>% group_by(episode_id, organism) %>% top_n(1, specimen_id) %>% ungroup()
-  
-  return(data)
-}
+# Function that removes organisms "No growth (specific organism)" and "No growth"
+# "No significant growth" should be categorised as growth
+fun_filter_growth_only <- function(dta) dta %>% filter(! organism %in% c("No growth (specific organism)", "No growth"))
 
-fun_filter_hai <- function(data, input) {
-  if( is.null(data) ) return(NULL)
-  
-  data <- data %>% filter(
-    ward_type %in% input$filter_type_ward,
-    ward %in% input$filter_ward | is.na(ward),
-    date_survey <= input$filter_enrollment[2],
-    date_survey >= input$filter_enrollment[1]
-  )
-}
+# Function that removes organisms "Not cultured"
+fun_filter_cultured_only <- function(dta) dta %>% filter(! organism == "Not cultured")
+
+# Function that removes organisms "No significant growth"
+fun_filter_signif_growth <- function(dta) dta %>% filter(organism != "No significant growth")
 
 # Function that returns a deduplicated dataset following the provided method: by patient-episode or by patient Id
 # It's essential to use this only once possible other filters (surveillance type...) have already been applied
-fun_deduplication <- function(data, method) {
+fun_deduplication <- function(data, input) {
+  method <- input$deduplication_method
+  
   if(method == "No deduplication of isolates")  return(data)
   
   if(method == "Deduplication by patient-episode") { 
@@ -125,17 +111,4 @@ fun_deduplication <- function(data, method) {
                  " isolates (-",  nrow(data) - nrow(data_dedup), ")."))
     return(data_dedup)
   }
-}
-
-# Function that removes organisms "No growth (specific organism)" and "No growth"
-# "No significant growth" should be categorised as growth
-fun_filter_growth_only <- function(dta) {
-  return(dta %>%
-           filter(! organism %in% c("No growth (specific organism)", "No growth")))
-}
-
-# Function that removes organisms "Not cultured"
-fun_filter_cultured_only <- function(dta) {
-  return(dta %>%
-           filter(! organism == "Not cultured"))
 }

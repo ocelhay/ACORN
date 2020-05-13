@@ -2,12 +2,10 @@ output$isolates_growth_gauge <- renderGauge({
     req(microbio_filter())
     req(nrow(microbio_filter()) > 0)
   
-  n <- microbio_filter() %>%
-    fun_filter_growth_only() %>%
+  n <- microbio_filter_growth() %>%
     nrow()
   
-  total <- microbio_filter() %>% 
-    fun_filter_cultured_only() %>%
+  total <- microbio_filter_cultured() %>%
     nrow()
   
   gauge(n, min = 0, max = total, abbreviate = FALSE, gaugeSectors(colors = "#2c3e50"))
@@ -17,10 +15,10 @@ output$isolates_growth_pct <- renderText({
   req(patient_filter())
   req(nrow(patient_filter()) > 0)
   
-  n <- microbio_filter() %>%
-    fun_filter_growth_only() %>%
+  n <- microbio_filter_growth() %>%
     nrow()
-  total <- microbio_filter() %>% nrow()
+  total <- microbio_filter() %>% 
+    nrow()
   
   paste(br(), br(), h4(paste0(round(100*n/total, 1), "%")), span("of cultures have growth."))
 })
@@ -34,7 +32,9 @@ output$isolates_organism <- renderHighchart({
   df <- microbio_filter() %>%
     fun_filter_growth_only() %>%
     fun_filter_cultured_only() %>%
-    filter(organism != "No significant growth") %>%
+    fun_filter_signif_growth() %>%
+    fun_deduplication() %>%
+    
     group_by(organism) %>%
     summarise(y = n()) %>%
     top_n(20, y) %>%
@@ -57,7 +57,9 @@ output$isolates_organism_table <- renderDT({
   df <- microbio_filter() %>%
     fun_filter_growth_only() %>%
     fun_filter_cultured_only() %>%
-    filter(organism != "No significant growth") %>%
+    fun_filter_signif_growth() %>%
+    fun_deduplication() %>%
+    
     group_by(organism) %>%
     summarise(N = n()) %>%
     mutate(Frequency = N / sum(N)) %>%

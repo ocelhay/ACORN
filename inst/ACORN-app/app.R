@@ -520,17 +520,21 @@ server <- function(input, output, session) {
   )
   
   microbio_filter <- reactive(
-    fun_filter_microbio(data = microbio(), patient = patient_filter(), input = input) %>%
-      fun_deduplication(method = input$deduplication_method)
+    fun_filter_microbio(data = microbio(), patient = patient_filter(), input = input)
   )
   
+  # exclusively for report:
   microbio_filter_blood <- reactive(
-    fun_filter_microbio_blood(data = microbio(), patient = patient_filter(), input = input) %>%
-      fun_deduplication(method = input$deduplication_method)
+    microbio_filter() %>% 
+      filter(specimen_type == "Blood")
   )
   
   hai_surveys_filter <- reactive(
-    fun_filter_hai(data = hai_surveys(), input = input)
+    fun_filter_hai  %>% filter(
+      ward_type %in% input$filter_type_ward,
+      ward %in% input$filter_ward | is.na(ward),
+      date_survey <= input$filter_enrollment[2],
+      date_survey >= input$filter_enrollment[1])
   )
   
   # Source code to generate outputs ----

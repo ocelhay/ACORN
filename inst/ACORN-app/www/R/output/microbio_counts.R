@@ -5,7 +5,7 @@ output$n_patient <- renderText({
       as.character(
       div(class = "n_box",
           div(class = "icon_box", icon("user-check")),
-          h3(n_distinct(microbio_filter()$patient_id)),
+          h3(n_distinct(microbio_filter() %>% fun_deduplication() %>% pull(patient_id))),
           strong("Patients with Microbiology")
       )
     )
@@ -15,8 +15,8 @@ output$n_patient <- renderText({
 
 output$n_specimen <- renderText({
   
-  p <- n_distinct(microbio_filter()$specimen_id)
-  n <- n_distinct(microbio_filter()$patient_id)
+  p <- n_distinct(microbio_filter() %>% fun_deduplication() %>% pull(specimen_id))
+  n <- n_distinct(microbio_filter()  %>% fun_deduplication() %>% pull(patient_id))
   prop = round(p/n, 2)
   
   return(
@@ -33,11 +33,7 @@ output$n_specimen <- renderText({
 })
 
 output$n_isolate <- renderText({
-  n <- n_distinct(microbio_filter() %>% 
-                    fun_filter_growth_only() %>%
-                    filter(organism != "No significant growth") %>%
-                    filter(organism != "Not cultured") %>%
-                    pull(isolate_id))
+  n <- n_distinct(microbio_filter() %>% fun_deduplication() %>% pull(isolate_id))
   
   return(
     paste0(
