@@ -1,5 +1,5 @@
 highchart_sir_evolution <- function(data_input, organism_input, corresp, combine_SI, 
-                                    filter_antibio = "", filter_group = "") {
+                                    filter_antibio = "", filter_group = "", deduplication_method) {
   
   # Column in the Organism-Antibiotic matrix
   matching_name_column <- "all_other_organisms"
@@ -18,7 +18,7 @@ highchart_sir_evolution <- function(data_input, organism_input, corresp, combine
   if(combine_SI) {
   sir_results <- data_input %>% 
     filter(organism %in% organism_input) %>% 
-    fun_deduplication() %>%
+    fun_deduplication(method = deduplication_method) %>%
     select(specimen_id, date_specimen, 9:ncol(data_input)) %>%
     pivot_longer(-c(specimen_id:date_specimen)) %>%
     filter(value %in% c("S", "I", "R")) %>%
@@ -34,7 +34,7 @@ highchart_sir_evolution <- function(data_input, organism_input, corresp, combine
   if(! combine_SI) {
     sir_results <- data_input %>% 
       filter(organism %in% organism_input) %>% 
-      fun_deduplication() %>%
+      fun_deduplication(method = deduplication_method) %>%
       select(specimen_id, date_specimen, 9:ncol(data_input)) %>%
       pivot_longer(-c(specimen_id:date_specimen)) %>%
       filter(value %in% c("S", "I", "R")) %>%

@@ -530,7 +530,7 @@ server <- function(input, output, session) {
   )
   
   hai_surveys_filter <- reactive(
-    fun_filter_hai  %>% filter(
+    hai_surveys() %>% filter(
       ward_type %in% input$filter_type_ward,
       ward %in% input$filter_ward | is.na(ward),
       date_survey <= input$filter_enrollment[2],

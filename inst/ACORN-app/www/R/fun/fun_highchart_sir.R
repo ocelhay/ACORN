@@ -1,4 +1,4 @@
-highchart_sir <- function(data_input, organism_input, corresp, combine_SI) {
+highchart_sir <- function(data_input, organism_input, corresp, combine_SI, deduplication_method) {
   
   # Column in the Organism-Antibiotic matrix
   matching_name_column <- "all_other_organisms"
@@ -18,7 +18,7 @@ highchart_sir <- function(data_input, organism_input, corresp, combine_SI) {
     
     data <- data_input %>% 
       filter(organism %in% organism_input) %>%
-      fun_deduplication() %>%
+      fun_deduplication(method = deduplication_method) %>%
       select(specimen_id, 9:ncol(data_input)) %>%
       pivot_longer(-specimen_id) %>%
       filter(value != "Not Tested") %>%
@@ -82,7 +82,7 @@ highchart_sir <- function(data_input, organism_input, corresp, combine_SI) {
     
     data <- data_input %>% 
       filter(organism %in% organism_input) %>% 
-      fun_deduplication() %>%
+      fun_deduplication(method = deduplication_method) %>%
       select(specimen_id, 9:ncol(data_input)) %>%
       pivot_longer(-specimen_id) %>%
       filter(value != "Not Tested") %>%

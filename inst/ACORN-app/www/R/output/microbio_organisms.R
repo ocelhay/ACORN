@@ -2,10 +2,13 @@ output$isolates_growth_gauge <- renderGauge({
     req(microbio_filter())
     req(nrow(microbio_filter()) > 0)
   
-  n <- microbio_filter_growth() %>%
+  n <- microbio_filter() %>%
+    fun_filter_growth_only() %>%
     nrow()
   
-  total <- microbio_filter_cultured() %>%
+  total <- microbio_filter() %>%
+    fun_filter_growth_only() %>%
+    fun_filter_cultured_only() %>%
     nrow()
   
   gauge(n, min = 0, max = total, abbreviate = FALSE, gaugeSectors(colors = "#2c3e50"))
@@ -15,7 +18,8 @@ output$isolates_growth_pct <- renderText({
   req(patient_filter())
   req(nrow(patient_filter()) > 0)
   
-  n <- microbio_filter_growth() %>%
+  n <- microbio_filter() %>%
+    fun_filter_growth_only() %>%
     nrow()
   total <- microbio_filter() %>% 
     nrow()
@@ -33,7 +37,7 @@ output$isolates_organism <- renderHighchart({
     fun_filter_growth_only() %>%
     fun_filter_cultured_only() %>%
     fun_filter_signif_growth() %>%
-    fun_deduplication() %>%
+    fun_deduplication(method = input$deduplication_method) %>%
     
     group_by(organism) %>%
     summarise(y = n()) %>%
@@ -58,7 +62,7 @@ output$isolates_organism_table <- renderDT({
     fun_filter_growth_only() %>%
     fun_filter_cultured_only() %>%
     fun_filter_signif_growth() %>%
-    fun_deduplication() %>%
+    fun_deduplication(method = input$deduplication_method) %>%
     
     group_by(organism) %>%
     summarise(N = n()) %>%

@@ -2,13 +2,15 @@
 
 output$abaumannii_sir <- renderHighchart({
   organism_input <- "Acinetobacter baumannii"
-  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), combine_SI = input$combine_SI)
+  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), combine_SI = input$combine_SI,
+                deduplication_method = input$deduplication_method)
 })
 
 output$abaumannii_sir_evolution <- renderHighchart({
   organism_input <- "Acinetobacter baumannii"
   highchart_sir_evolution(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), 
-                          combine_SI = input$combine_SI, filter_group = "Carbapenems")
+                          combine_SI = input$combine_SI, filter_group = "Carbapenems",
+                          deduplication_method = input$deduplication_method)
 })
 
 output$test_abaumannii_sir <- reactive({
@@ -30,13 +32,15 @@ output$nb_isolates_abaumannii <- renderText({
 
 output$ecoli_sir <- renderHighchart({
   organism_input <- "Escherichia coli"
-  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), combine_SI = input$combine_SI)
+  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), combine_SI = input$combine_SI,
+                deduplication_method = input$deduplication_method)
 })
 
 output$ecoli_sir_evolution <- renderHighchart({
   organism_input <- "Escherichia coli"
   highchart_sir_evolution(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), 
-                          combine_SI = input$combine_SI, filter_group = "Carbapenems")
+                          combine_SI = input$combine_SI, filter_group = "Carbapenems",
+                          deduplication_method = input$deduplication_method)
 })
 
 output$test_ecoli_sir <- reactive({
@@ -49,7 +53,8 @@ outputOptions(output, "test_ecoli_sir", suspendWhenHidden = FALSE)
 output$ecoli_sir_evolution_ceph <- renderHighchart({
   organism_input <- "Escherichia coli"
   highchart_sir_evolution(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), 
-                          combine_SI = input$combine_SI, filter_antibio = "Aggregate 3rd gen. ceph.")
+                          combine_SI = input$combine_SI, filter_antibio = "Aggregate 3rd gen. ceph.",
+                          deduplication_method = input$deduplication_method)
 })
 
 output$nb_isolates_ecoli <- renderText({
@@ -63,13 +68,15 @@ output$nb_isolates_ecoli <- renderText({
 
 output$kpneumoniae_sir <- renderHighchart({
   organism_input <- "Klebsiella pneumoniae"
-  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), combine_SI = input$combine_SI)
+  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), combine_SI = input$combine_SI,
+                deduplication_method = input$deduplication_method)
 })
 
 output$kpneumoniae_sir_evolution <- renderHighchart({
   organism_input <- "Klebsiella pneumoniae"
   highchart_sir_evolution(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), 
-                          combine_SI = input$combine_SI, filter_group = "Carbapenems")
+                          combine_SI = input$combine_SI, filter_group = "Carbapenems",
+                          deduplication_method = input$deduplication_method)
 })
 
 
@@ -83,7 +90,8 @@ outputOptions(output, "test_kpneumoniae_sir", suspendWhenHidden = FALSE)
 output$kpneumoniae_sir_evolution_ceph <- renderHighchart({
   organism_input <- "Klebsiella pneumoniae"
   highchart_sir_evolution(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), 
-                          combine_SI = input$combine_SI, filter_antibio = "Aggregate 3rd gen. ceph.")
+                          combine_SI = input$combine_SI, filter_antibio = "Aggregate 3rd gen. ceph.",
+                          deduplication_method = input$deduplication_method)
 })
 
 output$nb_isolates_kpneumoniae <- renderText({
@@ -96,13 +104,15 @@ output$nb_isolates_kpneumoniae <- renderText({
 # S. aureus ----
 output$saureus_sir <- renderHighchart({
   organism_input <- "Staphylococcus aureus"
-  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), combine_SI = input$combine_SI)
+  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), combine_SI = input$combine_SI,
+                deduplication_method = input$deduplication_method)
 })
 
 output$saureus_sir_evolution <- renderHighchart({
   organism_input <- "Staphylococcus aureus"
   highchart_sir_evolution(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), 
-                          combine_SI = input$combine_SI, filter_antibio = "Oxacillin")
+                          combine_SI = input$combine_SI, filter_antibio = "Oxacillin",
+                          deduplication_method = input$deduplication_method)
 })
 
 output$test_saureus_sir <- reactive({
@@ -114,7 +124,7 @@ outputOptions(output, "test_saureus_sir", suspendWhenHidden = FALSE)
 
 output$nb_isolates_saureus <- renderText({
   organism_input <- "Staphylococcus aureus"
-  nb <- microbio_filter() %>% filter(organism == organism_input) %>% fun_deduplication() %>% nrow()
+  nb <- microbio_filter() %>% filter(organism == organism_input) %>% fun_deduplication(method = input$deduplication_method) %>% nrow()
   ifelse (nb != 0, paste0(span("Total of ", br(), nb, " isolates")), HTML("There are no isolates"))
 })
 
@@ -122,13 +132,15 @@ output$nb_isolates_saureus <- renderText({
 
 output$spneumoniae_sir <- renderHighchart({
   organism_input <- "Streptococcus pneumoniae"
-  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), combine_SI = input$combine_SI)
+  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), combine_SI = input$combine_SI,
+                deduplication_method = input$deduplication_method)
 })
 
 output$spneumoniae_sir_evolution <- renderHighchart({
   organism_input <- "Streptococcus pneumoniae"
   highchart_sir_evolution(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), 
-                          combine_SI = input$combine_SI, filter_group = "Penicillins")
+                          combine_SI = input$combine_SI, filter_group = "Penicillins",
+                          deduplication_method = input$deduplication_method)
 })
 
 output$test_spneumoniae_sir <- reactive({
@@ -149,19 +161,22 @@ output$nb_isolates_spneumoniae <- renderText({
 
 output$salmonella_sir <- renderHighchart({
   organism_input <- input$select_salmonella
-  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), combine_SI = input$combine_SI)
+  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), combine_SI = input$combine_SI,
+                deduplication_method = input$deduplication_method)
 })
 
 output$salmonella_sir_evolution_ceph <- renderHighchart({
   organism_input <- input$select_salmonella
   highchart_sir_evolution(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), 
-                          combine_SI = input$combine_SI, filter_antibio = "Aggregate 3rd gen. ceph.")
+                          combine_SI = input$combine_SI, filter_antibio = "Aggregate 3rd gen. ceph.",
+                          deduplication_method = input$deduplication_method)
 })
 
 output$salmonella_sir_evolution_fluo <- renderHighchart({
   organism_input <- input$select_salmonella
   highchart_sir_evolution(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), 
-                          combine_SI = input$combine_SI, filter_group = "Fluoroquinolones")
+                          combine_SI = input$combine_SI, filter_group = "Fluoroquinolones",
+                          deduplication_method = input$deduplication_method)
 })
 
 output$test_salmonella_sir <- reactive({
@@ -194,7 +209,8 @@ output$nb_isolates_salmonella <- renderText({
 # Other Organism ----
 output$other_organism_sir <- renderHighchart({
   organism_input <- input$other_organism
-  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), combine_SI = input$combine_SI)
+  highchart_sir(data_input = microbio_filter(), organism_input = organism_input, corresp = corresp_org_antibio(), combine_SI = input$combine_SI,
+                deduplication_method = input$deduplication_method)
 })
 
 output$test_other_sir <- reactive({
@@ -202,15 +218,15 @@ output$test_other_sir <- reactive({
   organism_input <- input$other_organism
   ifelse (nrow(microbio_filter() %>% 
                  filter(organism == organism_input) %>% 
-                 fun_deduplication() %>% 
+                 fun_deduplication(method = input$deduplication_method) %>% 
                  filter_at(vars(AMK:thirdgenceph), any_vars(!is.na(.)))) == 0, FALSE, TRUE)
 })
 outputOptions(output, "test_other_sir", suspendWhenHidden = FALSE)
 
 output$nb_isolates_other <- renderText({
   organism_input <- input$other_organism
-  req(microbio_filter() %>% filter(organism == organism_input) %>% fun_deduplication())
-  nb <- microbio_filter() %>% filter(organism == organism_input) %>% fun_deduplication() %>% nrow()
+  req(microbio_filter() %>% filter(organism == organism_input) %>% fun_deduplication(method = input$deduplication_method))
+  nb <- microbio_filter() %>% filter(organism == organism_input) %>% fun_deduplication(method = input$deduplication_method) %>% nrow()
   ifelse (nb != 0, paste0(span(strong(organism_input), br(), "Total of ", br(), nb, " isolates")), HTML("There are no isolates"))
 })
 

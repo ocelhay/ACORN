@@ -91,8 +91,8 @@ fun_filter_signif_growth <- function(dta) dta %>% filter(organism != "No signifi
 
 # Function that returns a deduplicated dataset following the provided method: by patient-episode or by patient Id
 # It's essential to use this only once possible other filters (surveillance type...) have already been applied
-fun_deduplication <- function(data, input) {
-  method <- input$deduplication_method
+fun_deduplication <- function(data, method = NULL) {
+  if(is.null(method)) stop("No deduplication method provided.")
   
   if(method == "No deduplication of isolates")  return(data)
   
