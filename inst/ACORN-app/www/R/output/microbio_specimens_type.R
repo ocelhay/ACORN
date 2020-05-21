@@ -5,7 +5,7 @@ output$specimens_specimens_type <- renderHighchart({
   dta <- microbio_filter() %>%
     fun_deduplication(method = input$deduplication_method) %>%
     group_by(specimen_id) %>%
-    filter(row_number() == 1) %>%
+    slice(1) %>%
     ungroup() %>%
     group_by(specimen_type) %>%
     summarise(y = n()) %>%

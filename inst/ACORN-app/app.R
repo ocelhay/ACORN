@@ -29,47 +29,45 @@ ui <- fluidPage(
                             p("Antibiotic susceptibility testing of a multi-drug resistant ", em("Escherichia coli"), "isolated from the urine of a 51 year old Lao patient with a perinephric abscess.")
            ),
            conditionalPanel(condition = "input.tabs != 'welcome'",
-                            div(id = "floatingleft",
+                            # Logo
+                            div(id = "float_left_top",
                                 uiOutput('hospital_image'), 
-                                uiOutput('data_info'),
-                                downloadLink("report", label = span(icon("file-word"), "Generate Report (.docx)")),
-                                htmlOutput("feedback_filters")
+                                uiOutput('data_info')
                             ),
                             
-                            div(id = "floatingfilter",
-                                blur_in(duration = "slow",
-                                        div(class = 'box_outputs',
-                                            h4("Filter Patients:"),
-                                            div(id = "resetfilter",
-                                                actionLink(inputId = "reset_filters", label = span(icon("times"), " Reset Patients Filters"))
-                                            ),
-                                            prettyRadioButtons(inputId = "filter_category", label = NULL,  shape = "curve",
-                                                               choices = c("Community Acquired Infections" = "CAI", "Hospital Acquired Infections" = "HAI", "All Infections" = "all"), 
-                                                               selected = "all"),
-                                            prettyCheckboxGroup(inputId = "filter_type_ward", label = NULL, status = "primary", choices = "INCEPTION_TYPE_WARD", selected = "INCEPTION_TYPE_WARD"),
-                                            bsButton("open", label = "Additional Filters", icon = icon('cog'), style = "primary", type = "toggle", value = FALSE, 
-                                                     size = "default", block = TRUE)
-                                        )
+                            # Filters
+                            div(id = "float_left_bottom",
+                                div(class = 'box_outputs',
+                                    h4("Filter Patients:"),
+                                    div(id = "resetfilter",
+                                        actionLink(inputId = "reset_filters", label = span(icon("times"), " Reset Patients Filters"))
+                                    ),
+                                    prettyRadioButtons(inputId = "filter_category", label = NULL,  shape = "curve",
+                                                       choices = c("Community Acquired Infections" = "CAI", "Hospital Acquired Infections" = "HAI", "All Infections" = "all"), 
+                                                       selected = "all"),
+                                    prettyCheckboxGroup(inputId = "filter_type_ward", label = NULL, status = "primary", choices = "INCEPTION_TYPE_WARD", selected = "INCEPTION_TYPE_WARD"),
+                                    bsButton("open", label = "Additional Filters", icon = icon('cog'), style = "primary", type = "toggle", value = FALSE, 
+                                             size = "default", block = TRUE)
                                 ),
-                                conditionalPanel(condition = "input.tabs != 'overview' & input.tabs != 'patients' & input.tabs != 'followup' & input.tabs != 'hai'",
-                                                 blur_in(duration = "slow",
-                                                         div(class = 'box_outputs',
-                                                             h4("Filter Specimens, Isolates:"),
-                                                             prettyCheckboxGroup(inputId = "filter_method_collection", label = NULL,  shape = "curve", status = "primary",
-                                                                                 choices = c("Blood culture" = "blood", "Other Specimens:" = "other_not_blood"), 
-                                                                                 selected = c("blood", "other_not_blood"), inline = TRUE),
-                                                             conditionalPanel("input.filter_method_collection.includes('other_not_blood')",
-                                                                              pickerInput(inputId = "filter_method_other", label = NULL, multiple = TRUE,
-                                                                                          choices = " ", selected = NULL,
-                                                                                          options = list(
-                                                                                            `actions-box` = TRUE, `deselect-all-text` = "None...",
-                                                                                            `select-all-text` = "Select All", `none-selected-text` = "None Selected"))
-                                                             ),
-                                                             selectInput(inputId = "deduplication_method", label = NULL, choices = c("No deduplication of isolates", "Deduplication by patient-episode", "Deduplication by patient ID")) %>% 
-                                                               helper(content = "deduplication", colour = "red"),
-                                                             br(), br(), br()
-                                                         )
-                                                 )
+                                div(class = 'box_outputs',
+                                    h4("Filter Specimens, Isolates:"),
+                                    prettyCheckboxGroup(inputId = "filter_method_collection", label = NULL,  shape = "curve", status = "primary",
+                                                        choices = c("Blood culture" = "blood", "Other Specimens:" = "other_not_blood"), 
+                                                        selected = c("blood", "other_not_blood"), inline = TRUE),
+                                    conditionalPanel("input.filter_method_collection.includes('other_not_blood')",
+                                                     pickerInput(inputId = "filter_method_other", label = NULL, multiple = TRUE,
+                                                                 choices = " ", selected = NULL,
+                                                                 options = list(style = "btn-primary",
+                                                                                `actions-box` = TRUE, `deselect-all-text` = "None...",
+                                                                                `select-all-text` = "Select All", `none-selected-text` = "None Selected"))
+                                    ),
+                                    pickerInput(inputId = "deduplication_method", label = NULL, 
+                                                choices = c("No deduplication of isolates", "Deduplication by patient-episode", "Deduplication by patient ID"),
+                                                options = list(style = "btn-primary")) %>% 
+                                      helper(content = "help_deduplication", colour = "red"),
+                                    br(),
+                                    htmlOutput("feedback_filters"),
+                                    downloadLink("report", label = span(icon("file-word"), "Generate Report (.docx)"))
                                 )
                             ),
                             source("./www/R/ui/across_pushbar_filters.R", local = TRUE)[1]
@@ -77,7 +75,7 @@ ui <- fluidPage(
     ),
     # Main Content ----
     column(width = 9,
-           navbarPage(NULL, id = "tabs", windowTitle = "ACORN", collapsible = TRUE, 
+           navbarPage(NULL, id = "tabs", windowTitle = "ACORN", collapsible = FALSE, fluid = TRUE,
                       tabPanel("Welcome", value = "welcome",
                                fluidRow(
                                  column(7,
@@ -106,7 +104,7 @@ ui <- fluidPage(
                                         ),
                                         conditionalPanel(condition = "! output.local_server_test",
                                                          HTML("You can generate data only in the App OFFLINE version") %>%
-                                                           helper(content = "app_offline", colour = "red"),
+                                                           helper(content = "help_app_offline", colour = "red"),
                                                          bsButton("generate_data", label = "Generate ACORN Data (Disabled)", style = "primary", type = "toggle", value = FALSE, 
                                                                   size = "default", disabled = TRUE, block = TRUE),
                                                          hr()
@@ -115,7 +113,7 @@ ui <- fluidPage(
                                         conditionalPanel(condition = "! input.demo", 
                                                          h4(icon("hand-point-right"), "Visualise ACORN Data"), br(),
                                                          fileInput("file_RData", label = NULL, accept = ".RData", buttonLabel = "Upload ACORN Data") %>% 
-                                                           helper(content = "upload_data", colour = "red"),
+                                                           helper(content = "help_upload_data", colour = "red"),
                                                          hr()
                                         ),
                                         h4(icon("hand-point-right"), "Visualise Demo Data"), br(),
@@ -125,7 +123,6 @@ ui <- fluidPage(
                                )
                       ),
                       tabPanel("Overview", value = "overview", 
-                               # conditionalPanel(condition = "output.test_data",
                                fluidRow(
                                  column(3, br(), htmlOutput("n_overview_patient"), 
                                         br(), htmlOutput("n_overview_specimen"), 
@@ -143,7 +140,6 @@ ui <- fluidPage(
                                
                                DTOutput("table_patients", width = "95%") %>% withSpinner(),
                                br(), br()
-                               # )
                       ),
                       # Profile ----
                       tabPanel(span(icon("user"), "Profile"), value = "patients",
@@ -303,7 +299,7 @@ ui <- fluidPage(
                                  column(6, offset = 1,
                                         div(class = 'box_outputs',
                                             h4("Isolates"),
-                                            p("Most frequent 20 organisms in the plot and complete listing in the table."),
+                                            p("Most frequent 10 organisms in the plot and complete listing in the table."),
                                             highchartOutput("isolates_organism", height = "400px") %>% withSpinner(),
                                             br(), br(),
                                             DTOutput("isolates_organism_table", width = "95%") %>% withSpinner(),
@@ -316,7 +312,7 @@ ui <- fluidPage(
                       tabPanel(span(icon("bug"), "AMR"), value = "amr",
                                div(class = "right",
                                    prettySwitch(inputId = "combine_SI", label = "Combine Susceptible + Intermediate", status = "primary")) %>% 
-                                 helper(content = "combine_SI", colour = "red"),
+                                 helper(content = "help_combine_SI", colour = "red"),
                                br(),
                                bs_accordion_sidebar(id = "amr_accordion",
                                                     spec_side = c(width = 2, offset = 0),
@@ -445,16 +441,8 @@ server <- function(input, output, session) {
   hideTab(inputId = "tabs", target = "amr")
   hideTab(inputId = "tabs", target = "hai")
   
-  observe_helpers(help_dir = "./www/help_mds")
-  
-  # # Opening Credits Modal
-  # observeEvent(input$credits_link, {
-  #   showModal(modalDialog(
-  #     title = "Acknowledgements & Credits",
-  #     includeMarkdown('www/markdown/md_credits.md'),
-  #     easyClose = TRUE
-  #   ))
-  # })
+  # tell shinyhelper where to look for help markdown elements
+  observe_helpers(help_dir = "./www/markdown")
   
   
   # Pushbar for filters ----
@@ -509,33 +497,19 @@ server <- function(input, output, session) {
   
   # Reactive data management ----
   data_provided <- reactiveVal(FALSE)
-  patient <- reactiveVal()
-  microbio <- reactiveVal()
-  hai_surveys <- reactiveVal()
   corresp_org_antibio <- reactiveVal()
   data_details <- reactiveVal()
   
-  patient_filter <- reactive(
-    fun_filter_patient(data = patient(), input = input)
-  )
+  # Main datasets:
+  patient <- reactiveVal()
+  microbio <- reactiveVal()
+  hai_surveys <- reactiveVal()
   
-  microbio_filter <- reactive(
-    fun_filter_microbio(data = microbio(), patient = patient_filter(), input = input)
-  )
-  
-  # exclusively for report:
-  microbio_filter_blood <- reactive(
-    microbio_filter() %>% 
-      filter(specimen_type == "Blood")
-  )
-  
-  hai_surveys_filter <- reactive(
-    hai_surveys() %>% filter(
-      ward_type %in% input$filter_type_ward,
-      ward %in% input$filter_ward | is.na(ward),
-      date_survey <= input$filter_enrollment[2],
-      date_survey >= input$filter_enrollment[1])
-  )
+  # Secondary datasets:
+  patient_filter <- reactive(patient() %>% fun_filter_patient(input = input))
+  microbio_filter <- reactive(microbio() %>% fun_filter_microbio(patient = patient_filter(), input = input))
+  microbio_filter_blood <- reactive(microbio_filter() %>% fun_filter_blood_only())
+  hai_surveys_filter <- reactive(hai_surveys() %>% fun_filter_hai(input = input))
   
   # Source code to generate outputs ----
   file_list <- list.files(path = "./www/R/output", pattern = "*.R")
@@ -750,8 +724,7 @@ server <- function(input, output, session) {
     hai_surveys(hai.surveys)
     
     updatePickerInput(session = session, "filter_method_other", choices = sort(setdiff(unique(microbio$specimen_type), "Blood")), 
-                      selected = sort(setdiff(unique(microbio$specimen_type), "Blood")),
-                      size = "sm", status = "primary", checkIcon = list(yes = icon("check")))
+                      selected = sort(setdiff(unique(microbio$specimen_type), "Blood")))
     updatePrettyCheckboxGroup(session = session, "filter_type_ward", choices = sort(unique(patient$ward)), selected = sort(unique(patient$ward)), inline = TRUE, prettyOptions = list(shape = "curve"))
     updatePickerInput(session = session, "filter_ward", choices = sort(unique(patient$ward_text)), selected = sort(unique(patient$ward_text)))
     updateDateRangeInput(session = session, "filter_enrollment", start = min(patient$date_enrollment), end = max(patient$date_enrollment))

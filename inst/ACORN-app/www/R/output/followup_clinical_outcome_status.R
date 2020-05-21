@@ -1,29 +1,3 @@
-# output$clinical_outcome <- renderHighchart({
-#   req(patient_filter())
-#   req(nrow(patient_filter()) > 0)
-# 
-#   df <- patient_filter() %>%
-#     count(clinical_outcome) %>%
-#     rename(y = n, name = clinical_outcome) %>%
-#     mutate(freq = round(100*y / sum(y)), color = NA)
-# 
-#   df$name[df$name == FALSE] <- "Clinical Outcome"
-#   df$name[df$name == TRUE] <- "No Clinical Outcome"
-# 
-#   df$color[df$name == "Clinical Outcome"] <- "#2c3e50"
-#   df$color[df$name == "No Clinical Outcome"] <- "#e8e6e6"
-# 
-# 
-#   highchart() %>%
-#     hc_chart(type = "pie") %>%
-#     hc_xAxis(categories = df$name) %>%
-#     hc_add_series(df, name = "Clinical Follow-up", showInLegend = FALSE) %>%
-#     hc_tooltip(headerFormat = "", pointFormat = "{point.y} patients ({point.freq} %)") %>%
-#     hc_plotOptions(pie = list(dataLabels = list(enabled = TRUE, distance = -30,
-#                                                 format = '{point.name}: <br> {point.y}',
-#                                                 style = list(fontSize = 12))))
-# })
-
 output$clinical_outcome_gauge <- renderGauge({
   req(patient_filter())
   req(nrow(patient_filter()) > 0)

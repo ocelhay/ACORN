@@ -7,10 +7,10 @@ output$feedback_filters <- renderText({
   prop <- round(100 * end / start, 0)
   
   paste0(
-    swivel_horizontal(duration = "wheel_in_left",
+    blur_in(duration = "slow",
             div(class = 'box_selected',
-                if(start == end) span(icon("filter"), "All ", start, " Patients"),
-                if(start != end) span(icon("filter"), end, " Patients (", prop, "%)")
+                if(start == end) span(icon("filter"), "All ", start, " Patient Enrollments"),
+                if(start != end) span(icon("filter"), end, " Patient Enrollments (", prop, "%)")
             )
     )
   )

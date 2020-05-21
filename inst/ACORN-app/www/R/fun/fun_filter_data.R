@@ -80,14 +80,21 @@ fun_filter_microbio <- function(data, patient, input) {
 }
 
 # Function that removes organisms "No growth (specific organism)" and "No growth"
-# "No significant growth" should be categorised as growth
-fun_filter_growth_only <- function(dta) dta %>% filter(! organism %in% c("No growth (specific organism)", "No growth"))
-
-# Function that removes organisms "Not cultured"
-fun_filter_cultured_only <- function(dta) dta %>% filter(! organism == "Not cultured")
+# Note that "No significant growth" should be categorised as growth
+fun_filter_growth_only <- function(data) data %>% filter(! organism %in% c("No growth (specific organism)", "No growth"))
 
 # Function that removes organisms "No significant growth"
-fun_filter_signif_growth <- function(dta) dta %>% filter(organism != "No significant growth")
+fun_filter_signifgrowth_only <- function(data) data %>% filter(organism != "No significant growth")
+
+# Function that removes organisms "Not cultured"
+fun_filter_cultured_only <- function(data) data %>% filter(! organism == "Not cultured")
+
+# Function that keeps only "Blood" specimen types
+fun_filter_blood_only <- function(data)  data %>% filter(specimen_type == "Blood")
+
+# Function that keeps only target pathogens
+fun_filter_target_pathogens <- function(data)  data %>% filter(organism %in% c("Acinetobacter baumannii", "Escherichia coli", "Klebsiella pneumoniae", 
+                       "Staphylococcus aureus", "Streptococcus pneumoniae") | str_detect(organism, "Salmonella"))
 
 # Function that returns a deduplicated dataset following the provided method: by patient-episode or by patient Id
 # It's essential to use this only once possible other filters (surveillance type...) have already been applied
@@ -111,4 +118,13 @@ fun_deduplication <- function(data, method = NULL) {
                  " isolates (-",  nrow(data) - nrow(data_dedup), ")."))
     return(data_dedup)
   }
+}
+
+# Function that filter to keep only selected ward type and date of survey
+fun_filter_hai <- function(data, input) {
+data %>% filter(
+  ward_type %in% input$filter_type_ward,
+  ward %in% input$filter_ward | is.na(ward),
+  date_survey <= input$filter_enrollment[2],
+  date_survey >= input$filter_enrollment[1])
 }
