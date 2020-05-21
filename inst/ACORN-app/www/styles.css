@@ -78,7 +78,7 @@ h4 {
 }
 
 #float_left_bottom{
-  bottom: calc(2%);
+  bottom: calc(1%);
   left: calc(2%);
   width:22%;
   z-index: 999;

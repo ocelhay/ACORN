@@ -1,14 +1,13 @@
-# Edit manually .Rprofile in HOME:
+# Edit manually .Rprofile / .Rprofile.site:
+# reference https://rviews.rstudio.com/2017/04/19/r-for-enterprise-understanding-r-s-startup/
 # file.edit(file.path("~", ".Rprofile"))
-# file.edit("/Library/Frameworks/R.framework/Resources/etc/Rprofile.site")
-# file.edit("/Users/olivier/.Rprofile")
+# file.edit(file.path("~", ".Rprofile.site"))
 
-# To "uninstall" ACORN, clean your Rprofile:
-# writeLines(con = file.path("~", ".Rprofile"), text = "")
+# To "uninstall" ACORN, clean your Rprofile.site:
+# writeLines(con = file.path("~", ".Rprofile.site"), text = "#nothing")
 
 # To "install" ACORN, source this file and update your Rprofile
-
-writeLines(con = file.path("~", ".Rprofile"), text = 
+writeLines(con = file.path("~", ".Rprofile.site"), text = 
 "
 library(utils)
 utils::assignInNamespace(

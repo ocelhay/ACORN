@@ -39,7 +39,7 @@ output$n_isolate <- renderText({
       as.character(
         div(class = "n_box",
             div(class = "icon_box", icon("microscope")),
-            h3(microbio_filter() %>% fun_deduplication(method = input$deduplication_method) %>% pull(isolate_id) %>% n_distinct()),
+            h3(microbio_filter() %>% fun_filter_growth_only() %>% fun_deduplication(method = input$deduplication_method) %>% pull(isolate_id) %>% n_distinct()),
             span(strong("Isolates"), "from cultures that have growth")
         )
       )

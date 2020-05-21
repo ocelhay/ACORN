@@ -9,7 +9,7 @@ output$profile_outcome_diagnosis <- renderHighchart({
     group_by(surveillance_diag, diag_final) %>%
     count() %>%
     rename(from = surveillance_diag, to = diag_final, weight = n) %>% 
-    mutate(color = NA)  # TODO: color = from and use recode()
+    mutate(color = NA)
   
   df$color[df$from == "Meningitis"] <- "#1f78b4"
   df$color[df$from == "Pneumonia"] <- "#33a02c"

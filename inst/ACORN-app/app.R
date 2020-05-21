@@ -65,7 +65,6 @@ ui <- fluidPage(
                                                 choices = c("No deduplication of isolates", "Deduplication by patient-episode", "Deduplication by patient ID"),
                                                 options = list(style = "btn-primary")) %>% 
                                       helper(content = "help_deduplication", colour = "red"),
-                                    br(),
                                     htmlOutput("feedback_filters"),
                                     downloadLink("report", label = span(icon("file-word"), "Generate Report (.docx)"))
                                 )

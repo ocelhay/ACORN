@@ -8,7 +8,7 @@ output$table_patients <- DT::renderDataTable({
     mutate(
       d28_outcome = as.character(d28_outcome),
       clinical_outcome = as.character(clinical_outcome),
-      surveillance_cat = str_replace(surveillance_cat, "CAI", "Community Acquired"),  # TODO replace with recode()
+      surveillance_cat = str_replace(surveillance_cat, "CAI", "Community Acquired"),
       surveillance_cat = str_replace(surveillance_cat, "HAI", "Hospital Acquired"),
       ward = str_replace(ward, "Unknown", "Unknown Ward"),
       ward_text = replace_na(ward_text, "Unknown")) %>%

@@ -62,7 +62,8 @@ test_data <- function(mic = microbio_filter_blood(), pat = patient_filter(), org
 ```{r fun_ggplot_sir}
 cols_sir <- c("Resistant" = "#b2182b", "Susceptible" = NA)
 
-ggplot_sir <- function(mic = microbio_filter_blood(), pat = patient_filter(), corresp = corresp_org_antibio(), organism_input, matching_name_column, title, surv_cat) {
+ggplot_sir <- function(mic = microbio_filter_blood() %>% fun_deduplication(method = input$deduplication_method), 
+                       pat = patient_filter(), corresp = corresp_org_antibio(), organism_input, matching_name_column, title, surv_cat) {
   
   if(length(organism_input) == 0) return(
     ggplot() + 
