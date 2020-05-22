@@ -6,21 +6,19 @@ output$feedback_filters <- renderText({
   end <- patient_filter() %>% nrow()
   prop <- round(100 * end / start, 0)
   
-  start_iso <- microbio_filter() %>% fun_filter_growth_only() %>% fun_deduplication(method = input$deduplication_method) %>% pull(isolate_id) %>% n_distinct()
-  end_iso <- microbio() %>% fun_filter_growth_only() %>% pull(isolate_id) %>% n_distinct()
+  start_iso <- microbio() %>% fun_filter_growth_only() %>% pull(isolate_id) %>% n_distinct()
+  end_iso <- microbio_filter() %>% fun_filter_growth_only() %>% fun_deduplication(method = input$deduplication_method) %>% pull(isolate_id) %>% n_distinct()
   prop_iso <- round(100 * end_iso / start_iso, 0)
   
   paste0(
     blur_in(duration = "slow",
             div(class = 'box_selected',
-                if(start == end) span(icon("filter"), start, " Patient Enrollments (100%)"),
-                if(start != end) span(icon("filter"), end, " Patient Enrollments (", prop, "%)")
+                span(icon("filter"), end, " Patient Enrollments (", prop, "%)")
             )
     ),
     blur_in(duration = "slow",
             div(class = 'box_selected',
-                if(start_iso == end_iso) span(icon("filter"), start_iso, " Isolates from cultures that have growth (100%)"),
-                if(start_iso != end_iso) span(icon("filter"), end_iso, " Isolates from cultures that have growth (", prop_iso, "%)")
+                span(icon("filter"), end_iso, " Isolates from cultures that have growth (", prop_iso, "%)")
             )
     )
   )
