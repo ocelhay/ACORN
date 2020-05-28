@@ -14,7 +14,7 @@ output$specimens_specimens_type <- renderHighchart({
                specimen_type == "Blood" ~ "#e31a1c",
                TRUE ~ "#969696"),
            freq = round(100*y / sum(y))) %>%
-    arrange(desc(freq))
+    arrange(desc(y))
   
   highchart() %>% 
     hc_yAxis(title = "") %>%

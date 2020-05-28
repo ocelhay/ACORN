@@ -23,7 +23,7 @@ outputOptions(output, "test_abaumannii_sir", suspendWhenHidden = FALSE)
 output$nb_isolates_abaumannii <- renderText({
   organism_input <- "Acinetobacter baumannii"
   req(microbio_filter() %>% filter(organism == organism_input))
-  nb <- microbio_filter() %>% filter(organism == organism_input) %>% nrow()
+  nb <- microbio_filter() %>% filter(organism == organism_input) %>% fun_deduplication(method = input$deduplication_method) %>% nrow()
   ifelse (nb != 0, paste0(span("Total of ", br(), nb, " isolates")), HTML("There are no isolates"))
 })
 
@@ -60,7 +60,7 @@ output$ecoli_sir_evolution_ceph <- renderHighchart({
 output$nb_isolates_ecoli <- renderText({
   organism_input <- "Escherichia coli"
   req(microbio_filter() %>% filter(organism == organism_input))
-  nb <- microbio_filter() %>% filter(organism == organism_input) %>% nrow()
+  nb <- microbio_filter() %>% filter(organism == organism_input) %>% fun_deduplication(method = input$deduplication_method) %>% nrow()
   ifelse (nb != 0, paste0(span("Total of ", br(), nb, " isolates")), HTML("There are no isolates"))
 })
 
@@ -97,7 +97,7 @@ output$kpneumoniae_sir_evolution_ceph <- renderHighchart({
 output$nb_isolates_kpneumoniae <- renderText({
   organism_input <- "Klebsiella pneumoniae"
   req(microbio_filter() %>% filter(organism == organism_input))
-  nb <- microbio_filter() %>% filter(organism == organism_input) %>% nrow()
+  nb <- microbio_filter() %>% filter(organism == organism_input) %>% fun_deduplication(method = input$deduplication_method) %>% nrow()
   ifelse (nb != 0, paste0(span("Total of ", br(), nb, " isolates")), HTML("There are no isolates"))
 })
 
@@ -153,7 +153,7 @@ outputOptions(output, "test_spneumoniae_sir", suspendWhenHidden = FALSE)
 output$nb_isolates_spneumoniae <- renderText({
   organism_input <- "Streptococcus pneumoniae"
   req(microbio_filter() %>% filter(organism == organism_input))
-  nb <- microbio_filter() %>% filter(organism == organism_input) %>% nrow()
+  nb <- microbio_filter() %>% filter(organism == organism_input) %>% fun_deduplication(method = input$deduplication_method) %>% nrow()
   ifelse (nb != 0, paste0(span("Total of ", br(), nb, " isolates")), HTML("There are no isolates"))
 })
 
@@ -201,7 +201,7 @@ output$nb_isolates_salmonella <- renderText({
   }
   
   req(microbio_filter() %>% filter(organism %in% organism_input))
-  nb <- microbio_filter() %>% filter(organism %in% organism_input) %>% nrow()
+  nb <- microbio_filter() %>% filter(organism %in% organism_input) %>% fun_deduplication(method = input$deduplication_method) %>% nrow()
   ifelse (nb != 0, paste0(span("Total of ", br(), nb, " isolates")), HTML("There are no isolates"))
 })
 
