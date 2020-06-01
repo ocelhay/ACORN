@@ -40,7 +40,8 @@ ui <- fluidPage(
                                     prettyRadioButtons(inputId = "filter_category", label = NULL,  shape = "curve",
                                                        choices = c("Community Acquired Infections" = "CAI", "Hospital Acquired Infections" = "HAI", "All Infections" = "all"), 
                                                        selected = "all"),
-                                    prettyCheckboxGroup(inputId = "filter_type_ward", label = NULL, status = "primary", choices = "INCEPTION_TYPE_WARD", selected = "INCEPTION_TYPE_WARD"),
+                                    hr(),
+                                    prettyCheckboxGroup(inputId = "filter_type_ward", label = NULL, choices = "INCEPTION_TYPE_WARD", selected = "INCEPTION_TYPE_WARD"),
                                     bsButton("open", label = "Additional Filters", icon = icon('cog'), style = "primary", type = "toggle", value = FALSE, 
                                              size = "default", block = TRUE)
                                 ),
@@ -416,10 +417,10 @@ ui <- fluidPage(
 
 # Define server logic ----
 server <- function(input, output, session) {
-  # stop the shiny app when the browser window is closed
-  session$onSessionEnded(function() {
-    stopApp()
-  })
+  # # stop the shiny app when the browser window is closed
+  # session$onSessionEnded(function() {
+  #   stopApp()
+  # })
   
   # TRUE if App running locally, FALSE if running online (shinyapps.io ...)
   local_server_test <- !nzchar(Sys.getenv("SHINY_PORT"))
@@ -441,19 +442,19 @@ server <- function(input, output, session) {
   
   # Pushbar for filters ----
   setup_pushbar(overlay = TRUE, blur = TRUE)
-  observeEvent(input$open, ignoreInit = TRUE, { pushbar_open(id = "Pushbar_Additional_Filters") })  
-  observeEvent(input$close, { pushbar_close() })
+  observeEvent(input$open, ignoreInit = TRUE, pushbar_open(id = "Pushbar_Additional_Filters"))  
+  observeEvent(input$close, pushbar_close())
   
   # Pushbar for generating data ----
-  observeEvent(input$generate_data, ignoreInit = TRUE, { pushbar_open(id = "Pushbar_Generate_Data") })  
-  observeEvent(input$close2, { pushbar_close() })
+  observeEvent(input$generate_data, ignoreInit = TRUE, pushbar_open(id = "Pushbar_Generate_Data"))  
+  observeEvent(input$close2, pushbar_close())
   
   # Reset all patients filters ----
   observeEvent(input$reset_filters, {
     updatePrettyRadioButtons(session, inputId = "filter_category", selected = "all")
     updatePrettyCheckboxGroup(session = session, inputId = "filter_type_ward", 
                               choices = sort(unique(patient()$ward)), selected = sort(unique(patient()$ward)), 
-                              inline = TRUE, prettyOptions = list(shape = "curve"))
+                              inline = TRUE, prettyOptions = list(status = "primary"))
     
     # filters in across_pushbar_filter.R:
     updateDateRangeInput(session = session, "filter_enrollment", start = min(patient()$date_enrollment), end = max(patient()$date_enrollment))
@@ -634,7 +635,7 @@ server <- function(input, output, session) {
   
   
   # Events on demo toggle ON/OFF ----
-  observe(
+  observeEvent(input$demo, 
     if(input$demo == TRUE) {
       load("./www/data/Mock_ACORN_Dataset.RData")
       data_provided(TRUE)
@@ -651,7 +652,7 @@ server <- function(input, output, session) {
       
       updatePrettyCheckboxGroup(session = session, inputId = "filter_type_ward", 
                                 choices = sort(unique(patient$ward)), selected = sort(unique(patient$ward)), 
-                                inline = TRUE, prettyOptions = list(shape = "curve"))
+                                inline = TRUE, prettyOptions = list(status = "primary"))
       updatePickerInput(session = session, "filter_ward", choices = sort(unique(patient$ward_text)), selected = sort(unique(patient$ward_text)))
       updateDateRangeInput(session = session, "filter_enrollment", start = min(patient$date_enrollment), end = max(patient$date_enrollment))
       other_organism <- sort(setdiff(unique(microbio$organism), 
@@ -719,7 +720,8 @@ server <- function(input, output, session) {
     
     updatePickerInput(session = session, "filter_method_other", choices = sort(setdiff(unique(microbio$specimen_type), "Blood")), 
                       selected = sort(setdiff(unique(microbio$specimen_type), "Blood")))
-    updatePrettyCheckboxGroup(session = session, "filter_type_ward", choices = sort(unique(patient$ward)), selected = sort(unique(patient$ward)), inline = TRUE, prettyOptions = list(shape = "curve"))
+    updatePrettyCheckboxGroup(session = session, "filter_type_ward", choices = sort(unique(patient$ward)), selected = sort(unique(patient$ward)), 
+                              inline = TRUE, prettyOptions = list(status = "primary"))
     updatePickerInput(session = session, "filter_ward", choices = sort(unique(patient$ward_text)), selected = sort(unique(patient$ward_text)))
     updateDateRangeInput(session = session, "filter_enrollment", start = min(patient$date_enrollment), end = max(patient$date_enrollment))
     
@@ -752,7 +754,7 @@ server <- function(input, output, session) {
     updateTabsetPanel(session, "tabs", selected = "overview")
   })
   
-  # Generated Report
+  # Report generation ----
   feedback_download <- reactiveValues(download_flag = 0)
   
   output$report <- downloadHandler(
