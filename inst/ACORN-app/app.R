@@ -32,11 +32,11 @@ ui <- fluidPage(
                             
                             # Filters
                             div(id = "float_left_bottom",
+                                div(id = "resetfilter",
+                                    actionLink(inputId = "reset_filters", label = span(icon("times"), " Reset Patient Filters"))
+                                ),
                                 div(class = 'box_outputs',
                                     h4("Filter Patients:"),
-                                    div(id = "resetfilter",
-                                        actionLink(inputId = "reset_filters", label = span(icon("times"), " Reset Patients Filters"))
-                                    ),
                                     prettyRadioButtons(inputId = "filter_category", label = NULL,  shape = "curve",
                                                        choices = c("Community Acquired Infections" = "CAI", "Hospital Acquired Infections" = "HAI", "All Infections" = "all"), 
                                                        selected = "all"),
