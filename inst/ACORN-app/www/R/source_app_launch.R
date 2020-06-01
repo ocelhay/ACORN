@@ -21,11 +21,8 @@ library(RColorBrewer)
 library(readxl)
 library(shiny)
 library(shinyBS)
-# require shinycssloaders 0.2.0 as we experience issues with subsequent versions
-library(shinycssloaders)  # withSpinner()
 library(shinyhelper)  # helper()
 library(shinythemes)  # shinytheme()
-# require shinyWidgets 0.4.9 as we experience issues with subsequent versions
 library(shinyWidgets)  # switchInput()
 library(tidyverse)  # App requires recent version for the implementation of na.rm in unite()
 library(tools)  # file_ext()

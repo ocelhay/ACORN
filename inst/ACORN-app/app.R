@@ -124,7 +124,7 @@ ui <- fluidPage(
                                         br(), htmlOutput("n_overview_pathogen")),
                                  column(9, div(class = 'box_outputs',
                                                h4(icon('tint'), "Proportions of Enrollments with Blood Culture"),
-                                               highchartOutput("evolution_blood_culture", height = "350px") %>% withSpinner()
+                                               highchartOutput("evolution_blood_culture", height = "350px")
                                  ))
                                ),
                                br(), hr(),
@@ -133,7 +133,7 @@ ui <- fluidPage(
                                                     choices = c("Place of Infection" = "surveillance_cat", "Type of Ward" = "ward", "Ward" = "ward_text", "Clinical Outcome" = "clinical_outcome", "Day-28 Outcome" = "d28_outcome"), 
                                                     selected = c("surveillance_cat", "ward", "ward_text", "clinical_outcome", "d28_outcome")),
                                
-                               DTOutput("table_patients", width = "95%") %>% withSpinner(),
+                               DTOutput("table_patients", width = "95%"),
                                br(), br()
                       ),
                       # Profile ----
@@ -141,9 +141,9 @@ ui <- fluidPage(
                                div(class = 'box_outputs',
                                    h4(icon('stethoscope'), "Patients Diagnosis"),
                                    fluidRow(
-                                     column(6, highchartOutput("profile_diagnosis", height = "200px") %>% withSpinner()),
-                                     column(3, highchartOutput("profile_diagnosis_meningitis", height = "200px") %>% withSpinner()),
-                                     column(3, highchartOutput("profile_diagnosis_pneumonia", height = "200px") %>% withSpinner())
+                                     column(6, highchartOutput("profile_diagnosis", height = "200px")),
+                                     column(3, highchartOutput("profile_diagnosis_meningitis", height = "200px")),
+                                     column(3, highchartOutput("profile_diagnosis_pneumonia", height = "200px"))
                                    )
                                ),
                                fluidRow(
@@ -151,21 +151,21 @@ ui <- fluidPage(
                                         div(class = 'box_outputs',
                                             h4("Enrolled Cases by Ward / Type of Ward"),
                                             prettySwitch(inputId = "show_ward_breakdown", label = "See Breakdown by Ward", status = "primary"),
-                                            highchartOutput("profile_type_ward", height = "400px") %>% withSpinner()
+                                            highchartOutput("profile_type_ward", height = "400px")
                                         )
                                  ),
                                  column(6,
                                         div(class = 'box_outputs',
                                             h4(icon("tint"), "Patients with Blood Culture"),
                                             fluidRow(
-                                              column(6, gaugeOutput("profile_blood_culture_gauge", width = "100%", height = "100px") %>% withSpinner()),
-                                              column(6, htmlOutput("profile_blood_culture_pct", width = "100%", height = "100px") %>% withSpinner())
+                                              column(6, gaugeOutput("profile_blood_culture_gauge", width = "100%", height = "100px")),
+                                              column(6, htmlOutput("profile_blood_culture_pct", width = "100%", height = "100px"))
                                             ),
                                         ),
                                         div(class = 'box_outputs',
                                             h4(icon("calendar-check"), "Date of Enrollment"),
                                             prettySwitch(inputId = "show_date_week", label = "See by Week", status = "primary"),
-                                            highchartOutput("profile_date_enrollment", height = "200px") %>% withSpinner()
+                                            highchartOutput("profile_date_enrollment", height = "200px")
                                         )
                                  )
                                ),
@@ -180,22 +180,22 @@ ui <- fluidPage(
                                                      bs_append(
                                                        title_side = "Patients Age Distribution",
                                                        content_side = NULL,
-                                                       content_main = highchartOutput("profile_age", height = "250px") %>% withSpinner()
+                                                       content_main = highchartOutput("profile_age", height = "250px")
                                                      ) %>%
                                                      bs_append(
                                                        title_side = span(icon("transgender"), "Patients Sex"),
                                                        content_side = NULL,
-                                                       content_main = highchartOutput("profile_sex", height = "200px", width = "250px") %>% withSpinner()
+                                                       content_main = highchartOutput("profile_sex", height = "200px", width = "250px")
                                                      ) %>%
                                                      bs_append(
                                                        title_side = "Blood culture collected within 24h",
                                                        content_side = NULL,
-                                                       content_main = highchartOutput("profile_blood", height = "200px", width = "250px") %>% withSpinner()
+                                                       content_main = highchartOutput("profile_blood", height = "200px", width = "250px")
                                                      ) %>%
                                                      bs_append(
                                                        title_side = span(icon("pills"), "Empiric Antibiotics Prescribed"),
                                                        content_side = NULL,
-                                                       content_main = highchartOutput("profile_antibiotics", height = "400px") %>% withSpinner()
+                                                       content_main = highchartOutput("profile_antibiotics", height = "400px")
                                                      ) %>%
                                                      bs_append(
                                                        title_side = "Patients Comorbidities",
@@ -209,11 +209,11 @@ ui <- fluidPage(
                                                                                        ),
                                                                                        selected = c("Cancer", "Chronic renal failure", "Chronic lung disease", "Diabetes mellitus", "Malnutrition"),
                                                                                        multiple = TRUE),
-                                                                           highchartOutput("profile_comorbidities", height = "400px") %>% withSpinner())) %>%
+                                                                           highchartOutput("profile_comorbidities", height = "400px"))) %>%
                                                      bs_append(
                                                        title_side = span(icon("arrows-alt-h"), "Patients Transfered"),
                                                        content_side = NULL,
-                                                       content_main = highchartOutput("profile_transfer", height = "200px", width = "250px") %>% withSpinner()
+                                                       content_main = highchartOutput("profile_transfer", height = "200px", width = "250px")
                                                      ),
                                                    use_bs_accordion_sidebar()
                                                )
@@ -229,30 +229,30 @@ ui <- fluidPage(
                                         div(class = 'box_outputs',
                                             h4("Clinical Outcome"),
                                             fluidRow(
-                                              column(6, gaugeOutput("clinical_outcome_gauge", width = "100%", height = "100px") %>% withSpinner()),
-                                              column(6, htmlOutput("clinical_outcome_pct", width = "100%", height = "100px") %>% withSpinner())
+                                              column(6, gaugeOutput("clinical_outcome_gauge", width = "100%", height = "100px")),
+                                              column(6, htmlOutput("clinical_outcome_pct", width = "100%", height = "100px"))
                                             )
                                         ),
                                         div(class = 'box_outputs',
                                             h4("Clinical Outcome Status"),
-                                            highchartOutput("clinical_outcome_status", height = "250px") %>% withSpinner()
+                                            highchartOutput("clinical_outcome_status", height = "250px")
                                         ),
                                         div(class = 'box_outputs',
                                             h4("Initial & Final Surveillance Diagnosis"),
-                                            highchartOutput("profile_outcome_diagnosis", height = "500px") %>% withSpinner()
+                                            highchartOutput("profile_outcome_diagnosis", height = "500px")
                                         )
                                  ),
                                  column(6,
                                         div(class = 'box_outputs',
                                             h4("Day 28"),
                                             fluidRow(
-                                              column(6, gaugeOutput("d28_outcome_gauge", width = "100%", height = "100px") %>% withSpinner()),
-                                              column(6, htmlOutput("d28_outcome_pct", width = "100%", height = "100px") %>% withSpinner())
+                                              column(6, gaugeOutput("d28_outcome_gauge", width = "100%", height = "100px")),
+                                              column(6, htmlOutput("d28_outcome_pct", width = "100%", height = "100px"))
                                             )
                                         ),
                                         div(class = 'box_outputs',
                                             h4("Day 28 Status"),
-                                            highchartOutput("d28_outcome_status", height = "200px") %>% withSpinner()
+                                            highchartOutput("d28_outcome_status", height = "200px")
                                         )
                                  )
                                )
@@ -262,9 +262,9 @@ ui <- fluidPage(
                                div(class = 'box_outputs',
                                    h4("Wards Occupancy Rates"),
                                    htmlOutput("bed_occupancy_ward_title"),
-                                   plotOutput("bed_occupancy_ward", width = "80%") %>% withSpinner()
+                                   plotOutput("bed_occupancy_ward", width = "80%")
                                ),
-                               plotOutput("hai_rate_ward", width = "80%") %>% withSpinner()
+                               plotOutput("hai_rate_ward", width = "80%")
                       ),
                       # Microbiology ----
                       tabPanel("Microbiology", value = "microbiology",
@@ -279,25 +279,25 @@ ui <- fluidPage(
                                         div(class = 'box_outputs',
                                             h4("Growth / No Growth"),
                                             fluidRow(
-                                              column(6, gaugeOutput("isolates_growth_gauge", width = "100%", height = "100px") %>% withSpinner()),
+                                              column(6, gaugeOutput("isolates_growth_gauge", width = "100%", height = "100px")),
                                               column(6, htmlOutput("isolates_growth_pct", width = "100%", height = "100px"))
                                             )
                                         ),
                                         div(class = 'box_outputs',
                                             h4("Specimen Types"),
                                             p("Number of specimens per specimen type"),
-                                            highchartOutput("specimens_specimens_type", height = "350px") %>% withSpinner(),
+                                            highchartOutput("specimens_specimens_type", height = "350px"),
                                             p("Culture results per specimen type"),
-                                            highchartOutput("culture_specimen_type", height = "400px") %>% withSpinner()
+                                            highchartOutput("culture_specimen_type", height = "400px")
                                         )
                                  ),
                                  column(6, offset = 1,
                                         div(class = 'box_outputs',
                                             h4("Isolates"),
                                             p("Most frequent 10 organisms in the plot and complete listing in the table."),
-                                            highchartOutput("isolates_organism", height = "400px") %>% withSpinner(),
+                                            highchartOutput("isolates_organism", height = "400px"),
                                             br(), br(),
-                                            DTOutput("isolates_organism_table", width = "95%") %>% withSpinner(),
+                                            DTOutput("isolates_organism_table", width = "95%"),
                                             br(), br()
                                         )
                                  )
@@ -319,9 +319,9 @@ ui <- fluidPage(
                                    content_side = htmlOutput("nb_isolates_abaumannii"),
                                    content_main = span(
                                      conditionalPanel(condition = "output.test_abaumannii_sir",
-                                                      highchartOutput("abaumannii_sir", height = "500px") %>% withSpinner(),
+                                                      highchartOutput("abaumannii_sir", height = "500px"),
                                                       h4("Resistance to Carbapenems Over Time"),
-                                                      highchartOutput("abaumannii_sir_evolution", height = "300px") %>% withSpinner()
+                                                      highchartOutput("abaumannii_sir_evolution", height = "300px")
                                      ),
                                      conditionalPanel(condition = "! output.test_abaumannii_sir", span(h4("There is no data to display for this organism.")))
                                    )
@@ -331,11 +331,11 @@ ui <- fluidPage(
                                    content_side = htmlOutput("nb_isolates_ecoli"),
                                    content_main = span(
                                      conditionalPanel(condition = "output.test_ecoli_sir",
-                                                      highchartOutput("ecoli_sir", height = "600px") %>% withSpinner(), br(), br(),
+                                                      highchartOutput("ecoli_sir", height = "600px"), br(), br(),
                                                       h4("Resistance to Carbapenems Over Time"),
-                                                      highchartOutput("ecoli_sir_evolution", height = "300px") %>% withSpinner(),
+                                                      highchartOutput("ecoli_sir_evolution", height = "300px"),
                                                       h4("Resistance to 3rd gen. cephalosporins Over Time"),
-                                                      highchartOutput("ecoli_sir_evolution_ceph", height = "300px") %>% withSpinner()
+                                                      highchartOutput("ecoli_sir_evolution_ceph", height = "300px")
                                      ),
                                      conditionalPanel(condition = "! output.test_ecoli_sir", span(h4("There is no data to display for this organism.")))
                                    )
@@ -345,11 +345,11 @@ ui <- fluidPage(
                                    content_side = htmlOutput("nb_isolates_kpneumoniae"),
                                    content_main = span(
                                      conditionalPanel(condition = "output.test_kpneumoniae_sir",
-                                                      highchartOutput("kpneumoniae_sir", height = "600px") %>% withSpinner(), br(), br(),
+                                                      highchartOutput("kpneumoniae_sir", height = "600px"), br(), br(),
                                                       h4("Resistance to Carbapenems Over Time"),
-                                                      highchartOutput("kpneumoniae_sir_evolution", height = "300px") %>% withSpinner(),
+                                                      highchartOutput("kpneumoniae_sir_evolution", height = "300px"),
                                                       h4("Resistance to 3rd gen. cephalosporins Over Time"),
-                                                      highchartOutput("kpneumoniae_sir_evolution_ceph", height = "300px") %>% withSpinner()
+                                                      highchartOutput("kpneumoniae_sir_evolution_ceph", height = "300px")
                                      ),
                                      conditionalPanel(condition = "! output.test_kpneumoniae_sir", span(h4("There is no data to display for this organism.")))
                                    )
@@ -359,9 +359,9 @@ ui <- fluidPage(
                                    content_side = htmlOutput("nb_isolates_saureus"),
                                    content_main = span(
                                      conditionalPanel(condition = "output.test_saureus_sir",
-                                                      highchartOutput("saureus_sir", height = "500px") %>% withSpinner(),
+                                                      highchartOutput("saureus_sir", height = "500px"),
                                                       h4("Resistance to Oxacillin Over Time"),
-                                                      highchartOutput("saureus_sir_evolution", height = "300px") %>% withSpinner(),
+                                                      highchartOutput("saureus_sir_evolution", height = "300px"),
                                      ),
                                      conditionalPanel(condition = "! output.test_saureus_sir", span(h4("There is no data to display for this organism.")))
                                    )
@@ -371,9 +371,9 @@ ui <- fluidPage(
                                    content_side = htmlOutput("nb_isolates_spneumoniae"),
                                    content_main = span(
                                      conditionalPanel(condition = "output.test_spneumoniae_sir",
-                                                      highchartOutput("spneumoniae_sir", height = "500px") %>% withSpinner(),
+                                                      highchartOutput("spneumoniae_sir", height = "500px"),
                                                       h4("Resistance to Penicillin Over Time"),
-                                                      highchartOutput("spneumoniae_sir_evolution", height = "300px") %>% withSpinner(),
+                                                      highchartOutput("spneumoniae_sir_evolution", height = "300px"),
                                      ),
                                      conditionalPanel(condition = "! output.test_spneumoniae_sir", span(h4("There is no data to display for this organism.")))
                                    )
@@ -386,11 +386,11 @@ ui <- fluidPage(
                                                         choices = c("Salmonella typhi", "Salmonella paratyphi", "Salmonella sp (not S. typhi or S. paratyphi)"), 
                                                         selected = "Salmonella typhi", inline = TRUE),
                                      conditionalPanel(condition = "output.test_salmonella_sir",
-                                                      highchartOutput("salmonella_sir", height = "500px") %>% withSpinner(),
+                                                      highchartOutput("salmonella_sir", height = "500px"),
                                                       h4("Resistance to 3rd gen. cephalosporins Over Time"),
-                                                      highchartOutput("salmonella_sir_evolution_ceph", height = "300px") %>% withSpinner(),
+                                                      highchartOutput("salmonella_sir_evolution_ceph", height = "300px"),
                                                       h4("Resistance to Fluoroquinolones Over Time"),
-                                                      highchartOutput("salmonella_sir_evolution_fluo", height = "300px") %>% withSpinner(),
+                                                      highchartOutput("salmonella_sir_evolution_fluo", height = "300px"),
                                      ),
                                      conditionalPanel(condition = "! output.test_salmonella_sir", span(h4("There is no data to display for this organism.")))
                                    )
@@ -402,7 +402,7 @@ ui <- fluidPage(
                                      selectInput(inputId = "other_organism", label = NULL, multiple = FALSE,
                                                  choices = NULL, selected = NULL),
                                      conditionalPanel(condition = "output.test_other_sir",
-                                                      highchartOutput("other_organism_sir", height = "700px") %>% withSpinner()
+                                                      highchartOutput("other_organism_sir", height = "700px")
                                      ),
                                      conditionalPanel(condition = "! output.test_other_sir", span(h4("There is no data to display.")))
                                    )

@@ -5,7 +5,7 @@ list(
                   h4("Filter Patients:")
               ),
               
-              fluidRow(column(6, gaugeOutput('gauge_selection', width = "100%", height = "100px") %>% withSpinner()),
+              fluidRow(column(6, gaugeOutput('gauge_selection', width = "100%", height = "100px")),
                        column(6, br(), htmlOutput("feedback_filters_details"))
               ),
               
