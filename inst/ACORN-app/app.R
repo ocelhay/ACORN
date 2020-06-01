@@ -6,7 +6,7 @@ for(file in list.files("./www/R/fun/"))  source(paste0("./www/R/fun/", file), lo
 
 # Define UI ----
 ui <- fluidPage(
-  tags$head(tags$link(rel = 'shortcut icon', href = 'www/favicon.ico'), includeHTML("./www/gtag.js")),
+  tags$head(tags$link(rel = 'shortcut icon', href = 'www/favicon.ico')),
   title = "ACORN | A Clinically Oriented antimicrobial Resistance Network",
   theme = shinytheme("flatly"),
   chooseSliderSkin('HTML5'),

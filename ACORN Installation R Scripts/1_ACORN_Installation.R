@@ -19,7 +19,7 @@ if("shinycssloaders" %in% rownames(installed.packages())) {
 }
 
 if(! "shinycssloaders" %in% rownames(installed.packages())) {
-  install_github("https://github.com/daattali/shinycssloaders/commit/279f02998ac193307b9993846ab68856817f06de")
+  devtools::install_github("https://github.com/daattali/shinycssloaders/commit/279f02998ac193307b9993846ab68856817f06de")
 }
 
 
@@ -31,7 +31,7 @@ if("shinyWidgets" %in% rownames(installed.packages())) {
 }
 
 if(! "shinyWidgets" %in% rownames(installed.packages())) {
-  install_github("https://github.com/dreamRs/shinyWidgets/commit/ffd229acdb8350d310e051c6e388a1fc219caf91")
+  devtools::install_github("https://github.com/dreamRs/shinyWidgets/commit/ffd229acdb8350d310e051c6e388a1fc219caf91")
 }
 
 # We need digest v. 0.6.23
@@ -42,7 +42,7 @@ if("digest" %in% rownames(installed.packages())) {
 }
 
 if(! "digest" %in% rownames(installed.packages())) {
-  install_github("https://github.com/eddelbuettel/digest/commit/b3a805b88b3414a7ffc85c1e9873a3c6ebd1b9e9")
+  devtools::install_github("https://github.com/eddelbuettel/digest/commit/b3a805b88b3414a7ffc85c1e9873a3c6ebd1b9e9")
 }
 
 print("Step 1a completed")
