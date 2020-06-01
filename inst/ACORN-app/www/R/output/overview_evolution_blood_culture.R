@@ -3,10 +3,8 @@ output$evolution_blood_culture <- renderHighchart({
   req(microbio_filter() %>% nrow() > 0)
   
   # Add date of enrollment to microbio_filter
-  microbio_filter_mod <- left_join(microbio_filter() %>%
-                          mutate(episode_id = as.character(episode_id)), 
-                        patient_filter() %>% select(date_enrollment, episode_id) %>% 
-                          mutate(episode_id = as.character(episode_id)),
+  microbio_filter_mod <- left_join(microbio_filter(), 
+                        patient_filter() %>% select(date_enrollment, episode_id),
                         by = 'episode_id')
   
   dta <- left_join(

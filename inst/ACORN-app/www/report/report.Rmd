@@ -48,8 +48,7 @@ Links to the sections:
 test_data <- function(mic = microbio_filter_blood(), pat = patient_filter(), organism_input) {
   data <- left_join(
     mic,
-    pat %>% select(episode_id, surveillance_cat) %>% 
-      mutate(episode_id = as.character(episode_id)),
+    pat %>% select(episode_id, surveillance_cat),
     by = 'episode_id') %>%
     filter(organism %in% organism_input)
   
@@ -78,8 +77,7 @@ ggplot_sir <- function(mic = microbio_filter_blood(),
   
   data <- left_join(
     mic,
-    pat %>% select(episode_id, surveillance_cat) %>% 
-      mutate(episode_id = as.character(episode_id)),
+    pat %>% select(episode_id, surveillance_cat),
     by = 'episode_id') %>%
     filter(organism %in% organism_input) %>%
     filter(surveillance_cat %in% surv_cat) %>%
@@ -143,8 +141,7 @@ ggplot_sir <- function(mic = microbio_filter_blood(),
 ```{r fun_table_bacteraemia}
 table_bacteraemia <- function(pat, mic, org, header_enr, header_tot) {
   # prepare datasets for merging
-  mic <- mic %>% mutate(episode_id = as.character(episode_id))
-  pat <- pat %>% mutate(episode_id = as.character(episode_id)) %>%
+  pat <- pat %>%
     mutate(surveillance_cat = factor(surveillance_cat, levels = c("CAI", "HAI")),
            surveillance_diag = factor(surveillance_diag, levels = c("Meningitis", "Pneumonia", "Sepsis"))) %>%
     select(surveillance_cat, surveillance_diag, episode_id)
@@ -515,10 +512,8 @@ Enrolments with Blood Culture / Total enrolments.
 
 ```{r blood_cultures}
 # Add surveillance category, surveillance diagnosis to microbio
-mic <- left_join(microbio_filter_blood() %>%
-                   mutate(episode_id = as.character(episode_id)), 
-                 patient_filter() %>% select(surveillance_cat, surveillance_diag, episode_id) %>% 
-                   mutate(episode_id = as.character(episode_id)),
+mic <- left_join(microbio_filter_blood(), 
+                 patient_filter() %>% select(surveillance_cat, surveillance_diag, episode_id),
                  by = 'episode_id')
 
 dta <- left_join(
