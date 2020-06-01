@@ -8,7 +8,7 @@ output$specimens_specimens_type <- renderHighchart({
     slice(1) %>%
     ungroup() %>%
     group_by(specimen_type) %>%
-    summarise(y = n()) %>%
+    summarise(y = n(), .groups = "drop") %>%
     mutate(color = 
              case_when(
                specimen_type == "Blood" ~ "#e31a1c",
@@ -37,15 +37,13 @@ output$culture_specimen_type <- renderHighchart({
     mutate(growth = case_when(specimen_id %in% spec_grown ~ "Growth", TRUE ~ "No Growth")) %>%
     mutate(culture_result = case_when(organism == "Not cultured" ~ "Not cultured", TRUE ~ growth)) %>%
     group_by(specimen_type, culture_result) %>%
-    summarise(n = n_distinct(specimen_id)) %>%
-    ungroup() %>% 
+    summarise(n = n_distinct(specimen_id), .groups = "drop") %>%
     complete(specimen_type, culture_result, fill = list(n = 0))
   
   dta <- left_join(dta,
                    dta %>%
                      group_by(specimen_type) %>%
-                     summarise(total = sum(n)) %>%
-                     ungroup(),
+                     summarise(total = sum(n), .groups = "drop"),
                    by = "specimen_type") %>%
     mutate(freq = 100*round(n/total, 2)) %>%
     arrange(desc(total))

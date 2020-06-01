@@ -1,8 +1,6 @@
 # Load packages ----
 library(bsplus)  # bs_accordion()
 library(data.table)
-# require digest 0.6.23 as we experience issues with subsequent versions
-library(digest)
 library(DT)
 library(flexdashboard)  # gaugeOutput()
 library(flextable)

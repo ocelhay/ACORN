@@ -70,7 +70,7 @@ enrol.log <- clin %>% select('ID number' = USUBJID, 'Enrol date' = DMDTC, 'Syndr
 enrol.log$calc.d28 <- as.Date(enrol.log$`Enrol date` + 28) # Calculate an expected D28 follow-up date for each enrolment
 enrol.log$id <- paste(enrol.log$`ID number`,enrol.log$`Admission date`, sep="-") #Make a person-admission grouping variable
 enrol.log <- enrol.log %>% group_by(id) %>% mutate(`Predicted Day-28 date` = max(calc.d28)) # Calculate the "final" (i.e. latest) D28 follow-up date for each admission
-enrol.log <- enrol.log %>% group_by(id) %>% mutate(`Episode number` = seq_along(`Enrol date`)) %>% ungroup(enrol.log)# Make an episode number (For each enrolment in an admission)
+enrol.log <- enrol.log %>% group_by(id) %>% mutate(`Episode number` = seq_along(`Enrol date`)) %>% ungroup()# Make an episode number (For each enrolment in an admission)
 enrol.log <- enrol.log %>% select(`ID number`, `Episode number`, `Enrol date`, `Syndrome`, `Admission date`, `Discharge date`, `Discharge status`, `Predicted Day-28 date`) 
 enrol.log <- enrol.log[order(enrol.log$`ID number`, enrol.log$`Admission date`, enrol.log$`Admission date`),] # Sort by ID, admission date, and enrolment date
 

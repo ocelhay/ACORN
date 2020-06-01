@@ -49,7 +49,7 @@ output$isolates_organism <- renderHighchart({
     fun_deduplication(method = input$deduplication_method) %>%
     
     group_by(organism) %>%
-    summarise(y = n()) %>%
+    summarise(y = n(), .groups = "drop") %>%
     arrange(desc(y)) %>% head(10) %>%
     mutate(freq = round(100*y / sum(y))) %>%
     arrange(desc(y))
@@ -74,7 +74,7 @@ output$isolates_organism_table <- renderDT({
     fun_deduplication(method = input$deduplication_method) %>%
     
     group_by(organism) %>%
-    summarise(N = n()) %>%
+    summarise(N = n(), .groups = "drop") %>%
     mutate(Frequency = N / sum(N)) %>%
     rename(Organism = organism) %>%
     arrange(desc(N))

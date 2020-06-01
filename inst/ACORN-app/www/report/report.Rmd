@@ -98,8 +98,7 @@ ggplot_sir <- function(mic = microbio_filter_blood(),
   
   total_tested <- data %>%
     group_by(name) %>%
-    summarise(total_org = sum(n)) %>%
-    ungroup()
+    summarise(total_org = sum(n), .groups = "drop")
   
   sir_results <- data %>%
     left_join(total_tested, by = "name") %>%
@@ -159,7 +158,7 @@ table_bacteraemia <- function(pat, mic, org, header_enr, header_tot) {
     mic %>%
       filter(organism %in% org) %>%
       group_by(surveillance_cat, surveillance_diag, .drop = FALSE) %>%
-      summarise(enrolments = n_distinct(episode_id)),
+      summarise(enrolments = n_distinct(episode_id), .groups = "drop"),
     # Total Enrolments column
     pat %>%
       filter(episode_id %in% mic$episode_id) %>%
@@ -168,7 +167,6 @@ table_bacteraemia <- function(pat, mic, org, header_enr, header_tot) {
     by = c("surveillance_cat", "surveillance_diag")) %>%
     # per 1,000 column
     mutate(per1000 = round(1000 * enrolments/total_enrolments, 1)) %>%
-    ungroup() %>%
     complete(surveillance_cat, surveillance_diag, fill = list(enrolments = 0, total_enrolments = 0, per1000 = 0))
   
   
@@ -282,8 +280,7 @@ Type of ward:
 ```{r}
 dta <- patient_filter() %>%
   group_by(ward, surveillance_cat) %>%
-  summarise(patients = n()) %>%
-  ungroup() %>%
+  summarise(patients = n(), .groups = "drop") %>%
   complete(surveillance_cat, ward) %>%
   mutate(patients = replace_na(patients, 0)) %>%
   pivot_wider(names_from = surveillance_cat, values_from = patients) %>%
@@ -312,8 +309,7 @@ dta <- patient_filter() %>%
     TRUE ~ "Above 5 years")) %>%
   mutate(age_category = factor(age_category, levels = c("0-27 days", "1 month to  1 year", "1 to  5 years", "Above 5 years"))) %>%
   group_by(age_category, surveillance_cat) %>%
-  summarise(patients = n()) %>%
-  ungroup() %>%
+  summarise(patients = n(), .groups = "drop") %>%
   complete(surveillance_cat, age_category) %>%
   mutate(patients = replace_na(patients, 0)) %>%
   pivot_wider(names_from = surveillance_cat, values_from = patients) %>%
@@ -338,8 +334,7 @@ Suspected Diagnosis:
 ```{r}
 dta <- patient_filter() %>%
   group_by(surveillance_diag, surveillance_cat) %>%
-  summarise(patients = n()) %>%
-  ungroup() %>%
+  summarise(patients = n(), .groups = "drop") %>%
   complete(surveillance_cat, surveillance_diag) %>%
   mutate(patients = replace_na(patients, 0)) %>%
   pivot_wider(names_from = surveillance_cat, values_from = patients) %>%
@@ -362,8 +357,7 @@ Hospital Discharge Status:
 ```{r}
 dta <- patient_filter() %>%
   group_by(discharge_status, surveillance_cat) %>%
-  summarise(patients = n()) %>%
-  ungroup() %>%
+  summarise(patients = n(), .groups = "drop") %>%
   complete(surveillance_cat, discharge_status) %>%
   mutate(patients = replace_na(patients, 0)) %>%
   pivot_wider(names_from = surveillance_cat, values_from = patients) %>%
@@ -388,8 +382,7 @@ Day 28 Status:
 ```{r}
 dta <- patient_filter() %>%
   group_by(status_d28, surveillance_cat) %>%
-  summarise(patients = n()) %>%
-  ungroup() %>%
+  summarise(patients = n(), .groups = "drop") %>%
   complete(surveillance_cat, status_d28) %>%
   mutate(patients = replace_na(patients, 0)) %>%
   pivot_wider(names_from = surveillance_cat, values_from = patients) %>%
@@ -416,8 +409,7 @@ Type of ward:
 ```{r}
 dta <- patient_filter() %>%
   group_by(ward, surveillance_diag) %>%
-  summarise(patients = n()) %>%
-  ungroup() %>%
+  summarise(patients = n(), .groups = "drop") %>%
   complete(surveillance_diag, ward) %>%
   mutate(patients = replace_na(patients, 0)) %>%
   pivot_wider(names_from = surveillance_diag, values_from = patients) %>%
@@ -448,8 +440,7 @@ dta <- patient_filter() %>%
     TRUE ~ "Above 5 years")) %>%
   mutate(age_category = factor(age_category, levels = c("0-27 days", "1 month to  1 year", "1 to  5 years", "Above 5 years"))) %>% 
   group_by(age_category, surveillance_diag) %>%
-  summarise(patients = n()) %>%
-  ungroup() %>%
+  summarise(patients = n(), .groups = "drop") %>%
   complete(surveillance_diag, age_category) %>%
   mutate(patients = replace_na(patients, 0)) %>%
   pivot_wider(names_from = surveillance_diag, values_from = patients) %>%
@@ -473,8 +464,7 @@ Hospital Discharge Status:
 ```{r}
 dta <- patient_filter() %>%
   group_by(discharge_status, surveillance_diag) %>%
-  summarise(patients = n()) %>%
-  ungroup() %>%
+  summarise(patients = n(), .groups = "drop") %>%
   complete(surveillance_diag, discharge_status) %>%
   mutate(patients = replace_na(patients, 0)) %>%
   pivot_wider(names_from = surveillance_diag, values_from = patients) %>%
@@ -499,8 +489,7 @@ Day 28 Status:
 ```{r}
 dta <- patient_filter() %>%
   group_by(status_d28, surveillance_diag) %>%
-  summarise(patients = n()) %>%
-  ungroup() %>%
+  summarise(patients = n(), .groups = "drop") %>%
   complete(surveillance_diag, status_d28) %>%
   mutate(patients = replace_na(patients, 0)) %>%
   pivot_wider(names_from = surveillance_diag, values_from = patients) %>%
@@ -536,14 +525,13 @@ dta <- left_join(
   # Enrolments with Blood Culture
   mic %>%
     group_by(surveillance_cat, surveillance_diag) %>%
-    summarise(blood = n_distinct(episode_id)),
+    summarise(blood = n_distinct(episode_id), .groups = "drop"),
   # Total Enrolments
   patient_filter() %>%
     group_by(surveillance_cat, surveillance_diag) %>%
-    summarise(all = n_distinct(episode_id)),
+    summarise(all = n_distinct(episode_id), .groups = "drop"),
   by = c("surveillance_cat", "surveillance_diag")) %>%
   mutate(percent = round(100 * blood/all, 1)) %>%
-  ungroup() %>%
   complete(surveillance_cat, surveillance_diag, fill = list(blood = 0, all = 0, percent = 0))
 
 

@@ -28,7 +28,7 @@ highchart_sir <- function(data_input, organism_input, corresp, combine_SI, dedup
     
     total_tested <- data %>% 
       group_by(name) %>%
-      summarise(total_org = sum(n))
+      summarise(total_org = sum(n), .groups = "drop")
     
     sir_results <- data %>% 
       left_join(total_tested, by = "name") %>%
@@ -91,7 +91,7 @@ highchart_sir <- function(data_input, organism_input, corresp, combine_SI, dedup
     
     total_tested <- data %>% 
       group_by(name) %>%
-      summarise(total_org = sum(n))
+      summarise(total_org = sum(n), .groups = "drop")
     
     sir_results <- data %>% 
       left_join(total_tested, by = "name") %>%

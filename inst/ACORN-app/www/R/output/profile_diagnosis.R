@@ -3,8 +3,7 @@ output$profile_diagnosis <- renderHighchart({
   
   df <- patient_filter() %>%
     group_by(surveillance_diag) %>%
-    summarise(y = n()) %>%
-    ungroup() %>%
+    summarise(y = n(), .groups = "drop") %>%
     mutate(color = surveillance_diag, freq = round(100*y / sum(y))) %>%
     mutate(color = recode(color, Meningitis = "#1f78b4", Pneumonia = "#33a02c", Sepsis = "#e31a1c"))
     
@@ -29,7 +28,7 @@ output$profile_diagnosis_meningitis <- renderHighchart({
     mutate(had_csf = as.character(patient_id %in% csf_patient_id)) %>%
     mutate(had_csf = recode(had_csf, "TRUE" = "Yes", "FALSE" = "No")) %>%
     group_by(had_csf) %>%
-    summarise(y = n()) %>%
+    summarise(y = n(), .groups = "drop") %>%
     mutate(total = sum(y), freq = round(100*y / sum(y))) %>%
     hchart(type = "column", hcaes(x = had_csf, y = y)) %>%
     hc_colors("#1f78b4") %>%
@@ -50,7 +49,7 @@ output$profile_diagnosis_pneumonia <- renderHighchart({
     mutate(had_pf = as.character(patient_id %in% pf_patient_id)) %>%
     mutate(had_pf = recode(had_pf, "TRUE" = "Yes", "FALSE" = "No")) %>%
     group_by(had_pf) %>%
-    summarise(y = n()) %>%
+    summarise(y = n(), .groups = "drop") %>%
     mutate(total = sum(y), freq = round(100*y / sum(y))) %>%
     hchart(type = "column", hcaes(x = had_pf, y = y)) %>%
     hc_colors("#33a02c") %>%

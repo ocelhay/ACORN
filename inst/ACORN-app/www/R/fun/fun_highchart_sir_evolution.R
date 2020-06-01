@@ -59,15 +59,14 @@ highchart_sir_evolution <- function(data_input, organism_input, corresp, combine
   
   sir_results <- sir_results %>% 
     group_by(specimen_month, value) %>%
-    summarise(n = sum(n)) %>%
-    ungroup() %>%
+    summarise(n = sum(n), .groups = "drop") %>%
     filter(!is.na(specimen_month)) %>%
     complete(value, specimen_month, fill = list(n = 0))
   
   # Add total
   total_tested <- sir_results %>%
     group_by(specimen_month) %>%
-    summarise(total_org = sum(n)) %>%
+    summarise(total_org = sum(n), .groups = "drop") %>%
     ungroup()
   
   sir_results <- left_join(sir_results, total_tested, by = "specimen_month") %>%
