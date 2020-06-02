@@ -321,7 +321,8 @@ ui <- fluidPage(
                                      conditionalPanel(condition = "output.test_abaumannii_sir",
                                                       highchartOutput("abaumannii_sir", height = "500px"),
                                                       h4("Resistance to Carbapenems Over Time"),
-                                                      highchartOutput("abaumannii_sir_evolution", height = "300px")
+                                                      highchartOutput("abaumannii_sir_evolution", height = "300px"),
+                                                      em("Care should be taken when interpreting rates and AMR profiles where there are small numbers of cases or bacterial isolates: point estimates may be unreliable.")
                                      ),
                                      conditionalPanel(condition = "! output.test_abaumannii_sir", span(h4("There is no data to display for this organism.")))
                                    )
@@ -335,7 +336,8 @@ ui <- fluidPage(
                                                       h4("Resistance to Carbapenems Over Time"),
                                                       highchartOutput("ecoli_sir_evolution", height = "300px"),
                                                       h4("Resistance to 3rd gen. cephalosporins Over Time"),
-                                                      highchartOutput("ecoli_sir_evolution_ceph", height = "300px")
+                                                      highchartOutput("ecoli_sir_evolution_ceph", height = "300px"),
+                                                      em("Care should be taken when interpreting rates and AMR profiles where there are small numbers of cases or bacterial isolates: point estimates may be unreliable.")
                                      ),
                                      conditionalPanel(condition = "! output.test_ecoli_sir", span(h4("There is no data to display for this organism.")))
                                    )
@@ -349,7 +351,8 @@ ui <- fluidPage(
                                                       h4("Resistance to Carbapenems Over Time"),
                                                       highchartOutput("kpneumoniae_sir_evolution", height = "300px"),
                                                       h4("Resistance to 3rd gen. cephalosporins Over Time"),
-                                                      highchartOutput("kpneumoniae_sir_evolution_ceph", height = "300px")
+                                                      highchartOutput("kpneumoniae_sir_evolution_ceph", height = "300px"),
+                                                      em("Care should be taken when interpreting rates and AMR profiles where there are small numbers of cases or bacterial isolates: point estimates may be unreliable.")
                                      ),
                                      conditionalPanel(condition = "! output.test_kpneumoniae_sir", span(h4("There is no data to display for this organism.")))
                                    )
@@ -362,6 +365,7 @@ ui <- fluidPage(
                                                       highchartOutput("saureus_sir", height = "500px"),
                                                       h4("Resistance to Oxacillin Over Time"),
                                                       highchartOutput("saureus_sir_evolution", height = "300px"),
+                                                      em("Care should be taken when interpreting rates and AMR profiles where there are small numbers of cases or bacterial isolates: point estimates may be unreliable.")
                                      ),
                                      conditionalPanel(condition = "! output.test_saureus_sir", span(h4("There is no data to display for this organism.")))
                                    )
@@ -374,6 +378,7 @@ ui <- fluidPage(
                                                       highchartOutput("spneumoniae_sir", height = "500px"),
                                                       h4("Resistance to Penicillin Over Time"),
                                                       highchartOutput("spneumoniae_sir_evolution", height = "300px"),
+                                                      em("Care should be taken when interpreting rates and AMR profiles where there are small numbers of cases or bacterial isolates: point estimates may be unreliable.")
                                      ),
                                      conditionalPanel(condition = "! output.test_spneumoniae_sir", span(h4("There is no data to display for this organism.")))
                                    )
@@ -391,6 +396,7 @@ ui <- fluidPage(
                                                       highchartOutput("salmonella_sir_evolution_ceph", height = "300px"),
                                                       h4("Resistance to Fluoroquinolones Over Time"),
                                                       highchartOutput("salmonella_sir_evolution_fluo", height = "300px"),
+                                                      em("Care should be taken when interpreting rates and AMR profiles where there are small numbers of cases or bacterial isolates: point estimates may be unreliable.")
                                      ),
                                      conditionalPanel(condition = "! output.test_salmonella_sir", span(h4("There is no data to display for this organism.")))
                                    )
@@ -402,12 +408,12 @@ ui <- fluidPage(
                                      selectInput(inputId = "other_organism", label = NULL, multiple = FALSE,
                                                  choices = NULL, selected = NULL),
                                      conditionalPanel(condition = "output.test_other_sir",
-                                                      highchartOutput("other_organism_sir", height = "700px")
+                                                      highchartOutput("other_organism_sir", height = "700px"),
+                                                      em("Care should be taken when interpreting rates and AMR profiles where there are small numbers of cases or bacterial isolates: point estimates may be unreliable.")
                                      ),
                                      conditionalPanel(condition = "! output.test_other_sir", span(h4("There is no data to display.")))
                                    )
                                  ),
-                               
                                use_bs_accordion_sidebar()
                       )
            )
