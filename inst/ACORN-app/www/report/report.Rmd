@@ -26,7 +26,7 @@ ACORN (“A Clinically Oriented antimicrobial Resistance Network”) is intended
 
 ACORN includes data on both community-acquired infections (CAI) and hospital-acquired infections (HAI). The six key ACORN pathogens are the WHO bloodstream infection priority pathogens *Acinetobacter baumannii*, *Escherichia coli*, *Klebsiella pneumoniae*, *Staphylococcus aureus*, *Streptococcus pneumoniae*, and *Salmonella* sp.
 
-This report contains a summary report of patients enrolled into ACORN, their clinical infection syndromes, associated pathogens and resistance profiles, and outcomes. Care should be taken when interpreting rates and AMR profiles where there are small numbers of cases or bacterial isolates: point estimates may be unreliable.”
+This report contains a summary report of patients enrolled into ACORN, their clinical infection syndromes, associated pathogens and resistance profiles, and outcomes. Care should be taken when interpreting rates and AMR profiles where there are small numbers of cases or bacterial isolates: point estimates may be unreliable.
 
 This report was generated the `r Sys.time()` from the possibly filtered patient dataset in the ACORN App. Using different filter values, one can generate as many reports as required.
 
