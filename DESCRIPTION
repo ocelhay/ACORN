@@ -14,4 +14,4 @@ Depends:
     bsplus, data.table, DT, flexdashboard, flextable, foreign, grid, gridExtra, highcharter, 
     knitr, jsonlite, lubridate, markdown, openssl, pushbar, RColorBrewer, readxl, shiny, 
     shinyBS, shinyhelper, shinythemes, shinyWidgets, tidyverse, tools, timevis, vov
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
