@@ -716,6 +716,9 @@ server <- function(input, output, session) {
   observeEvent(input$file_RData, {
     load(input$file_RData$datapath)
     
+    # for compatibility with files generated prior to 1.2, convert hash types
+    patient$episode_id <- as.character(patient$episode_id)
+    
     data_provided(TRUE)
     patient(patient)
     microbio(microbio)
