@@ -520,8 +520,7 @@ server <- function(input, output, session) {
   generation_status <- reactiveValues(
     uploaded_files = c(FALSE, FALSE, FALSE, FALSE),
     generate_acorn_data = FALSE,
-    log = ""
-  )
+    log = "")
   
   observeEvent(input$file_data_dic, generation_status$uploaded_files[1] <- TRUE)
   observeEvent(input$file_lab_codes, generation_status$uploaded_files[2] <- TRUE)
@@ -538,11 +537,10 @@ server <- function(input, output, session) {
     showNotification("Data Generation Running. Check Console for Status", id = "message_run", 
                      duration = NULL, type = "default", session = session)
     start_data_generation <- Sys.time()
+    meta <- paste0("Dataset generated the ", Sys.Date())
     
     print("Source 01_read_acorn_data.R")
     source("./www/R/data_generation/01_read_acorn_data.R", local = TRUE)
-    generation_status$version_CLSI <- paste0(as.character(lab_code$notes[30, 1]), " version ", as.character(lab_code$notes[30, 2]), " - ", as.character(lab_code$notes[30, 3]))
-    generation_status$version_EUCAST <- paste0(as.character(lab_code$notes[31, 1]), " version ", as.character(lab_code$notes[31, 2]), " - ", as.character(lab_code$notes[31, 3]))
     
     print("Source 02_map_variables.R")
     source("./www/R/data_generation/02_map_variables.R", local = TRUE)
@@ -578,25 +576,27 @@ server <- function(input, output, session) {
     source("./www/R/data_generation/12_quality_control.R", local = TRUE)
     
     
-    # save datasets to be exported
+    # add data to be exported in generation_status
     generation_status$data_dictionnary <- data_dictionary
     generation_status$lab_code <- lab_code
+    generation_status$version_CLSI <- paste0(as.character(lab_code$notes[30, 1]), " version ", as.character(lab_code$notes[30, 2]), " - ", as.character(lab_code$notes[30, 3]))
+    generation_status$version_EUCAST <- paste0(as.character(lab_code$notes[31, 1]), " version ", as.character(lab_code$notes[31, 2]), " - ", as.character(lab_code$notes[31, 3]))
+    # purposefully not including: generation_status$log <- log
     generation_status$enrol.log <- enrol.log
-    
     generation_status$patient <- patient
     generation_status$microbio <- microbio
     generation_status$corresp_org_antibio <- corresp_org_antibio
     generation_status$hai.surveys <- hai.surveys
-    
+    generation_status$meta <-  meta
     
     removeNotification(id = "message_run", session = session)
+    source("./www/R/source_provide_data.R", local = TRUE)
   })
   
   output$button_link_download <- renderUI({
     if(generation_status$generate_acorn_data) {
       tagList(
-        downloadButton("download_ACORN_data", label = "Download ACORN Data"),
-        br(),
+        downloadButton("download_ACORN_data", label = "Download ACORN Data"), br(),
         downloadLink("download_log_data", label = "Download Enrollment Log")
       )
     }
@@ -608,26 +608,19 @@ server <- function(input, output, session) {
     content = function(file) {
       
       data_dictionnary <- generation_status$data_dictionnary
-      
       lab_code <- generation_status$lab_code
       version_CLSI <- generation_status$version_CLSI
       version_EUCAST <- generation_status$version_EUCAST
-      
       log <- generation_status$log
-      
       enrol.log <-  generation_status$enrol.log
-      
       patient <- generation_status$patient
       microbio <- generation_status$microbio
       corresp_org_antibio <- generation_status$corresp_org_antibio
       hai.surveys <- generation_status$hai.surveys
+      meta <-  generation_status$meta
       
-      meta <-  paste0("Dataset generated the ", Sys.Date())
-      
-      save(data_dictionnary, lab_code, version_CLSI, version_EUCAST, 
-           log, enrol.log,
-           patient, microbio, corresp_org_antibio, hai.surveys, 
-           meta,
+      save(data_dictionnary, lab_code, version_CLSI, version_EUCAST, log, enrol.log, 
+           patient, microbio, corresp_org_antibio, hai.surveys, meta,
            file = file)
     })
   
@@ -644,52 +637,8 @@ server <- function(input, output, session) {
   observeEvent(input$demo, 
     if(input$demo == TRUE) {
       load("./www/data/Mock_ACORN_Dataset.RData")
-      data_provided(TRUE)
-      patient(patient)
-      microbio(microbio)
-      
-      corresp_org_antibio(corresp_org_antibio)
-      data_details(meta)
-      hai_surveys(hai.surveys)
-      
-      updatePickerInput(session = session, "filter_method_other", 
-                        choices = sort(setdiff(unique(microbio$specimen_type), "Blood")), 
-                        selected = sort(setdiff(unique(microbio$specimen_type), "Blood")))
-      
-      updatePrettyCheckboxGroup(session = session, inputId = "filter_type_ward", 
-                                choices = sort(unique(patient$ward)), selected = sort(unique(patient$ward)), 
-                                inline = TRUE, prettyOptions = list(status = "primary"))
-      updatePickerInput(session = session, "filter_ward", choices = sort(unique(patient$ward_text)), selected = sort(unique(patient$ward_text)))
-      updateDateRangeInput(session = session, "filter_enrollment", start = min(patient$date_enrollment), end = max(patient$date_enrollment))
-      other_organism <- sort(setdiff(unique(microbio$organism), 
-                                     union(c("Acinetobacter baumannii", "Escherichia coli", "Klebsiella pneumoniae", "Staphylococcus aureus",
-                                             "Streptococcus pneumoniae"),
-                                           c("No growth",
-                                             "No growth (specific organism)",
-                                             "No significant growth",
-                                             "Mixed growth",
-                                             "Not cultured",
-                                             str_subset(unique(microbio$organism), "Salmonella")))))
-      updateSelectInput(session = session, "other_organism", choices = other_organism)
-      
-      
-      antibio <- patient %>% 
-        select(Amikacin:Vancomycin) %>%
-        pivot_longer(Amikacin:Vancomycin, names_to = "antibiotic", values_to = "taken") %>%
-        filter(taken == "Yes") %>%
-        pull(antibiotic) %>%
-        unique()
-      updatePickerInput(session = session, "filter_type_antibio", choices = antibio, selected = NULL)
-      
-      # show tabs
-      showTab(inputId = "tabs", target = "overview")
-      showTab(inputId = "tabs", target = "patients")
-      showTab(inputId = "tabs", target = "followup")
-      showTab(inputId = "tabs", target = "microbiology")
-      showTab(inputId = "tabs", target = "amr")
-      showTab(inputId = "tabs", target = "hai")
-      
-      # siwtch to Overview tab
+      source("./www/R/source_provide_data.R", local = TRUE)
+      # switch active tab
       updateTabsetPanel(session, "tabs", selected = "overview")
     }
   )
@@ -715,52 +664,8 @@ server <- function(input, output, session) {
   # Events on upload of a .RData file ----
   observeEvent(input$file_RData, {
     load(input$file_RData$datapath)
-    
-    # for compatibility with files generated prior to 1.2, convert hash types to character
-    patient$patient_id <- as.character(patient$patient_id)
-    patient$episode_id <- as.character(patient$episode_id)
-    
-    data_provided(TRUE)
-    patient(patient)
-    microbio(microbio)
-    
-    corresp_org_antibio(corresp_org_antibio)
-    data_details(meta)
-    hai_surveys(hai.surveys)
-    
-    updatePickerInput(session = session, "filter_method_other", choices = sort(setdiff(unique(microbio$specimen_type), "Blood")), 
-                      selected = sort(setdiff(unique(microbio$specimen_type), "Blood")))
-    updatePrettyCheckboxGroup(session = session, "filter_type_ward", choices = sort(unique(patient$ward)), selected = sort(unique(patient$ward)), 
-                              inline = TRUE, prettyOptions = list(status = "primary"))
-    updatePickerInput(session = session, "filter_ward", choices = sort(unique(patient$ward_text)), selected = sort(unique(patient$ward_text)))
-    updateDateRangeInput(session = session, "filter_enrollment", start = min(patient$date_enrollment), end = max(patient$date_enrollment))
-    
-    
-    other_organism <- setdiff(unique(microbio$organism), 
-                              union(c("Acinetobacter baumannii", "Escherichia coli", "Klebsiella pneumoniae", "Staphylococcus aureus",
-                                      "Streptococcus pneumoniae", "Neisseria gonorrhoeae"),
-                                    c(str_subset(unique(microbio$organism), "rowth"),
-                                      str_subset(unique(microbio$organism), "ultured"),
-                                      str_subset(unique(microbio$organism), "almonella"))))
-    updateSelectInput(session = session, "other_organism", choices = other_organism)
-    
-    antibio <- patient %>% 
-      select(Amikacin:Vancomycin) %>%
-      pivot_longer(Amikacin:Vancomycin, names_to = "antibiotic", values_to = "taken") %>%
-      filter(taken == "Yes") %>%
-      pull(antibiotic) %>%
-      unique()
-    updatePickerInput(session = session, "filter_type_antibio", choices = antibio, selected = NULL)
-    
-    # show hidden tabs
-    showTab(inputId = "tabs", target = "overview")
-    showTab(inputId = "tabs", target = "patients")
-    showTab(inputId = "tabs", target = "followup")
-    showTab(inputId = "tabs", target = "microbiology")
-    showTab(inputId = "tabs", target = "amr")
-    showTab(inputId = "tabs", target = "hai")
-    
-    # siwtch to Overview tab
+    source("./www/R/source_provide_data.R", local = TRUE)
+    # switch active tab
     updateTabsetPanel(session, "tabs", selected = "overview")
   })
   
