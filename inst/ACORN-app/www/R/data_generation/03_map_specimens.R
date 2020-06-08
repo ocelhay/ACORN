@@ -1,3 +1,5 @@
+print("Source 03_map_specimens.R")
+
 # Map local / WHO specimen codes and types to ACORN specimen groups
 whonet.spec <- lab_code$whonet.spec
 amr$spectype.whonet <- as.numeric(amr$spectype.whonet)

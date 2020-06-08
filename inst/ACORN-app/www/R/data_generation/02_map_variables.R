@@ -1,3 +1,4 @@
+print("Source 02_map_variables.R")
 
 # Map local variable names with acorn variable names (use "match" command)
 variable.names <- data_dictionary$variables %>%

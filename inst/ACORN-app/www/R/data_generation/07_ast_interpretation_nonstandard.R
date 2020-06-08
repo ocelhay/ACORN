@@ -1,3 +1,5 @@
+print("Source 07_ast_interpretation_nonstandard.R")
+
 # Sort out non-standard interpretative AST data
 # Make FQ (fluorquinolone - CIP / LVX) / 3GC (3rd generation cephalosporin = CAZ / CRO / CTX) / CPM (carbapenem - DOR / ETP / IPM / MEM) resistance categories
 # Use EUCAST rules (combine I + S, not I + R): http://www.eucast.org/newsiandr/

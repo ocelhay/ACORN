@@ -1,3 +1,5 @@
+print("Source 11_prepare_data.R")
+
 # Preparation for the App
 patient <- clin %>%
   transmute(

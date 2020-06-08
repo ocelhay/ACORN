@@ -539,44 +539,22 @@ server <- function(input, output, session) {
     start_data_generation <- Sys.time()
     meta <- paste0("Dataset generated the ", Sys.Date())
     
-    print("Source 01_read_acorn_data.R")
     source("./www/R/data_generation/01_read_acorn_data.R", local = TRUE)
-    
-    print("Source 02_map_variables.R")
     source("./www/R/data_generation/02_map_variables.R", local = TRUE)
-    
-    print("Source 03_map_specimens.R")
     source("./www/R/data_generation/03_map_specimens.R", local = TRUE)
-    
-    print("Source 04_map_organisms.R")
     source("./www/R/data_generation/04_map_organisms.R", local = TRUE)
-    
-    print("Source 05_make_ast_group.R")
     source("./www/R/data_generation/05_make_ast_group.R", local = TRUE)
-    
-    print("Source 06_ast_interpretation.R")
     source("./www/R/data_generation/06_ast_interpretation.R", local = TRUE)
-    
-    print("Source 07_ast_interpretation_nonstandard.R")
     source("./www/R/data_generation/07_ast_interpretation_nonstandard.R", local = TRUE)
-    
-    print("Source 08_odk_assembly.R")
     source("./www/R/data_generation/08_odk_assembly.R", local = TRUE)
-    
-    print("Source 09_link_clinical_assembly.R")
     source("./www/R/data_generation/09_link_clinical_assembly.R", local = TRUE)
-    
-    print("Source 10_process_hai_survey_data.R")
     source("./www/R/data_generation/10_process_hai_survey_data.R", local = TRUE)
-    
-    print("Source 11_prepare_data.R")
     source("./www/R/data_generation/11_prepare_data.R", local = TRUE)
-    
-    print("Source 12_quality_control.R")
     source("./www/R/data_generation/12_quality_control.R", local = TRUE)
     
     
     # add data to be exported in generation_status
+    generation_status$generate_acorn_data <- TRUE
     generation_status$data_dictionnary <- data_dictionary
     generation_status$lab_code <- lab_code
     generation_status$version_CLSI <- paste0(as.character(lab_code$notes[30, 1]), " version ", as.character(lab_code$notes[30, 2]), " - ", as.character(lab_code$notes[30, 3]))
