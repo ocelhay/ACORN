@@ -54,7 +54,7 @@ f03.sel <- f03 %>% select(LINK1, D28_DATE, D28_STATUS, D28_DEATH_DATE)
 
 # Check if there are elements duplicated in F02 or F03
 log_any_duplicated_f02 <- any(duplicated(f02$LINK))
-log_any_duplicated_f03 <- any(duplicated(f02rep$LINK1))
+log_any_duplicated_f03 <- any(duplicated(f03$LINK1))
 
 # We need to check if there are no elements of F02 or F03 that can't be linked to F01 (typos ...)
 unlinkable_elements_F02 <- setdiff(f02.sel$LINK, f01.sel$LINK)
