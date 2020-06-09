@@ -71,7 +71,6 @@ enrol.log <- clin %>% select('ID number' = USUBJID, 'Enrol date' = DMDTC, 'Syndr
                              'Admission date' = HPD_ADM_DATE, 'Discharge date' = HO_DISCHARGE_DATE, 
                              'Discharge status' = HO_DISCHARGESTATUS, 'Actual Day-28 date' = D28_DATE, 
                              'Day-28 status' = D28_STATUS) %>%
-  filter(is.na(`Day-28 status`)) %>% # Only keep those without a 28-day outcome
   mutate(calc.d28 = as.Date(`Enrol date` + 28), # Calculate an expected D28 follow-up date for each enrolment
          id = paste(`ID number`, `Admission date`, sep="-"))  %>%   # Make a person-admission grouping variable
   group_by(id) %>% 
@@ -80,7 +79,7 @@ enrol.log <- clin %>% select('ID number' = USUBJID, 'Enrol date' = DMDTC, 'Syndr
   ungroup() %>%
   arrange(`ID number`, `Admission date`, `Enrol date`) %>% # Sort by ID, admission date, and enrolment date
   select(`ID number`, `Episode number`, `Enrol date`, `Syndrome`, `Admission date`, `Discharge date`, `Discharge status`, 
-         `Predicted Day-28 date`, `Day-28 status`)
+         `Predicted Day-28 date`, `Actual Day-28 date`, `Day-28 status`)
 
 
 # Make anonymised patient ID (ACORN + site + sequential number based on hospital ID)
