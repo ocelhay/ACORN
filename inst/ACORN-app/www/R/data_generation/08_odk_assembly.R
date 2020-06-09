@@ -66,21 +66,22 @@ unlinkable_elements_F03 <- setdiff(f03.sel$LINK1, f01.sel$LINK1)
 f01.f02.sel <- left_join(f01.sel, f02.sel, by = "LINK")
 clin <- left_join(f01.f02.sel, f03.sel, by = "LINK1")
 
-
-# Create an enrolment log for clinical staff and save it ----
+# Create an enrolment log for clinical staff ----
 enrol.log <- clin %>% select('ID number' = USUBJID, 'Enrol date' = DMDTC, 'Syndrome' = IFD_SURDIAG,
-                             'Admission date' = HPD_ADM_DATE, 'Discharge date' = HO_DISCHARGE_DATE, 'Discharge status' = HO_DISCHARGESTATUS, D28_STATUS) %>%
-  filter(is.na(D28_STATUS)) %>% # Only keep those without a 28-day outcome
-  select(-D28_STATUS) # Remove D28_STATUS variable as not helpful for log
+                             'Admission date' = HPD_ADM_DATE, 'Discharge date' = HO_DISCHARGE_DATE, 
+                             'Discharge status' = HO_DISCHARGESTATUS, 'Actual Day-28 date' = D28_DATE, 
+                             'Day-28 status' = D28_STATUS) %>%
+  filter(is.na(`Day-28 status`)) %>% # Only keep those without a 28-day outcome
+  mutate(calc.d28 = as.Date(`Enrol date` + 28), # Calculate an expected D28 follow-up date for each enrolment
+         id = paste(`ID number`, `Admission date`, sep="-"))  %>%   # Make a person-admission grouping variable
+  group_by(id) %>% 
+  mutate(`Predicted Day-28 date` = max(calc.d28), # Calculate the "final" (i.e. latest) D28 follow-up date for each admission
+         `Episode number` = seq_along(`Enrol date`)) %>%  # Make an episode number (For each enrolment in an admission)
+  ungroup() %>%
+  arrange(`ID number`, `Admission date`, `Enrol date`) %>% # Sort by ID, admission date, and enrolment date
+  select(`ID number`, `Episode number`, `Enrol date`, `Syndrome`, `Admission date`, `Discharge date`, `Discharge status`, 
+         `Predicted Day-28 date`, `Day-28 status`)
 
-enrol.log$calc.d28 <- as.Date(enrol.log$`Enrol date` + 28) # Calculate an expected D28 follow-up date for each enrolment
-enrol.log$id <- paste(enrol.log$`ID number`,enrol.log$`Admission date`, sep="-") #Make a person-admission grouping variable
-enrol.log <- enrol.log %>% group_by(id) %>% mutate(`Predicted Day-28 date` = max(calc.d28)) # Calculate the "final" (i.e. latest) D28 follow-up date for each admission
-enrol.log <- enrol.log %>% group_by(id) %>% mutate(`Episode number` = seq_along(`Enrol date`)) %>% ungroup()# Make an episode number (For each enrolment in an admission)
-enrol.log <- enrol.log %>% select(`ID number`, `Episode number`, `Enrol date`, `Syndrome`, `Admission date`, `Discharge date`, `Discharge status`, `Predicted Day-28 date`) 
-enrol.log <- enrol.log[order(enrol.log$`ID number`, enrol.log$`Admission date`, enrol.log$`Admission date`),] # Sort by ID, admission date, and enrolment date
-
-# write.csv(enrol.log, file = paste0("./ACORN_Data_Processing_Output/ACORN_Data_", time_generation, "_Enrol_Log.csv"), row.names = F)
 
 # Make anonymised patient ID (ACORN + site + sequential number based on hospital ID)
 clin <- transform(clin, ACORN.ANONID=as.numeric(factor(clin$USUBJID)))
