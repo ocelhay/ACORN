@@ -604,24 +604,20 @@ server <- function(input, output, session) {
   
   # Process on "Download Log file" ----
   output$download_log_data <- downloadHandler(
-    filename = paste0("ACORN_Logfile_", Sys.Date(), ".csv"),
+    filename = paste0("ACORN_Enrollment_Log_", Sys.Date(), ".csv"),
     content = function(file) {
-      enrol.log <- generation_status$enrol.log
-      write.csv(enrol.log, file = file, row.names = F)
+      write.csv(generation_status$enrol.log, file = file, row.names = FALSE)
     })
   
-  
   # Events on demo toggle ON/OFF ----
-  observeEvent(input$demo, 
+  observeEvent(input$demo, {
     if(input$demo == TRUE) {
       load("./www/data/Mock_ACORN_Dataset.RData")
       source("./www/R/source_provide_data.R", local = TRUE)
+      
       # switch active tab
       updateTabsetPanel(session, "tabs", selected = "overview")
     }
-  )
-  
-  observe(
     if(input$demo == FALSE) {
       data_provided(FALSE)
       patient(NULL)
@@ -635,9 +631,7 @@ server <- function(input, output, session) {
       hideTab(inputId = "tabs", target = "amr")
       hideTab(inputId = "tabs", target = "hai")
     }
-  )
-  
-  
+  })
   
   # Events on upload of a .RData file ----
   observeEvent(input$file_RData, {

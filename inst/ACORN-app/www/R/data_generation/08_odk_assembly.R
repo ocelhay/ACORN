@@ -52,7 +52,8 @@ f02.sel <- f02 %>% select(LINK, HO_HAVE_ICD10, HO_ICD10, HO_FINDIAG, HO_SEPSIS_S
                           HO_DISCHARGE_DATE, HO_DISCHARGESTATUS, HO_DAYS_ICU)
 f03.sel <- f03 %>% select(LINK1, D28_DATE, D28_STATUS, D28_DEATH_DATE)
 
-# Check if there are elements duplicated in F02 or F03
+# Check if there are elements duplicated in F01, F02 or F03
+log_any_duplicated_f01 <- any(duplicated(f01$LINK))
 log_any_duplicated_f02 <- any(duplicated(f02$LINK))
 log_any_duplicated_f03 <- any(duplicated(f03$LINK1))
 
