@@ -106,16 +106,16 @@ fun_deduplication <- function(data, method = NULL) {
   if(method == "Deduplication by patient-episode") { 
     data_dedup <- data %>% group_by(patient_id, episode_id, organism, specimen_type) %>% 
       slice(1) %>% ungroup()
-    print(paste0("Deduplication: before ", nrow(data), " isolates; after ", nrow(data_dedup), 
-                 " isolates (-",  nrow(data) - nrow(data_dedup), ")."))
+    # print(paste0("Deduplication: before ", nrow(data), " isolates; after ", nrow(data_dedup), 
+    #              " isolates (-",  nrow(data) - nrow(data_dedup), ")."))
     return(data_dedup)
   }
   
   if(method == "Deduplication by patient ID") { 
     data_dedup <- data %>% group_by(patient_id, organism, specimen_type) %>% 
       slice(1) %>% ungroup()
-    print(paste0("Deduplication: before ", nrow(data), " isolates; after ", nrow(data_dedup), 
-                 " isolates (-",  nrow(data) - nrow(data_dedup), ")."))
+    # print(paste0("Deduplication: before ", nrow(data), " isolates; after ", nrow(data_dedup), 
+    #              " isolates (-",  nrow(data) - nrow(data_dedup), ")."))
     return(data_dedup)
   }
 }
