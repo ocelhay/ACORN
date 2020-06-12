@@ -7,7 +7,7 @@ output$n_overview_patient <- renderText({
             div(class = "icon_box", icon("user")),
             h3(patient_filter() %>% nrow()),
             span(strong("Patient Enrollments"), br(),
-                 "with ", patient() %>% pull(patient_id) %>% n_distinct(), " distinct patients.")
+                 "with ", patient_filter() %>% pull(patient_id) %>% n_distinct(), " distinct patients.")
         )
       )
     )
