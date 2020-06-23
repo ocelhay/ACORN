@@ -580,14 +580,14 @@ grid.arrange(g1, g2, g3, ncol = 1)
 
 ```{r, eval = show}
 table_bacteraemia(pat = patient_filter(), mic = microbio_filter(), org = org, 
-                  header_enr = "Enrolments", header_tot = "Total Enrolments")
+                  header_enr = "Enrolments w/ bacteraemia", header_tot = "Total Enrolments")
 ```
 
-`r if(show){"*Acinetobacter baumannii* bacteraemia per 1,000 blood cultures:"}`
+`r if(show){"*Acinetobacter baumannii* bacteraemia per 1,000 blood cultured infection episodes:"}`
 
 ```{r, eval = show}
 table_bacteraemia(pat = patient_filter(), mic = microbio_filter_blood(), org = org, 
-                  header_enr = "Enrolments w/ Blood Culture", header_tot = "Total Enrolments w/ Blood Culture")
+                  header_enr = "Enrolments w/ bacteraemia", header_tot = "Total Enrolments w/ Blood Culture")
 ```
 
 
@@ -612,14 +612,14 @@ grid.arrange(g1, g2, g3, ncol = 1)
 
 ```{r, eval = show}
 table_bacteraemia(pat = patient_filter(), mic = microbio_filter(), org = org, 
-                  header_enr = "Enrolments", header_tot = "Total Enrolments")
+                  header_enr = "Enrolments w/ bacteraemia", header_tot = "Total Enrolments")
 ```
 
-`r if(show){"*Escherichia coli* bacteraemia per 1,000 blood cultures:"}`
+`r if(show){"*Escherichia coli* bacteraemia per 1,000 blood cultured infection episodes:"}`
 
 ```{r, eval = show}
 table_bacteraemia(pat = patient_filter(), mic = microbio_filter_blood(), org = org, 
-                  header_enr = "Enrolments w/ Blood Culture", header_tot = "Total Enrolments w/ Blood Culture")
+                  header_enr = "Enrolments w/ bacteraemia", header_tot = "Total Enrolments w/ Blood Culture")
 ```
 
 ## *Klebsiella pneumoniae* {#k_pneumoniae}
@@ -643,14 +643,14 @@ grid.arrange(g1, g2, g3, ncol = 1)
 
 ```{r, eval = show}
 table_bacteraemia(pat = patient_filter(), mic = microbio_filter(), org = org, 
-                  header_enr = "Enrolments", header_tot = "Total Enrolments")
+                  header_enr = "Enrolments w/ bacteraemia", header_tot = "Total Enrolments")
 ```
 
-`r if(show){"*Klebsiella pneumoniae* bacteraemia per 1,000 blood cultures:"}`
+`r if(show){"*Klebsiella pneumoniae* bacteraemia per 1,000 blood cultured infection episodes:"}`
 
 ```{r, eval = show}
 table_bacteraemia(pat = patient_filter(), mic = microbio_filter_blood(), org = org, 
-                  header_enr = "Enrolments w/ Blood Culture", header_tot = "Total Enrolments w/ Blood Culture")
+                  header_enr = "Enrolments w/ bacteraemia", header_tot = "Total Enrolments w/ Blood Culture")
 ```
 
 ## *Staphylococcus aureus* {#s_aureus}
@@ -674,14 +674,14 @@ grid.arrange(g1, g2, g3, ncol = 1)
 
 ```{r, eval = show}
 table_bacteraemia(pat = patient_filter(), mic = microbio_filter(), org = org, 
-                  header_enr = "Enrolments", header_tot = "Total Enrolments")
+                  header_enr = "Enrolments w/ bacteraemia", header_tot = "Total Enrolments")
 ```
 
-`r if(show){"*Staphylococcus aureus* bacteraemia per 1,000 blood cultures:"}`
+`r if(show){"*Staphylococcus aureus* bacteraemia per 1,000 blood cultured infection episodes:"}`
 
 ```{r, eval = show}
 table_bacteraemia(pat = patient_filter(), mic = microbio_filter_blood(), org = org, 
-                  header_enr = "Enrolments w/ Blood Culture", header_tot = "Total Enrolments w/ Blood Culture")
+                  header_enr = "Enrolments w/ bacteraemia", header_tot = "Total Enrolments w/ Blood Culture")
 ```
 
 ## *Streptococcus pneumoniae* {#s_pneumoniae}
@@ -705,14 +705,14 @@ grid.arrange(g1, g2, g3, ncol = 1)
 
 ```{r, eval = show}
 table_bacteraemia(pat = patient_filter(), mic = microbio_filter(), org = org, 
-                  header_enr = "Enrolments", header_tot = "Total Enrolments")
+                  header_enr = "Enrolments w/ bacteraemia", header_tot = "Total Enrolments")
 ```
 
-`r if(show){"*Streptococcus pneumoniae* bacteraemia per 1,000 blood cultures:"}`
+`r if(show){"*Streptococcus pneumoniae* bacteraemia per 1,000 blood cultured infection episodes:"}`
 
 ```{r, eval = show}
 table_bacteraemia(pat = patient_filter(), mic = microbio_filter_blood(), org = org, 
-                  header_enr = "Enrolments w/ Blood Culture", header_tot = "Total Enrolments w/ Blood Culture")
+                  header_enr = "Enrolments w/ bacteraemia", header_tot = "Total Enrolments w/ Blood Culture")
 ```
 
 
@@ -739,12 +739,12 @@ grid.arrange(g1, g2, g3, ncol = 1)
 
 ```{r, eval = show}
 table_bacteraemia(pat = patient_filter(), mic = microbio_filter(), org = org, 
-                  header_enr = "Enrolments", header_tot = "Total Enrolments")
+                  header_enr = "Enrolments w/ bacteraemia", header_tot = "Total Enrolments")
 ```
 
-`r if(show){"*Salmonella* combined bacteraemia per 1,000 blood cultures:"}`
+`r if(show){"*Salmonella* combined bacteraemia per 1,000 blood cultured infection episodes:"}`
 
 ```{r, eval = show}
 table_bacteraemia(pat = patient_filter(), mic = microbio_filter_blood(), org = org, 
-                  header_enr = "Enrolments w/ Blood Culture", header_tot = "Total Enrolments w/ Blood Culture")
+                  header_enr = "Enrolments w/ bacteraemia", header_tot = "Total Enrolments w/ Blood Culture")
 ```
