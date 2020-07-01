@@ -138,28 +138,46 @@ ggplot_sir <- function(mic = microbio_filter_blood(),
 ```
 
 ```{r fun_table_bacteraemia}
-table_bacteraemia <- function(pat, mic, org, header_enr, header_tot) {
+table_bacteraemia <- function(pat, mic, org, blood) {
   # prepare datasets for merging
   pat <- pat %>%
     mutate(surveillance_cat = factor(surveillance_cat, levels = c("CAI", "HAI")),
            surveillance_diag = factor(surveillance_diag, levels = c("Meningitis", "Pneumonia", "Sepsis"))) %>%
     select(surveillance_cat, surveillance_diag, episode_id)
   
-  # add surveillance_cat and surveillance_cat to mic
+  # add "surveillance_cat" and "surveillance_diag" to mic
   mic <- left_join(mic, pat, by = 'episode_id')
+  
+  # the column "Enrolments w/ bacteraemia" is independent on the type of specimen
+  dta_enrolments <- mic %>%
+    filter(organism %in% org, specimen_type == "Blood") %>%
+    group_by(surveillance_cat, surveillance_diag, .drop = FALSE) %>%
+    summarise(enrolments = n_distinct(episode_id), .groups = "drop")
+  
+  # the column "Total Enrolments..." depends on the type of specimen
+  if(blood) {
+    header_tot <- "Total Enrolments w/ Blood Culture"
+    
+    episode_blood <- mic %>% filter(specimen_type == "Blood") %>% pull(episode_id)
+    
+    dta_total_enrolments <- pat %>%
+      filter(episode_id %in% episode_blood) %>%
+      group_by(surveillance_cat, surveillance_diag) %>%
+      summarise(total_enrolments = n_distinct(episode_id), .groups = "drop")
+  }
+  
+  if(! blood) {
+    header_tot <- "Total Enrolments"
+    
+    dta_total_enrolments <- pat %>%
+      group_by(surveillance_cat, surveillance_diag) %>%
+      summarise(total_enrolments = n_distinct(episode_id), .groups = "drop")
+  }
   
   # Merge datasets
   dta <- left_join(
-    # Enrolments column
-    mic %>%
-      filter(organism %in% org) %>%
-      group_by(surveillance_cat, surveillance_diag, .drop = FALSE) %>%
-      summarise(enrolments = n_distinct(episode_id), .groups = "drop"),
-    # Total Enrolments column
-    pat %>%
-      filter(episode_id %in% mic$episode_id) %>%
-      group_by(surveillance_cat, surveillance_diag) %>%
-      summarise(total_enrolments = n_distinct(episode_id), .groups = "drop"),
+    dta_enrolments,
+    dta_total_enrolments,
     by = c("surveillance_cat", "surveillance_diag")) %>%
     # per 1,000 column
     mutate(per1000 = round(1000 * enrolments/total_enrolments, 1)) %>%
@@ -170,7 +188,7 @@ table_bacteraemia <- function(pat, mic, org, header_enr, header_tot) {
     return(
       flextable(dta) %>%
         set_header_labels(surveillance_cat = "", surveillance_diag = "", 
-                          enrolments = header_enr, total_enrolments = header_tot, per1000 = "per 1,000") %>%
+                          enrolments = "Enrolments w/ bacteraemia", total_enrolments = header_tot, per1000 = "per 1,000") %>%
         bold(j = ncol(dta)) %>%
         bold(part = "header") %>%
         merge_v(j = ~ surveillance_cat) %>%
@@ -579,15 +597,13 @@ grid.arrange(g1, g2, g3, ncol = 1)
 `r if(show){"*Acinetobacter baumannii* bacteraemia per 1,000 enrolments:"}`
 
 ```{r, eval = show}
-table_bacteraemia(pat = patient_filter(), mic = microbio_filter(), org = org, 
-                  header_enr = "Enrolments w/ bacteraemia", header_tot = "Total Enrolments")
+table_bacteraemia(pat = patient_filter(), mic = microbio_filter(), org = org, blood = FALSE)
 ```
 
 `r if(show){"*Acinetobacter baumannii* bacteraemia per 1,000 blood cultured infection episodes:"}`
 
 ```{r, eval = show}
-table_bacteraemia(pat = patient_filter(), mic = microbio_filter_blood(), org = org, 
-                  header_enr = "Enrolments w/ bacteraemia", header_tot = "Total Enrolments w/ Blood Culture")
+table_bacteraemia(pat = patient_filter(), mic = microbio_filter_blood(), org = org, blood = TRUE)
 ```
 
 
@@ -611,15 +627,13 @@ grid.arrange(g1, g2, g3, ncol = 1)
 `r if(show){"*Escherichia coli* bacteraemia per 1,000 enrolments:"}`
 
 ```{r, eval = show}
-table_bacteraemia(pat = patient_filter(), mic = microbio_filter(), org = org, 
-                  header_enr = "Enrolments w/ bacteraemia", header_tot = "Total Enrolments")
+table_bacteraemia(pat = patient_filter(), mic = microbio_filter(), org = org, blood = FALSE)
 ```
 
 `r if(show){"*Escherichia coli* bacteraemia per 1,000 blood cultured infection episodes:"}`
 
 ```{r, eval = show}
-table_bacteraemia(pat = patient_filter(), mic = microbio_filter_blood(), org = org, 
-                  header_enr = "Enrolments w/ bacteraemia", header_tot = "Total Enrolments w/ Blood Culture")
+table_bacteraemia(pat = patient_filter(), mic = microbio_filter_blood(), org = org, blood = TRUE)
 ```
 
 ## *Klebsiella pneumoniae* {#k_pneumoniae}
@@ -642,15 +656,13 @@ grid.arrange(g1, g2, g3, ncol = 1)
 `r if(show){"*Klebsiella pneumoniae* bacteraemia per 1,000 enrolments:"}`
 
 ```{r, eval = show}
-table_bacteraemia(pat = patient_filter(), mic = microbio_filter(), org = org, 
-                  header_enr = "Enrolments w/ bacteraemia", header_tot = "Total Enrolments")
+table_bacteraemia(pat = patient_filter(), mic = microbio_filter(), org = org, blood = FALSE)
 ```
 
 `r if(show){"*Klebsiella pneumoniae* bacteraemia per 1,000 blood cultured infection episodes:"}`
 
 ```{r, eval = show}
-table_bacteraemia(pat = patient_filter(), mic = microbio_filter_blood(), org = org, 
-                  header_enr = "Enrolments w/ bacteraemia", header_tot = "Total Enrolments w/ Blood Culture")
+table_bacteraemia(pat = patient_filter(), mic = microbio_filter_blood(), org = org, blood = TRUE)
 ```
 
 ## *Staphylococcus aureus* {#s_aureus}
@@ -673,15 +685,13 @@ grid.arrange(g1, g2, g3, ncol = 1)
 `r if(show){"*Staphylococcus aureus* bacteraemia per 1,000 enrolments:"}`
 
 ```{r, eval = show}
-table_bacteraemia(pat = patient_filter(), mic = microbio_filter(), org = org, 
-                  header_enr = "Enrolments w/ bacteraemia", header_tot = "Total Enrolments")
+table_bacteraemia(pat = patient_filter(), mic = microbio_filter(), org = org, blood = FALSE)
 ```
 
 `r if(show){"*Staphylococcus aureus* bacteraemia per 1,000 blood cultured infection episodes:"}`
 
 ```{r, eval = show}
-table_bacteraemia(pat = patient_filter(), mic = microbio_filter_blood(), org = org, 
-                  header_enr = "Enrolments w/ bacteraemia", header_tot = "Total Enrolments w/ Blood Culture")
+table_bacteraemia(pat = patient_filter(), mic = microbio_filter_blood(), org = org, blood = TRUE)
 ```
 
 ## *Streptococcus pneumoniae* {#s_pneumoniae}
@@ -704,15 +714,13 @@ grid.arrange(g1, g2, g3, ncol = 1)
 `r if(show){"*Streptococcus pneumoniae* bacteraemia per 1,000 enrolments:"}`
 
 ```{r, eval = show}
-table_bacteraemia(pat = patient_filter(), mic = microbio_filter(), org = org, 
-                  header_enr = "Enrolments w/ bacteraemia", header_tot = "Total Enrolments")
+table_bacteraemia(pat = patient_filter(), mic = microbio_filter(), org = org, blood = FALSE)
 ```
 
 `r if(show){"*Streptococcus pneumoniae* bacteraemia per 1,000 blood cultured infection episodes:"}`
 
 ```{r, eval = show}
-table_bacteraemia(pat = patient_filter(), mic = microbio_filter_blood(), org = org, 
-                  header_enr = "Enrolments w/ bacteraemia", header_tot = "Total Enrolments w/ Blood Culture")
+table_bacteraemia(pat = patient_filter(), mic = microbio_filter_blood(), org = org, blood = TRUE)
 ```
 
 
@@ -738,13 +746,11 @@ grid.arrange(g1, g2, g3, ncol = 1)
 `r if(show){"*Salmonella* combined bacteraemia per 1,000 enrolments:"}`
 
 ```{r, eval = show}
-table_bacteraemia(pat = patient_filter(), mic = microbio_filter(), org = org, 
-                  header_enr = "Enrolments w/ bacteraemia", header_tot = "Total Enrolments")
+table_bacteraemia(pat = patient_filter(), mic = microbio_filter(), org = org, blood = FALSE)
 ```
 
 `r if(show){"*Salmonella* combined bacteraemia per 1,000 blood cultured infection episodes:"}`
 
 ```{r, eval = show}
-table_bacteraemia(pat = patient_filter(), mic = microbio_filter_blood(), org = org, 
-                  header_enr = "Enrolments w/ bacteraemia", header_tot = "Total Enrolments w/ Blood Culture")
+table_bacteraemia(pat = patient_filter(), mic = microbio_filter_blood(), org = org, blood = TRUE)
 ```
