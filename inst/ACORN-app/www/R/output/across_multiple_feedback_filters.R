@@ -6,11 +6,19 @@ output$feedback_filters <- renderText({
   end <- patient_filter() %>% nrow()
   prop <- round(100 * end / start, 0)
   
+  start_iso <- microbio() %>% fun_filter_growth_only() %>% pull(isolate_id) %>% n_distinct()
+  end_iso <- microbio_filter() %>% fun_filter_growth_only() %>% fun_deduplication(method = input$deduplication_method) %>% pull(isolate_id) %>% n_distinct()
+  prop_iso <- round(100 * end_iso / start_iso, 0)
+  
   paste0(
-    swivel_horizontal(duration = "wheel_in_left",
+    blur_in(duration = "slow",
             div(class = 'box_selected',
-                if(start == end) span(icon("filter"), "All ", start, " Patients"),
-                if(start != end) span(icon("filter"), end, " Patients (", prop, "%)")
+                span(icon("filter"), end, " Patient Enrollments (", prop, "%)")
+            )
+    ),
+    blur_in(duration = "slow",
+            div(class = 'box_selected',
+                span(icon("filter"), end_iso, " Isolates from cultures that have growth (", prop_iso, "%)")
             )
     )
   )
@@ -19,7 +27,6 @@ output$feedback_filters <- renderText({
 output$feedback_filters_details <- renderText({
   req(patient())
   req(patient_filter())
-  
   
   add_text <- function(text)  paste0(feedback_text, br(), icon("caret-right"), text)
   
@@ -99,7 +106,6 @@ output$feedback_filters_details <- renderText({
     )
   )
 })
-
 
 output$gauge_selection <- renderGauge({
   req(patient_filter())

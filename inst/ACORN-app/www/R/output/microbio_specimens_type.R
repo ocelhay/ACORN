@@ -3,17 +3,18 @@ output$specimens_specimens_type <- renderHighchart({
   req(nrow(microbio_filter()) > 0)
   
   dta <- microbio_filter() %>%
+    fun_deduplication(method = input$deduplication_method) %>%
     group_by(specimen_id) %>%
-    filter(row_number() == 1) %>%
+    slice(1) %>%
     ungroup() %>%
     group_by(specimen_type) %>%
-    summarise(y = n()) %>%
+    summarise(y = n(), .groups = "drop") %>%
     mutate(color = 
              case_when(
                specimen_type == "Blood" ~ "#e31a1c",
                TRUE ~ "#969696"),
            freq = round(100*y / sum(y))) %>%
-    arrange(desc(freq))
+    arrange(desc(y))
   
   highchart() %>% 
     hc_yAxis(title = "") %>%
@@ -32,18 +33,17 @@ output$culture_specimen_type <- renderHighchart({
     pull(specimen_id)
   
   dta <- microbio_filter() %>%
+    fun_deduplication(method = input$deduplication_method) %>%
     mutate(growth = case_when(specimen_id %in% spec_grown ~ "Growth", TRUE ~ "No Growth")) %>%
     mutate(culture_result = case_when(organism == "Not cultured" ~ "Not cultured", TRUE ~ growth)) %>%
     group_by(specimen_type, culture_result) %>%
-    summarise(n = n_distinct(specimen_id)) %>%
-    ungroup() %>% 
+    summarise(n = n_distinct(specimen_id), .groups = "drop") %>%
     complete(specimen_type, culture_result, fill = list(n = 0))
   
   dta <- left_join(dta,
                    dta %>%
                      group_by(specimen_type) %>%
-                     summarise(total = sum(n)) %>%
-                     ungroup(),
+                     summarise(total = sum(n), .groups = "drop"),
                    by = "specimen_type") %>%
     mutate(freq = 100*round(n/total, 2)) %>%
     arrange(desc(total))

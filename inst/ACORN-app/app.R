@@ -1,55 +1,13 @@
-# Load packages ----
-library(bsplus)  # bs_accordion()
-library(data.table)
-# require digest 0.6.23 as we experience issues with subsequent versions
-library(digest)
-library(DT)
-library(flexdashboard)  # gaugeOutput()
-library(flextable)
-library(foreign)
-library(grid)  # textGrob()
-library(gridExtra)
-library(highcharter)  # highchartOutput()
-library(knitr)
-library(jsonlite)  # toJSON()
-library(lubridate)  # floor_date()
-library(markdown)
-library(openssl)
-library(purrr)  # map()
-library(pushbar)  # pushbar_deps()
-library(RColorBrewer)
-library(readxl)
-library(shiny)
-library(shinyBS)
-# require shinycssloaders 0.2.0 as we experience issues with subsequent versions
-library(shinycssloaders)  # withSpinner()
-library(shinyhelper)  # helper()
-library(shinythemes)  # shinytheme()
-# require shinyWidgets 0.4.9 as we experience issues with subsequent versions
-library(shinyWidgets)  # switchInput()
-library(tidyverse)  # App requires recent version for the implementation of na.rm in unite()
-library(tools)  # file_ext()
-library(timevis)  # timevisOutput()
-library(vov)  # swivel_vertical()
+source("./www/R/source_app_launch.R", local = TRUE)
+version <- "1.2.0"
 
-
-version <- "1.1"
-
-#  Functions and global variables ----
-source("./www/R/fun/fun_filter_data.R", local = TRUE)
-
-cols_sir <- c("#2166ac", "#fddbc7", "#b2182b")  # resp. S, I, R
-source("./www/R/fun/fun_highchart_sir.R", local = TRUE)
-source("./www/R/fun/fun_highchart_sir_evolution.R", local = TRUE)
+# Source all functions
+for(file in list.files("./www/R/fun/"))  source(paste0("./www/R/fun/", file), local = TRUE)
 
 # Define UI ----
 ui <- fluidPage(
-  
-  tags$head(tags$link(rel = 'shortcut icon', href = 'www/favicon.ico'), 
-            includeHTML("./www/gtag.js")),
-  
-  
-  title = "ACORN - A Clinically Oriented antimicrobial Resistance Network",
+  tags$head(tags$link(rel = 'shortcut icon', href = 'www/favicon.ico')),
+  title = "ACORN | A Clinically Oriented antimicrobial Resistance Network",
   theme = shinytheme("flatly"),
   chooseSliderSkin('HTML5'),
   includeCSS("./www/styles.css"),
@@ -66,42 +24,45 @@ ui <- fluidPage(
                             p("Antibiotic susceptibility testing of a multi-drug resistant ", em("Escherichia coli"), "isolated from the urine of a 51 year old Lao patient with a perinephric abscess.")
            ),
            conditionalPanel(condition = "input.tabs != 'welcome'",
-                            div(id = "floatingleft",
+                            # Logo
+                            div(id = "float_left_top",
                                 uiOutput('hospital_image'), 
-                                uiOutput('data_info'),
-                                downloadLink("report", label = span(icon("file-word"), "Generate Report (.docx)")),
-                                htmlOutput("feedback_filters")
+                                uiOutput('data_info')
                             ),
                             
-                            div(id = "floatingfilter",
-                                blur_in(duration = "slow",
-                                        div(class = 'box_outputs',
-                                            h4("Filter Patients:"),
-                                            div(id = "resetfilter",
-                                                actionLink(inputId = "reset_filters", label = span(icon("times"), " Reset Patients Filters"))
-                                            ),
-                                            prettyRadioButtons(inputId = "filter_category", label = NULL,  shape = "curve",
-                                                               choices = c("Community Acquired Infections" = "CAI", "Hospital Acquired Infections" = "HAI", "All Infections" = "all"), 
-                                                               selected = "all"),
-                                            prettyCheckboxGroup(inputId = "filter_type_ward", label = NULL, status = "primary", choices = "INCEPTION_TYPE_WARD", selected = "INCEPTION_TYPE_WARD"),
-                                            bsButton("open", label = "Additional Filters", icon = icon('cog'), style = "primary", type = "toggle", value = FALSE, 
-                                                     size = "default", block = TRUE)
-                                        )
+                            # Filters
+                            div(id = "float_left_bottom",
+                                div(id = "resetfilter",
+                                    actionLink(inputId = "reset_filters", label = span(icon("times"), " Reset Patient Filters"))
                                 ),
-                                conditionalPanel(condition = "input.tabs != 'overview' & input.tabs != 'patients' & input.tabs != 'followup' & input.tabs != 'hai'",
-                                                 blur_in(duration = "slow",
-                                                         div(class = 'box_outputs',
-                                                             h4("Filter Specimens, Isolates:"),
-                                                             prettyCheckboxGroup(inputId = "filter_method_collection", label = NULL,  shape = "curve", status = "primary",
-                                                                                 choices = c("Blood culture" = "blood", "Other Specimens:" = "other_not_blood"), 
-                                                                                 selected = c("blood", "other_not_blood"), inline = TRUE),
-                                                             conditionalPanel("input.filter_method_collection.includes('other_not_blood')",
-                                                                              checkboxGroupButtons(inputId = "filter_method_other", label = NULL, choices = " ", selected = NULL, individual = TRUE, size = "xs", status = "primary",
-                                                                                                   checkIcon = list(yes = icon("check")))
-                                                             ),
-                                                             prettySwitch(inputId = "first_isolate", label = "Only first isolate per organism per patient", status = "primary", width = "100px")
-                                                         )
-                                                 )
+                                div(class = 'box_outputs',
+                                    h4("Filter Patients:"),
+                                    prettyRadioButtons(inputId = "filter_category", label = NULL,  shape = "curve",
+                                                       choices = c("Community Acquired Infections" = "CAI", "Hospital Acquired Infections" = "HAI", "All Infections" = "all"), 
+                                                       selected = "all"),
+                                    hr(),
+                                    prettyCheckboxGroup(inputId = "filter_type_ward", label = NULL, choices = "INCEPTION_TYPE_WARD", selected = "INCEPTION_TYPE_WARD"),
+                                    bsButton("open", label = "Additional Filters", icon = icon('cog'), style = "primary", type = "toggle", value = FALSE, 
+                                             size = "default", block = TRUE)
+                                ),
+                                div(class = 'box_outputs',
+                                    h4("Filter Specimens, Isolates:"),
+                                    prettyCheckboxGroup(inputId = "filter_method_collection", label = NULL,  shape = "curve", status = "primary",
+                                                        choices = c("Blood culture" = "blood", "Other Specimens:" = "other_not_blood"), 
+                                                        selected = c("blood", "other_not_blood"), inline = TRUE),
+                                    conditionalPanel("input.filter_method_collection.includes('other_not_blood')",
+                                                     pickerInput(inputId = "filter_method_other", label = NULL, multiple = TRUE,
+                                                                 choices = " ", selected = NULL,
+                                                                 options = list(style = "btn-primary",
+                                                                                `actions-box` = TRUE, `deselect-all-text` = "None...",
+                                                                                `select-all-text` = "Select All", `none-selected-text` = "None Selected"))
+                                    ),
+                                    pickerInput(inputId = "deduplication_method", label = NULL, 
+                                                choices = c("No deduplication of isolates", "Deduplication by patient-episode", "Deduplication by patient ID"),
+                                                options = list(style = "btn-primary")) %>% 
+                                      helper(content = "help_deduplication", colour = "red"),
+                                    htmlOutput("feedback_filters"),
+                                    downloadLink("report", label = span(icon("file-word"), "Generate Report (.docx)"))
                                 )
                             ),
                             source("./www/R/ui/across_pushbar_filters.R", local = TRUE)[1]
@@ -109,7 +70,7 @@ ui <- fluidPage(
     ),
     # Main Content ----
     column(width = 9,
-           navbarPage(NULL, id = "tabs", windowTitle = "ACORN", collapsible = TRUE, 
+           navbarPage(NULL, id = "tabs", windowTitle = "ACORN", collapsible = FALSE, fluid = TRUE,
                       tabPanel("Welcome", value = "welcome",
                                fluidRow(
                                  column(7,
@@ -138,7 +99,7 @@ ui <- fluidPage(
                                         ),
                                         conditionalPanel(condition = "! output.local_server_test",
                                                          HTML("You can generate data only in the App OFFLINE version") %>%
-                                                           helper(content = "app_offline", colour = "red"),
+                                                           helper(content = "help_app_offline", colour = "red"),
                                                          bsButton("generate_data", label = "Generate ACORN Data (Disabled)", style = "primary", type = "toggle", value = FALSE, 
                                                                   size = "default", disabled = TRUE, block = TRUE),
                                                          hr()
@@ -147,7 +108,7 @@ ui <- fluidPage(
                                         conditionalPanel(condition = "! input.demo", 
                                                          h4(icon("hand-point-right"), "Visualise ACORN Data"), br(),
                                                          fileInput("file_RData", label = NULL, accept = ".RData", buttonLabel = "Upload ACORN Data") %>% 
-                                                           helper(content = "upload_data", colour = "red"),
+                                                           helper(content = "help_upload_data", colour = "red"),
                                                          hr()
                                         ),
                                         h4(icon("hand-point-right"), "Visualise Demo Data"), br(),
@@ -157,14 +118,13 @@ ui <- fluidPage(
                                )
                       ),
                       tabPanel("Overview", value = "overview", 
-                               # conditionalPanel(condition = "output.test_data",
                                fluidRow(
                                  column(3, br(), htmlOutput("n_overview_patient"), 
                                         br(), htmlOutput("n_overview_specimen"), 
                                         br(), htmlOutput("n_overview_pathogen")),
                                  column(9, div(class = 'box_outputs',
                                                h4(icon('tint'), "Proportions of Enrollments with Blood Culture"),
-                                               highchartOutput("evolution_blood_culture", height = "350px") %>% withSpinner()
+                                               highchartOutput("evolution_blood_culture", height = "350px")
                                  ))
                                ),
                                br(), hr(),
@@ -173,18 +133,17 @@ ui <- fluidPage(
                                                     choices = c("Place of Infection" = "surveillance_cat", "Type of Ward" = "ward", "Ward" = "ward_text", "Clinical Outcome" = "clinical_outcome", "Day-28 Outcome" = "d28_outcome"), 
                                                     selected = c("surveillance_cat", "ward", "ward_text", "clinical_outcome", "d28_outcome")),
                                
-                               DTOutput("table_patients", width = "95%") %>% withSpinner(),
+                               DTOutput("table_patients", width = "95%"),
                                br(), br()
-                               # )
                       ),
                       # Profile ----
                       tabPanel(span(icon("user"), "Profile"), value = "patients",
                                div(class = 'box_outputs',
                                    h4(icon('stethoscope'), "Patients Diagnosis"),
                                    fluidRow(
-                                     column(6, highchartOutput("profile_diagnosis", height = "200px") %>% withSpinner()),
-                                     column(3, highchartOutput("profile_diagnosis_meningitis", height = "200px") %>% withSpinner()),
-                                     column(3, highchartOutput("profile_diagnosis_pneumonia", height = "200px") %>% withSpinner())
+                                     column(6, highchartOutput("profile_diagnosis", height = "200px")),
+                                     column(3, highchartOutput("profile_diagnosis_meningitis", height = "200px")),
+                                     column(3, highchartOutput("profile_diagnosis_pneumonia", height = "200px"))
                                    )
                                ),
                                fluidRow(
@@ -192,21 +151,21 @@ ui <- fluidPage(
                                         div(class = 'box_outputs',
                                             h4("Enrolled Cases by Ward / Type of Ward"),
                                             prettySwitch(inputId = "show_ward_breakdown", label = "See Breakdown by Ward", status = "primary"),
-                                            highchartOutput("profile_type_ward", height = "400px") %>% withSpinner()
+                                            highchartOutput("profile_type_ward", height = "400px")
                                         )
                                  ),
                                  column(6,
                                         div(class = 'box_outputs',
                                             h4(icon("tint"), "Patients with Blood Culture"),
                                             fluidRow(
-                                              column(6, gaugeOutput("profile_blood_culture_gauge", width = "100%", height = "100px") %>% withSpinner()),
-                                              column(6, htmlOutput("profile_blood_culture_pct", width = "100%", height = "100px") %>% withSpinner())
+                                              column(6, gaugeOutput("profile_blood_culture_gauge", width = "100%", height = "100px")),
+                                              column(6, htmlOutput("profile_blood_culture_pct", width = "100%", height = "100px"))
                                             ),
                                         ),
                                         div(class = 'box_outputs',
                                             h4(icon("calendar-check"), "Date of Enrollment"),
                                             prettySwitch(inputId = "show_date_week", label = "See by Week", status = "primary"),
-                                            highchartOutput("profile_date_enrollment", height = "200px") %>% withSpinner()
+                                            highchartOutput("profile_date_enrollment", height = "200px")
                                         )
                                  )
                                ),
@@ -221,22 +180,22 @@ ui <- fluidPage(
                                                      bs_append(
                                                        title_side = "Patients Age Distribution",
                                                        content_side = NULL,
-                                                       content_main = highchartOutput("profile_age", height = "250px") %>% withSpinner()
+                                                       content_main = highchartOutput("profile_age", height = "250px")
                                                      ) %>%
                                                      bs_append(
                                                        title_side = span(icon("transgender"), "Patients Sex"),
                                                        content_side = NULL,
-                                                       content_main = highchartOutput("profile_sex", height = "200px", width = "250px") %>% withSpinner()
+                                                       content_main = highchartOutput("profile_sex", height = "200px", width = "250px")
                                                      ) %>%
                                                      bs_append(
                                                        title_side = "Blood culture collected within 24h",
                                                        content_side = NULL,
-                                                       content_main = highchartOutput("profile_blood", height = "200px", width = "250px") %>% withSpinner()
+                                                       content_main = highchartOutput("profile_blood", height = "200px", width = "250px")
                                                      ) %>%
                                                      bs_append(
                                                        title_side = span(icon("pills"), "Empiric Antibiotics Prescribed"),
                                                        content_side = NULL,
-                                                       content_main = highchartOutput("profile_antibiotics", height = "400px") %>% withSpinner()
+                                                       content_main = highchartOutput("profile_antibiotics", height = "400px")
                                                      ) %>%
                                                      bs_append(
                                                        title_side = "Patients Comorbidities",
@@ -250,11 +209,11 @@ ui <- fluidPage(
                                                                                        ),
                                                                                        selected = c("Cancer", "Chronic renal failure", "Chronic lung disease", "Diabetes mellitus", "Malnutrition"),
                                                                                        multiple = TRUE),
-                                                                           highchartOutput("profile_comorbidities", height = "400px") %>% withSpinner())) %>%
+                                                                           highchartOutput("profile_comorbidities", height = "400px"))) %>%
                                                      bs_append(
                                                        title_side = span(icon("arrows-alt-h"), "Patients Transfered"),
                                                        content_side = NULL,
-                                                       content_main = highchartOutput("profile_transfer", height = "200px", width = "250px") %>% withSpinner()
+                                                       content_main = highchartOutput("profile_transfer", height = "200px", width = "250px")
                                                      ),
                                                    use_bs_accordion_sidebar()
                                                )
@@ -270,30 +229,30 @@ ui <- fluidPage(
                                         div(class = 'box_outputs',
                                             h4("Clinical Outcome"),
                                             fluidRow(
-                                              column(6, gaugeOutput("clinical_outcome_gauge", width = "100%", height = "100px") %>% withSpinner()),
-                                              column(6, htmlOutput("clinical_outcome_pct", width = "100%", height = "100px") %>% withSpinner())
+                                              column(6, gaugeOutput("clinical_outcome_gauge", width = "100%", height = "100px")),
+                                              column(6, htmlOutput("clinical_outcome_pct", width = "100%", height = "100px"))
                                             )
                                         ),
                                         div(class = 'box_outputs',
                                             h4("Clinical Outcome Status"),
-                                            highchartOutput("clinical_outcome_status", height = "250px") %>% withSpinner()
+                                            highchartOutput("clinical_outcome_status", height = "250px")
                                         ),
                                         div(class = 'box_outputs',
                                             h4("Initial & Final Surveillance Diagnosis"),
-                                            highchartOutput("profile_outcome_diagnosis", height = "500px") %>% withSpinner()
+                                            highchartOutput("profile_outcome_diagnosis", height = "500px")
                                         )
                                  ),
                                  column(6,
                                         div(class = 'box_outputs',
                                             h4("Day 28"),
                                             fluidRow(
-                                              column(6, gaugeOutput("d28_outcome_gauge", width = "100%", height = "100px") %>% withSpinner()),
-                                              column(6, htmlOutput("d28_outcome_pct", width = "100%", height = "100px") %>% withSpinner())
+                                              column(6, gaugeOutput("d28_outcome_gauge", width = "100%", height = "100px")),
+                                              column(6, htmlOutput("d28_outcome_pct", width = "100%", height = "100px"))
                                             )
                                         ),
                                         div(class = 'box_outputs',
                                             h4("Day 28 Status"),
-                                            highchartOutput("d28_outcome_status", height = "200px") %>% withSpinner()
+                                            highchartOutput("d28_outcome_status", height = "200px")
                                         )
                                  )
                                )
@@ -303,9 +262,9 @@ ui <- fluidPage(
                                div(class = 'box_outputs',
                                    h4("Wards Occupancy Rates"),
                                    htmlOutput("bed_occupancy_ward_title"),
-                                   plotOutput("bed_occupancy_ward", width = "80%") %>% withSpinner()
+                                   plotOutput("bed_occupancy_ward", width = "80%")
                                ),
-                               plotOutput("hai_rate_ward", width = "80%") %>% withSpinner()
+                               plotOutput("hai_rate_ward", width = "80%")
                       ),
                       # Microbiology ----
                       tabPanel("Microbiology", value = "microbiology",
@@ -320,25 +279,25 @@ ui <- fluidPage(
                                         div(class = 'box_outputs',
                                             h4("Growth / No Growth"),
                                             fluidRow(
-                                              column(6, gaugeOutput("isolates_growth_gauge", width = "100%", height = "100px") %>% withSpinner()),
+                                              column(6, gaugeOutput("isolates_growth_gauge", width = "100%", height = "100px")),
                                               column(6, htmlOutput("isolates_growth_pct", width = "100%", height = "100px"))
                                             )
                                         ),
                                         div(class = 'box_outputs',
                                             h4("Specimen Types"),
                                             p("Number of specimens per specimen type"),
-                                            highchartOutput("specimens_specimens_type", height = "350px") %>% withSpinner(),
+                                            highchartOutput("specimens_specimens_type", height = "350px"),
                                             p("Culture results per specimen type"),
-                                            highchartOutput("culture_specimen_type", height = "400px") %>% withSpinner()
+                                            highchartOutput("culture_specimen_type", height = "400px")
                                         )
                                  ),
                                  column(6, offset = 1,
                                         div(class = 'box_outputs',
                                             h4("Isolates"),
-                                            p("Most frequent 20 organisms in the plot and complete listing in the table."),
-                                            highchartOutput("isolates_organism", height = "400px") %>% withSpinner(),
+                                            p("Most frequent 10 organisms in the plot and complete listing in the table."),
+                                            highchartOutput("isolates_organism", height = "400px"),
                                             br(), br(),
-                                            DTOutput("isolates_organism_table", width = "95%") %>% withSpinner(),
+                                            DTOutput("isolates_organism_table", width = "95%"),
                                             br(), br()
                                         )
                                  )
@@ -348,7 +307,7 @@ ui <- fluidPage(
                       tabPanel(span(icon("bug"), "AMR"), value = "amr",
                                div(class = "right",
                                    prettySwitch(inputId = "combine_SI", label = "Combine Susceptible + Intermediate", status = "primary")) %>% 
-                                 helper(content = "combine_SI", colour = "red"),
+                                 helper(content = "help_combine_SI", colour = "red"),
                                br(),
                                bs_accordion_sidebar(id = "amr_accordion",
                                                     spec_side = c(width = 2, offset = 0),
@@ -360,9 +319,10 @@ ui <- fluidPage(
                                    content_side = htmlOutput("nb_isolates_abaumannii"),
                                    content_main = span(
                                      conditionalPanel(condition = "output.test_abaumannii_sir",
-                                                      highchartOutput("abaumannii_sir", height = "500px") %>% withSpinner(),
+                                                      highchartOutput("abaumannii_sir", height = "500px"),
                                                       h4("Resistance to Carbapenems Over Time"),
-                                                      highchartOutput("abaumannii_sir_evolution", height = "300px") %>% withSpinner()
+                                                      highchartOutput("abaumannii_sir_evolution", height = "300px"),
+                                                      em("Care should be taken when interpreting rates and AMR profiles where there are small numbers of cases or bacterial isolates: point estimates may be unreliable.")
                                      ),
                                      conditionalPanel(condition = "! output.test_abaumannii_sir", span(h4("There is no data to display for this organism.")))
                                    )
@@ -372,11 +332,12 @@ ui <- fluidPage(
                                    content_side = htmlOutput("nb_isolates_ecoli"),
                                    content_main = span(
                                      conditionalPanel(condition = "output.test_ecoli_sir",
-                                                      highchartOutput("ecoli_sir", height = "600px") %>% withSpinner(), br(), br(),
+                                                      highchartOutput("ecoli_sir", height = "600px"), br(), br(),
                                                       h4("Resistance to Carbapenems Over Time"),
-                                                      highchartOutput("ecoli_sir_evolution", height = "300px") %>% withSpinner(),
+                                                      highchartOutput("ecoli_sir_evolution", height = "300px"),
                                                       h4("Resistance to 3rd gen. cephalosporins Over Time"),
-                                                      highchartOutput("ecoli_sir_evolution_ceph", height = "300px") %>% withSpinner()
+                                                      highchartOutput("ecoli_sir_evolution_ceph", height = "300px"),
+                                                      em("Care should be taken when interpreting rates and AMR profiles where there are small numbers of cases or bacterial isolates: point estimates may be unreliable.")
                                      ),
                                      conditionalPanel(condition = "! output.test_ecoli_sir", span(h4("There is no data to display for this organism.")))
                                    )
@@ -386,11 +347,12 @@ ui <- fluidPage(
                                    content_side = htmlOutput("nb_isolates_kpneumoniae"),
                                    content_main = span(
                                      conditionalPanel(condition = "output.test_kpneumoniae_sir",
-                                                      highchartOutput("kpneumoniae_sir", height = "600px") %>% withSpinner(), br(), br(),
+                                                      highchartOutput("kpneumoniae_sir", height = "600px"), br(), br(),
                                                       h4("Resistance to Carbapenems Over Time"),
-                                                      highchartOutput("kpneumoniae_sir_evolution", height = "300px") %>% withSpinner(),
+                                                      highchartOutput("kpneumoniae_sir_evolution", height = "300px"),
                                                       h4("Resistance to 3rd gen. cephalosporins Over Time"),
-                                                      highchartOutput("kpneumoniae_sir_evolution_ceph", height = "300px") %>% withSpinner()
+                                                      highchartOutput("kpneumoniae_sir_evolution_ceph", height = "300px"),
+                                                      em("Care should be taken when interpreting rates and AMR profiles where there are small numbers of cases or bacterial isolates: point estimates may be unreliable.")
                                      ),
                                      conditionalPanel(condition = "! output.test_kpneumoniae_sir", span(h4("There is no data to display for this organism.")))
                                    )
@@ -400,9 +362,10 @@ ui <- fluidPage(
                                    content_side = htmlOutput("nb_isolates_saureus"),
                                    content_main = span(
                                      conditionalPanel(condition = "output.test_saureus_sir",
-                                                      highchartOutput("saureus_sir", height = "500px") %>% withSpinner(),
+                                                      highchartOutput("saureus_sir", height = "500px"),
                                                       h4("Resistance to Oxacillin Over Time"),
-                                                      highchartOutput("saureus_sir_evolution", height = "300px") %>% withSpinner(),
+                                                      highchartOutput("saureus_sir_evolution", height = "300px"),
+                                                      em("Care should be taken when interpreting rates and AMR profiles where there are small numbers of cases or bacterial isolates: point estimates may be unreliable.")
                                      ),
                                      conditionalPanel(condition = "! output.test_saureus_sir", span(h4("There is no data to display for this organism.")))
                                    )
@@ -412,9 +375,10 @@ ui <- fluidPage(
                                    content_side = htmlOutput("nb_isolates_spneumoniae"),
                                    content_main = span(
                                      conditionalPanel(condition = "output.test_spneumoniae_sir",
-                                                      highchartOutput("spneumoniae_sir", height = "500px") %>% withSpinner(),
+                                                      highchartOutput("spneumoniae_sir", height = "500px"),
                                                       h4("Resistance to Penicillin Over Time"),
-                                                      highchartOutput("spneumoniae_sir_evolution", height = "300px") %>% withSpinner(),
+                                                      highchartOutput("spneumoniae_sir_evolution", height = "300px"),
+                                                      em("Care should be taken when interpreting rates and AMR profiles where there are small numbers of cases or bacterial isolates: point estimates may be unreliable.")
                                      ),
                                      conditionalPanel(condition = "! output.test_spneumoniae_sir", span(h4("There is no data to display for this organism.")))
                                    )
@@ -427,11 +391,12 @@ ui <- fluidPage(
                                                         choices = c("Salmonella typhi", "Salmonella paratyphi", "Salmonella sp (not S. typhi or S. paratyphi)"), 
                                                         selected = "Salmonella typhi", inline = TRUE),
                                      conditionalPanel(condition = "output.test_salmonella_sir",
-                                                      highchartOutput("salmonella_sir", height = "500px") %>% withSpinner(),
+                                                      highchartOutput("salmonella_sir", height = "500px"),
                                                       h4("Resistance to 3rd gen. cephalosporins Over Time"),
-                                                      highchartOutput("salmonella_sir_evolution_ceph", height = "300px") %>% withSpinner(),
+                                                      highchartOutput("salmonella_sir_evolution_ceph", height = "300px"),
                                                       h4("Resistance to Fluoroquinolones Over Time"),
-                                                      highchartOutput("salmonella_sir_evolution_fluo", height = "300px") %>% withSpinner(),
+                                                      highchartOutput("salmonella_sir_evolution_fluo", height = "300px"),
+                                                      em("Care should be taken when interpreting rates and AMR profiles where there are small numbers of cases or bacterial isolates: point estimates may be unreliable.")
                                      ),
                                      conditionalPanel(condition = "! output.test_salmonella_sir", span(h4("There is no data to display for this organism.")))
                                    )
@@ -443,12 +408,12 @@ ui <- fluidPage(
                                      selectInput(inputId = "other_organism", label = NULL, multiple = FALSE,
                                                  choices = NULL, selected = NULL),
                                      conditionalPanel(condition = "output.test_other_sir",
-                                                      highchartOutput("other_organism_sir", height = "700px") %>% withSpinner()
+                                                      highchartOutput("other_organism_sir", height = "700px"),
+                                                      em("Care should be taken when interpreting rates and AMR profiles where there are small numbers of cases or bacterial isolates: point estimates may be unreliable.")
                                      ),
                                      conditionalPanel(condition = "! output.test_other_sir", span(h4("There is no data to display.")))
                                    )
                                  ),
-                               
                                use_bs_accordion_sidebar()
                       )
            )
@@ -477,33 +442,25 @@ server <- function(input, output, session) {
   hideTab(inputId = "tabs", target = "amr")
   hideTab(inputId = "tabs", target = "hai")
   
-  observe_helpers(help_dir = "./www/help_mds")
-  
-  # # Opening Credits Modal
-  # observeEvent(input$credits_link, {
-  #   showModal(modalDialog(
-  #     title = "Acknowledgements & Credits",
-  #     includeMarkdown('www/markdown/md_credits.md'),
-  #     easyClose = TRUE
-  #   ))
-  # })
+  # tell shinyhelper where to look for help markdown elements
+  observe_helpers(help_dir = "./www/markdown")
   
   
   # Pushbar for filters ----
   setup_pushbar(overlay = TRUE, blur = TRUE)
-  observeEvent(input$open, ignoreInit = TRUE, { pushbar_open(id = "Pushbar_Additional_Filters") })  
-  observeEvent(input$close, { pushbar_close() })
+  observeEvent(input$open, ignoreInit = TRUE, pushbar_open(id = "Pushbar_Additional_Filters"))  
+  observeEvent(input$close, pushbar_close())
   
   # Pushbar for generating data ----
-  observeEvent(input$generate_data, ignoreInit = TRUE, { pushbar_open(id = "Pushbar_Generate_Data") })  
-  observeEvent(input$close2, { pushbar_close() })
+  observeEvent(input$generate_data, ignoreInit = TRUE, pushbar_open(id = "Pushbar_Generate_Data"))  
+  observeEvent(input$close2, pushbar_close())
   
   # Reset all patients filters ----
   observeEvent(input$reset_filters, {
     updatePrettyRadioButtons(session, inputId = "filter_category", selected = "all")
     updatePrettyCheckboxGroup(session = session, inputId = "filter_type_ward", 
                               choices = sort(unique(patient()$ward)), selected = sort(unique(patient()$ward)), 
-                              inline = TRUE, prettyOptions = list(shape = "curve"))
+                              inline = TRUE, prettyOptions = list(status = "primary"))
     
     # filters in across_pushbar_filter.R:
     updateDateRangeInput(session = session, "filter_enrollment", start = min(patient()$date_enrollment), end = max(patient()$date_enrollment))
@@ -541,27 +498,19 @@ server <- function(input, output, session) {
   
   # Reactive data management ----
   data_provided <- reactiveVal(FALSE)
-  patient <- reactiveVal()
-  microbio <- reactiveVal()
-  hai_surveys <- reactiveVal()
   corresp_org_antibio <- reactiveVal()
   data_details <- reactiveVal()
   
-  patient_filter <- reactive(
-    fun_filter_patient(data = patient(), input = input)
-  )
+  # Main datasets:
+  patient <- reactiveVal()
+  microbio <- reactiveVal()
+  hai_surveys <- reactiveVal()
   
-  microbio_filter <- reactive(
-    fun_filter_microbio(data = microbio(), patient = patient_filter(), input = input)
-  )
-  
-  microbio_filter_blood <- reactive(
-    fun_filter_microbio_blood(data = microbio(), patient = patient_filter(), input = input)
-  )
-  
-  hai_surveys_filter <- reactive(
-    fun_filter_hai(data = hai_surveys(), input = input)
-  )
+  # Secondary datasets:
+  patient_filter <- reactive(patient() %>% fun_filter_patient(input = input))
+  microbio_filter <- reactive(microbio() %>% fun_filter_microbio(patient = patient_filter(), input = input))
+  microbio_filter_blood <- reactive(microbio_filter() %>% fun_filter_blood_only())
+  hai_surveys_filter <- reactive(hai_surveys() %>% fun_filter_hai(input = input))
   
   # Source code to generate outputs ----
   file_list <- list.files(path = "./www/R/output", pattern = "*.R")
@@ -571,8 +520,7 @@ server <- function(input, output, session) {
   generation_status <- reactiveValues(
     uploaded_files = c(FALSE, FALSE, FALSE, FALSE),
     generate_acorn_data = FALSE,
-    log = ""
-  )
+    log = "")
   
   observeEvent(input$file_data_dic, generation_status$uploaded_files[1] <- TRUE)
   observeEvent(input$file_lab_codes, generation_status$uploaded_files[2] <- TRUE)
@@ -589,65 +537,44 @@ server <- function(input, output, session) {
     showNotification("Data Generation Running. Check Console for Status", id = "message_run", 
                      duration = NULL, type = "default", session = session)
     start_data_generation <- Sys.time()
+    meta <- paste0("Dataset generated the ", Sys.Date())
     
-    print("Source 01_read_acorn_data.R")
     source("./www/R/data_generation/01_read_acorn_data.R", local = TRUE)
-    generation_status$version_CLSI <- paste0(as.character(lab_code$notes[30, 1]), " version ", as.character(lab_code$notes[30, 2]), " - ", as.character(lab_code$notes[30, 3]))
-    generation_status$version_EUCAST <- paste0(as.character(lab_code$notes[31, 1]), " version ", as.character(lab_code$notes[31, 2]), " - ", as.character(lab_code$notes[31, 3]))
-    
-    print("Source 02_map_variables.R")
     source("./www/R/data_generation/02_map_variables.R", local = TRUE)
-    
-    print("Source 03_map_specimens.R")
     source("./www/R/data_generation/03_map_specimens.R", local = TRUE)
-    
-    print("Source 04_map_organisms.R")
     source("./www/R/data_generation/04_map_organisms.R", local = TRUE)
-    
-    print("Source 05_make_ast_group.R")
     source("./www/R/data_generation/05_make_ast_group.R", local = TRUE)
-    
-    print("Source 06_ast_interpretation.R")
     source("./www/R/data_generation/06_ast_interpretation.R", local = TRUE)
-    
-    print("Source 07_ast_interpretation_nonstandard.R")
     source("./www/R/data_generation/07_ast_interpretation_nonstandard.R", local = TRUE)
-    
-    print("Source 08_odk_assembly.R")
     source("./www/R/data_generation/08_odk_assembly.R", local = TRUE)
-    
-    print("Source 09_link_clinical_assembly.R")
     source("./www/R/data_generation/09_link_clinical_assembly.R", local = TRUE)
-    
-    print("Source 10_process_hai_survey_data.R")
     source("./www/R/data_generation/10_process_hai_survey_data.R", local = TRUE)
-    
-    print("Source 11_prepare_data.R")
     source("./www/R/data_generation/11_prepare_data.R", local = TRUE)
-    
-    print("Source 12_quality_control.R")
     source("./www/R/data_generation/12_quality_control.R", local = TRUE)
     
     
-    # save datasets to be exported
+    # add data to be exported in generation_status
+    generation_status$generate_acorn_data <- TRUE
     generation_status$data_dictionnary <- data_dictionary
     generation_status$lab_code <- lab_code
+    generation_status$version_CLSI <- paste0(as.character(lab_code$notes[30, 1]), " version ", as.character(lab_code$notes[30, 2]), " - ", as.character(lab_code$notes[30, 3]))
+    generation_status$version_EUCAST <- paste0(as.character(lab_code$notes[31, 1]), " version ", as.character(lab_code$notes[31, 2]), " - ", as.character(lab_code$notes[31, 3]))
+    # purposefully not including: generation_status$log <- log
     generation_status$enrol.log <- enrol.log
-    
     generation_status$patient <- patient
     generation_status$microbio <- microbio
     generation_status$corresp_org_antibio <- corresp_org_antibio
     generation_status$hai.surveys <- hai.surveys
-    
+    generation_status$meta <-  meta
     
     removeNotification(id = "message_run", session = session)
+    source("./www/R/source_provide_data.R", local = TRUE)
   })
   
   output$button_link_download <- renderUI({
     if(generation_status$generate_acorn_data) {
       tagList(
-        downloadButton("download_ACORN_data", label = "Download ACORN Data"),
-        br(),
+        downloadButton("download_ACORN_data", label = "Download ACORN Data"), br(),
         downloadLink("download_log_data", label = "Download Enrollment Log")
       )
     }
@@ -659,94 +586,38 @@ server <- function(input, output, session) {
     content = function(file) {
       
       data_dictionnary <- generation_status$data_dictionnary
-      
       lab_code <- generation_status$lab_code
       version_CLSI <- generation_status$version_CLSI
       version_EUCAST <- generation_status$version_EUCAST
-      
       log <- generation_status$log
-      
       enrol.log <-  generation_status$enrol.log
-      
       patient <- generation_status$patient
       microbio <- generation_status$microbio
       corresp_org_antibio <- generation_status$corresp_org_antibio
       hai.surveys <- generation_status$hai.surveys
+      meta <-  generation_status$meta
       
-      meta <-  paste0("Dataset generated the ", Sys.Date())
-      
-      save(data_dictionnary, lab_code, version_CLSI, version_EUCAST, 
-           log, enrol.log,
-           patient, microbio, corresp_org_antibio, hai.surveys, 
-           meta,
+      save(data_dictionnary, lab_code, version_CLSI, version_EUCAST, log, enrol.log, 
+           patient, microbio, corresp_org_antibio, hai.surveys, meta,
            file = file)
     })
   
   # Process on "Download Log file" ----
   output$download_log_data <- downloadHandler(
-    filename = paste0("ACORN_Logfile_", Sys.Date(), ".csv"),
+    filename = paste0("ACORN_Enrollment_Log_", Sys.Date(), ".csv"),
     content = function(file) {
-      enrol.log <- generation_status$enrol.log
-      write.csv(enrol.log, file = file, row.names = F)
+      write.csv(generation_status$enrol.log, file = file, row.names = FALSE)
     })
   
-  
   # Events on demo toggle ON/OFF ----
-  observe(
+  observeEvent(input$demo, {
     if(input$demo == TRUE) {
       load("./www/data/Mock_ACORN_Dataset.RData")
-      data_provided(TRUE)
-      patient(patient)
-      microbio(microbio)
+      source("./www/R/source_provide_data.R", local = TRUE)
       
-      corresp_org_antibio(corresp_org_antibio)
-      data_details(meta)
-      hai_surveys(hai.surveys)
-      
-      updateCheckboxGroupButtons(session = session, "filter_method_other", 
-                                 choices = sort(setdiff(unique(microbio$specimen_type), "Blood")), 
-                                 selected = sort(setdiff(unique(microbio$specimen_type), "Blood")),
-                                 size = "sm", status = "primary", checkIcon = list(yes = icon("check")))
-      
-      updatePrettyCheckboxGroup(session = session, inputId = "filter_type_ward", 
-                                choices = sort(unique(patient$ward)), selected = sort(unique(patient$ward)), 
-                                inline = TRUE, prettyOptions = list(shape = "curve"))
-      updatePickerInput(session = session, "filter_ward", choices = sort(unique(patient$ward_text)), selected = sort(unique(patient$ward_text)))
-      updateDateRangeInput(session = session, "filter_enrollment", start = min(patient$date_enrollment), end = max(patient$date_enrollment))
-      other_organism <- sort(setdiff(unique(microbio$organism), 
-                                     union(c("Acinetobacter baumannii", "Escherichia coli", "Klebsiella pneumoniae", "Staphylococcus aureus",
-                                             "Streptococcus pneumoniae"),
-                                           c("No growth",
-                                             "No growth (specific organism)",
-                                             "No significant growth",
-                                             "Mixed growth",
-                                             "Not cultured",
-                                             str_subset(unique(microbio$organism), "Salmonella")))))
-      updateSelectInput(session = session, "other_organism", choices = other_organism)
-      
-      
-      antibio <- patient %>% 
-        select(Amikacin:Vancomycin) %>%
-        pivot_longer(Amikacin:Vancomycin, names_to = "antibiotic", values_to = "taken") %>%
-        filter(taken == "Yes") %>%
-        pull(antibiotic) %>%
-        unique()
-      updatePickerInput(session = session, "filter_type_antibio", choices = antibio, selected = NULL)
-      
-      # show tabs
-      showTab(inputId = "tabs", target = "overview")
-      showTab(inputId = "tabs", target = "patients")
-      showTab(inputId = "tabs", target = "followup")
-      showTab(inputId = "tabs", target = "microbiology")
-      showTab(inputId = "tabs", target = "amr")
-      showTab(inputId = "tabs", target = "hai")
-      
-      # siwtch to Overview tab
+      # switch active tab
       updateTabsetPanel(session, "tabs", selected = "overview")
     }
-  )
-  
-  observe(
     if(input$demo == FALSE) {
       data_provided(FALSE)
       patient(NULL)
@@ -760,59 +631,17 @@ server <- function(input, output, session) {
       hideTab(inputId = "tabs", target = "amr")
       hideTab(inputId = "tabs", target = "hai")
     }
-  )
-  
-  
+  })
   
   # Events on upload of a .RData file ----
   observeEvent(input$file_RData, {
     load(input$file_RData$datapath)
-    
-    data_provided(TRUE)
-    patient(patient)
-    microbio(microbio)
-    
-    corresp_org_antibio(corresp_org_antibio)
-    data_details(meta)
-    hai_surveys(hai.surveys)
-    
-    updateCheckboxGroupButtons(session = session, "filter_method_other", choices = sort(setdiff(unique(microbio$specimen_type), "Blood")), 
-                               selected = sort(setdiff(unique(microbio$specimen_type), "Blood")),
-                               size = "sm", status = "primary", checkIcon = list(yes = icon("check")))
-    updatePrettyCheckboxGroup(session = session, "filter_type_ward", choices = sort(unique(patient$ward)), selected = sort(unique(patient$ward)), inline = TRUE, prettyOptions = list(shape = "curve"))
-    updatePickerInput(session = session, "filter_ward", choices = sort(unique(patient$ward_text)), selected = sort(unique(patient$ward_text)))
-    updateDateRangeInput(session = session, "filter_enrollment", start = min(patient$date_enrollment), end = max(patient$date_enrollment))
-    
-    
-    other_organism <- setdiff(unique(microbio$organism), 
-                              union(c("Acinetobacter baumannii", "Escherichia coli", "Klebsiella pneumoniae", "Staphylococcus aureus",
-                                      "Streptococcus pneumoniae", "Neisseria gonorrhoeae"),
-                                    c(str_subset(unique(microbio$organism), "rowth"),
-                                      str_subset(unique(microbio$organism), "ultured"),
-                                      str_subset(unique(microbio$organism), "almonella"))))
-    updateSelectInput(session = session, "other_organism", choices = other_organism)
-    
-    antibio <- patient %>% 
-      select(Amikacin:Vancomycin) %>%
-      pivot_longer(Amikacin:Vancomycin, names_to = "antibiotic", values_to = "taken") %>%
-      filter(taken == "Yes") %>%
-      pull(antibiotic) %>%
-      unique()
-    updatePickerInput(session = session, "filter_type_antibio", choices = antibio, selected = NULL)
-    
-    # show hidden tabs
-    showTab(inputId = "tabs", target = "overview")
-    showTab(inputId = "tabs", target = "patients")
-    showTab(inputId = "tabs", target = "followup")
-    showTab(inputId = "tabs", target = "microbiology")
-    showTab(inputId = "tabs", target = "amr")
-    showTab(inputId = "tabs", target = "hai")
-    
-    # siwtch to Overview tab
+    source("./www/R/source_provide_data.R", local = TRUE)
+    # switch active tab
     updateTabsetPanel(session, "tabs", selected = "overview")
   })
   
-  # Generated Report
+  # Report generation ----
   feedback_download <- reactiveValues(download_flag = 0)
   
   output$report <- downloadHandler(

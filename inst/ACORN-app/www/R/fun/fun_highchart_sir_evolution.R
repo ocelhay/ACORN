@@ -1,5 +1,5 @@
 highchart_sir_evolution <- function(data_input, organism_input, corresp, combine_SI, 
-                                    filter_antibio = "", filter_group = "") {
+                                    filter_antibio = "", filter_group = "", deduplication_method) {
   
   # Column in the Organism-Antibiotic matrix
   matching_name_column <- "all_other_organisms"
@@ -17,7 +17,8 @@ highchart_sir_evolution <- function(data_input, organism_input, corresp, combine
   
   if(combine_SI) {
   sir_results <- data_input %>% 
-    filter(organism %in% organism_input) %>%
+    filter(organism %in% organism_input) %>% 
+    fun_deduplication(method = deduplication_method) %>%
     select(specimen_id, date_specimen, 9:ncol(data_input)) %>%
     pivot_longer(-c(specimen_id:date_specimen)) %>%
     filter(value %in% c("S", "I", "R")) %>%
@@ -32,7 +33,8 @@ highchart_sir_evolution <- function(data_input, organism_input, corresp, combine
   
   if(! combine_SI) {
     sir_results <- data_input %>% 
-      filter(organism %in% organism_input) %>%
+      filter(organism %in% organism_input) %>% 
+      fun_deduplication(method = deduplication_method) %>%
       select(specimen_id, date_specimen, 9:ncol(data_input)) %>%
       pivot_longer(-c(specimen_id:date_specimen)) %>%
       filter(value %in% c("S", "I", "R")) %>%
@@ -57,15 +59,14 @@ highchart_sir_evolution <- function(data_input, organism_input, corresp, combine
   
   sir_results <- sir_results %>% 
     group_by(specimen_month, value) %>%
-    summarise(n = sum(n)) %>%
-    ungroup() %>%
+    summarise(n = sum(n), .groups = "drop") %>%
     filter(!is.na(specimen_month)) %>%
     complete(value, specimen_month, fill = list(n = 0))
   
   # Add total
   total_tested <- sir_results %>%
     group_by(specimen_month) %>%
-    summarise(total_org = sum(n)) %>%
+    summarise(total_org = sum(n), .groups = "drop") %>%
     ungroup()
   
   sir_results <- left_join(sir_results, total_tested, by = "specimen_month") %>%

@@ -1,10 +1,12 @@
+print("Source 11_prepare_data.R")
+
 # Preparation for the App
 patient <- clin %>%
   transmute(
     site_id = SITEID,
-    patient_id = md5(USUBJID), # data anonymization with openssl::md5()
+    patient_id = as.character(md5(USUBJID)),
     date_enrollment = DMDTC,
-    episode_id = md5(ACORN.EPID),
+    episode_id = as.character(md5(ACORN.EPID)),
     age = AGEY,
     sex = SEX,
     date_admission = HPD_ADM_DATE,
@@ -189,15 +191,15 @@ patient$clinical_severity[patient$age < 18 & (patient$state_temperature == "Yes"
 
 microbio <- amr %>%
   transmute(
-    patient_id = md5(patid),
-    specimen_id = md5(specid),
-    episode_id = md5(ACORN.EPID),
+    patient_id = as.character(md5(patid)),
+    specimen_id = as.character(md5(specid)),
+    episode_id = as.character(md5(ACORN.EPID)),
     date_specimen = as.Date(specdate),
     specimen_type = recode(specgroup,
                            blood = "Blood", csf = "CSF", sterile.fluid = "Sterile fluids", lower.resp = "Lower respiratory tract specimen",
                            pleural.fluid = "Pleural fluid", throat = "Throat swab", urine = "Urine", gu = "Genito-urinary swab", stool = "Stool",
                            other = "Other specimens"),
-    isolate_id = md5(paste0(specid, orgnum.acorn)),
+    isolate_id = as.character(md5(paste0(specid, orgnum.acorn))),
     orgnum = orgnum.acorn,
     organism = orgname,
     esbl, 

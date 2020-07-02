@@ -8,13 +8,8 @@ output$profile_type_ward <- renderHighchart({
              ward_text = replace_na(ward_text, "unspecified")) %>%
       mutate(ward_name = paste0(ward, ", ", ward_text)) %>%
       group_by(ward, ward_text, ward_name) %>%
-      summarise(patients = n()) %>%
+      summarise(patients = n(), .groups = "drop") %>%
       mutate(color = ifelse(ward %in% c("NICU", "PICU", "Paediatric"), "#1f78b4", "#a6cee3"))
-    
-    # categories_grouped <- df %>% 
-    #   group_by(name = ward) %>% 
-    #   do(categories = .$ward_text) %>% 
-    #   list_parse()
     
 
     hchart(df, type = "bar", hcaes(x = "ward_name", y = "patients", color = "color")) %>%
@@ -22,20 +17,12 @@ output$profile_type_ward <- renderHighchart({
       hc_tooltip(headerFormat = "",
                  pointFormat = "{point.patients} patients in {point.ward_name}") %>%
       hc_plotOptions(series = list(stacking = 'normal'))
-    
-    
-    # highchart() %>% 
-    #   hc_xAxis(categories = categories_grouped) %>% 
-    #   hc_tooltip(headerFormat = "",
-    #              pointFormat = "{point.patients} patients in {point.ward} <strong>{point.ward_text}</strong> ward.") %>%
-    #   hc_add_series(data = df, type = "bar", hcaes(y = patients, color = color),
-    #                 showInLegend = FALSE)
   })
   
   if(! input$show_ward_breakdown) return({
     df <- patient_filter() %>%
       group_by(ward) %>%
-      summarise(patients = n()) %>%
+      summarise(patients = n(), .groups = "drop") %>%
       mutate(ward = replace_na(ward, "Unknown Ward"),
              color = ifelse(ward %in% c("NICU", "PICU", "Paediatric"), "#1f78b4", "#a6cee3")) %>%
       arrange(desc(patients))

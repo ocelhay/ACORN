@@ -1,3 +1,5 @@
+print("Source 12_quality_control.R")
+
 
 generation_status$log <-  paste0("Data generated in ", round(difftime(Sys.time(), start_data_generation, units = 'secs'), 1), " seconds.")
 
@@ -13,6 +15,10 @@ generation_status$log <- c(generation_status$log,
                            ifelse(all(patient$date_enrollment[patient$surveillance_cat == "HAI"] %in% hai.surveys$date_survey), 
                                   "Okay, all dates of enrollments for HAI patients in the patient dataset have a matching date in the HAI survey dataset", 
                                   "KO, some dates of enrollments for HAI patients in the patient dataset do not have a matching date in the HAI survey dataset"))
+
+generation_status$log <- c(generation_status$log, ifelse(log_any_duplicated_f01, "KO, there are duplicated elements in F01", "Okay, unique elements in F01"))
+generation_status$log <- c(generation_status$log, ifelse(log_any_duplicated_f02, "KO, there are duplicated elements in F02", "Okay, unique elements in F02"))
+generation_status$log <- c(generation_status$log, ifelse(log_any_duplicated_f03, "KO, there are duplicated elements in F03", "Okay, unique elements in F03"))
 
 generation_status$log <- c(generation_status$log, 
                            ifelse(length(unlinkable_elements_F02) == 0, 
@@ -49,6 +55,3 @@ generation_status$log <- c(generation_status$log,
 generation_status$log <- c(generation_status$log, 
                            ifelse(all(!is.na(microbio$orgname)), "Okay: all orgname are provided",
                                 paste0("Warning: there are ", sum(is.na(microbio$orgname)), " rows with missing orgname data.")))
-
-generation_status$generate_acorn_data <- TRUE
-

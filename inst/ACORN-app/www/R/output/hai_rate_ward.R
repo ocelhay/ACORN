@@ -11,14 +11,12 @@ output$hai_rate_ward <- renderPlot({
       select(-ward) %>%
       rename(date_enrollment = date_survey, ward = ward_type) %>%
       group_by(date_enrollment, ward) %>%
-      summarise(total_patients = sum(patients)) %>%
-      ungroup() %>%
+      summarise(total_patients = sum(patients), .groups = "drop") %>%
       complete(ward, date_enrollment, fill = list(total_patients = 9999999999)),
     patient() %>%
       filter(surveillance_cat == "HAI") %>%
       group_by(date_enrollment, ward) %>%
-      summarise(hai_patients = n()) %>%
-      ungroup() %>%
+      summarise(hai_patients = n(), .groups = "drop") %>%
       complete(ward, date_enrollment, fill = list(hai_patients = 0)),
     by = c("date_enrollment", "ward")) %>%
     mutate(infection_rate = round(100*hai_patients/total_patients, 1))

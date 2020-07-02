@@ -1,3 +1,4 @@
+# Function that returns a filtered patient dataset based on selected filters
 fun_filter_patient <- function(data, input) {
   
   if( is.null(data) ) return(NULL)
@@ -61,55 +62,69 @@ fun_filter_patient <- function(data, input) {
   return(data)
 }
 
-fun_filter_microbio <- function(data, patient, input) {
-  # it is expected that patient argument = patient_filter()
+# Function that removes episode_id that are not in patient dataset in argument, 
+# and keeps specimen based on filter_method_collection/filter_method_other.
+# it is expected that patient argument = patient_filter()
+fun_filter_microbio <- function(data, patient, input) { 
+  if(is.null(data)) return(NULL)
   
-  if( is.null(data) ) return(NULL)
-  
+  # select only microbio data for the filtered episodes
   data <- data %>% filter(episode_id %in% patient$episode_id)
   
+  # filter by type of specimen
   if(! "blood" %in% input$filter_method_collection) data <- data %>% filter(specimen_type != "Blood")
   if(! "other_not_blood" %in% input$filter_method_collection) data <- data %>% filter(specimen_type == "Blood")
   data <- data %>% filter(specimen_type %in% c("Blood", input$filter_method_other))
   
-  if(input$first_isolate)  data <- data %>% group_by(episode_id, organism) %>% 
-    top_n(1, specimen_id) %>% ungroup()
-  
   return(data)
 }
 
-# For the report, only blood specimens are used
-fun_filter_microbio_blood <- function(data, patient, input) {
+# Function that removes organisms "No growth (specific organism)" and "No growth"
+# Note that "No significant growth" should be categorised as growth
+fun_filter_growth_only <- function(data) data %>% filter(! organism %in% c("No growth (specific organism)", "No growth"))
+
+# Function that removes organisms "No significant growth"
+fun_filter_signifgrowth_only <- function(data) data %>% filter(organism != "No significant growth")
+
+# Function that removes organisms "Not cultured"
+fun_filter_cultured_only <- function(data) data %>% filter(! organism == "Not cultured")
+
+# Function that keeps only "Blood" specimen types
+fun_filter_blood_only <- function(data)  data %>% filter(specimen_type == "Blood")
+
+# Function that keeps only target pathogens
+fun_filter_target_pathogens <- function(data)  data %>% filter(organism %in% c("Acinetobacter baumannii", "Escherichia coli", "Klebsiella pneumoniae", 
+                       "Staphylococcus aureus", "Streptococcus pneumoniae") | str_detect(organism, "Salmonella"))
+
+# Function that returns a deduplicated dataset following the provided method: by patient-episode or by patient Id
+# It's essential to use this only once possible other filters (surveillance type...) have already been applied
+fun_deduplication <- function(data, method = NULL) {
+  if(is.null(method)) stop("No deduplication method provided.")
   
-  if( is.null(data) ) return(NULL)
+  if(method == "No deduplication of isolates")  return(data)
   
-  data <- data %>% filter(patient_id %in% patient$patient_id)  # it is expected that patient IS patient_filter()
+  if(method == "Deduplication by patient-episode") { 
+    data_dedup <- data %>% group_by(patient_id, episode_id, organism, specimen_type) %>% 
+      slice(1) %>% ungroup()
+    # print(paste0("Deduplication: before ", nrow(data), " isolates; after ", nrow(data_dedup), 
+    #              " isolates (-",  nrow(data) - nrow(data_dedup), ")."))
+    return(data_dedup)
+  }
   
-  data <- data %>% filter(specimen_type == "Blood")
-  
-  if(input$first_isolate)  data <- data %>% group_by(patient_id, organism) %>% top_n(1, specimen_id) %>% ungroup()
-  
-  return(data)
+  if(method == "Deduplication by patient ID") { 
+    data_dedup <- data %>% group_by(patient_id, organism, specimen_type) %>% 
+      slice(1) %>% ungroup()
+    # print(paste0("Deduplication: before ", nrow(data), " isolates; after ", nrow(data_dedup), 
+    #              " isolates (-",  nrow(data) - nrow(data_dedup), ")."))
+    return(data_dedup)
+  }
 }
 
+# Function that filter to keep only selected ward type and date of survey
 fun_filter_hai <- function(data, input) {
-  if( is.null(data) ) return(NULL)
-  
-  data <- data %>% filter(
-    ward_type %in% input$filter_type_ward,
-    ward %in% input$filter_ward | is.na(ward),
-    date_survey <= input$filter_enrollment[2],
-    date_survey >= input$filter_enrollment[1]
-  )
-}
-
-# Important: "No significant growth" should be categorised as growth
-fun_filter_growth_only <- function(dta) {
-  return(dta %>%
-           filter(! organism %in% c("No growth (specific organism)", "No growth")))
-}
-
-fun_filter_cultured_only <- function(dta) {
-  return(dta %>%
-           filter(! organism == "Not cultured"))
+data %>% filter(
+  ward_type %in% input$filter_type_ward,
+  ward %in% input$filter_ward | is.na(ward),
+  date_survey <= input$filter_enrollment[2],
+  date_survey >= input$filter_enrollment[1])
 }

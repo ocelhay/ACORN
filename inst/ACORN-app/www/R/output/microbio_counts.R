@@ -5,7 +5,7 @@ output$n_patient <- renderText({
       as.character(
       div(class = "n_box",
           div(class = "icon_box", icon("user-check")),
-          h3(n_distinct(microbio_filter()$patient_id)),
+          h3(microbio_filter() %>% fun_deduplication(method = input$deduplication_method) %>% pull(patient_id) %>% n_distinct()),
           strong("Patients with Microbiology")
       )
     )
@@ -15,8 +15,8 @@ output$n_patient <- renderText({
 
 output$n_specimen <- renderText({
   
-  p <- n_distinct(microbio_filter()$specimen_id)
-  n <- n_distinct(microbio_filter()$patient_id)
+  p <- microbio_filter() %>% fun_deduplication(method = input$deduplication_method) %>% pull(specimen_id) %>% n_distinct()
+  n <- microbio_filter()  %>% fun_deduplication(method = input$deduplication_method) %>% pull(patient_id) %>% n_distinct()
   prop = round(p/n, 2)
   
   return(
@@ -33,18 +33,13 @@ output$n_specimen <- renderText({
 })
 
 output$n_isolate <- renderText({
-  n <- n_distinct(microbio_filter() %>% 
-                    fun_filter_growth_only() %>%
-                    filter(organism != "No significant growth") %>%
-                    filter(organism != "Not cultured") %>%
-                    pull(isolate_id))
-  
+
   return(
     paste0(
       as.character(
         div(class = "n_box",
             div(class = "icon_box", icon("microscope")),
-            h3(n),
+            h3(microbio_filter() %>% fun_filter_growth_only() %>% fun_deduplication(method = input$deduplication_method) %>% pull(isolate_id) %>% n_distinct()),
             span(strong("Isolates"), "from cultures that have growth")
         )
       )

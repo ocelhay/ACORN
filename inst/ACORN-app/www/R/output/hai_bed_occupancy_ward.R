@@ -11,20 +11,6 @@ output$bed_occupancy_ward <- renderPlot({
   req(hai_surveys_filter())
   req(nrow(hai_surveys_filter() > 0))
   
-  # dta <- hai_surveys_filter() %>%
-  #   mutate(beds = as.numeric(beds),
-  #          patients = as.numeric(patients)) %>%
-  #   mutate(occupancy = round(100*patients / beds)) %>%
-  #   group_by(date_survey) %>%
-  #   summarise(low = min(occupancy), high = max(occupancy)) %>%
-  #   ungroup() %>%
-  #   hchart(type = "columnrange", hcaes(x = "date_survey", low = "low", high = "high")) %>%
-  #   hc_yAxis(title = list(text = "%"), min = 0, max = 100, endOnTick = FALSE, stackLabels = list(enabled = TRUE)) %>%
-  #   hc_xAxis(title = "") %>%
-  #   hc_tooltip(headerFormat = "",
-  #              pointFormat = "Week of the {point.date_survey}: <br> Min {point.low}% - Max {point.high}%")
-  
-  
   dta <- hai_surveys_filter() %>%
     mutate(beds = as.numeric(beds),
            patients = as.numeric(patients)) %>%
