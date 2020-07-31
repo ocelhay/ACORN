@@ -424,9 +424,9 @@ ui <- fluidPage(
 # Define server logic ----
 server <- function(input, output, session) {
   # stop the shiny app when the browser window is closed
-  session$onSessionEnded(function() {
-    stopApp()
-  })
+  # session$onSessionEnded(function() {
+  #   stopApp()
+  # })
   
   # TRUE if App running locally, FALSE if running online (shinyapps.io ...)
   local_server_test <- !nzchar(Sys.getenv("SHINY_PORT"))
