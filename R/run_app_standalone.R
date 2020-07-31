@@ -1,4 +1,4 @@
-#' Run the ACORN App
+#' Run the ACORN App for the standalone version
 #'
 #' @return
 #' Open browser
@@ -7,7 +7,7 @@
 #' @import bsplus data.table DT flexdashboard flextable foreign grid gridExtra highcharter 
 #' @import knitr jsonlite lubridate markdown openssl pushbar RColorBrewer readxl shiny 
 #' @import shinyBS shinyhelper shinythemes shinyWidgets tidyverse tools timevis vov
-runACORN <- function() {
+run_app_standalone <- function(options = list()) {
   appDir <- system.file("ACORN-app", package = "ACORN")
-  shiny::runApp(appDir, display.mode = "normal")
+  shinyAppDir(appDir, options = options)
 }
