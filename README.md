@@ -1,4 +1,4 @@
-[![](https://img.shields.io/badge/devel%20version-1.3-blue.svg)](https://github.com/ocelhay/ACORN/)
+[![](https://img.shields.io/badge/devel%20version-1.2-blue.svg)](https://github.com/ocelhay/ACORN/)
 
 For informations on the ACORN project,  visit the ACORN Project website: [https://www.acornamr.net](https://www.acornamr.net).
 
