@@ -1,4 +1,7 @@
+<!-- GitHub badges: start -->
 [![](https://img.shields.io/badge/devel%20version-1.2-blue.svg)](https://github.com/ocelhay/ACORN/)
+[![DOI](https://zenodo.org/badge/232677929.svg)](https://zenodo.org/badge/latestdoi/232677929)
+<!-- GitHub badges: end -->
 
 For informations on the ACORN project,  visit the ACORN Project website: [https://www.acornamr.net](https://www.acornamr.net).
 
