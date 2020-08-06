@@ -16,5 +16,6 @@ output$profile_sex <- renderHighchart({
     hchart(type = "column", hcaes(x = sex, y = n, color = color)) %>%
     hc_yAxis(title = "") %>%
     hc_xAxis(title = "") %>%
-    hc_tooltip(headerFormat = "", pointFormat = "{point.n} patients ({point.freq} %)")
+    hc_tooltip(headerFormat = "", pointFormat = "{point.n} patients ({point.freq} %)") %>%
+    hc_exporting(enabled = TRUE, buttons = list(contextButton = list(menuItems = hc_export_kind)))
 })

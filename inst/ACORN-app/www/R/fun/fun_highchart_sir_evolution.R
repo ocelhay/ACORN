@@ -82,7 +82,8 @@ highchart_sir_evolution <- function(data_input, organism_input, corresp, combine
       hc_colors(cols_sir[c(1, 3)]) %>%
       hc_tooltip(headerFormat = "",
                  pointFormat = "{point.value}: {point.percent}% <br>({point.n} of {point.total_org} tested.)") %>%
-      hc_plotOptions(series = list(stacking = 'percent'))
+      hc_plotOptions(series = list(stacking = 'percent')) %>%
+      hc_exporting(enabled = TRUE, buttons = list(contextButton = list(menuItems = hc_export_kind)))
   )
   }
   
@@ -95,7 +96,8 @@ highchart_sir_evolution <- function(data_input, organism_input, corresp, combine
       hc_colors(cols_sir) %>%
       hc_tooltip(headerFormat = "",
                  pointFormat = "{point.value}: {point.percent}% <br>({point.n} of {point.total_org} tested.)") %>%
-      hc_plotOptions(series = list(stacking = 'percent'))
+      hc_plotOptions(series = list(stacking = 'percent')) %>%
+      hc_exporting(enabled = TRUE, buttons = list(contextButton = list(menuItems = hc_export_kind)))
   )
   }
 }

@@ -23,6 +23,7 @@ output$profile_outcome_diagnosis <- renderHighchart({
     hc_add_series(data = df,
                   # Meningitis, Confirmed, Rejected, Pneumonia, Sepsis, , Unknown Initial, Unknown Final
                   colors = c("#1f78b4", "#fd8d3c", "#000000", "#33a02c", "#e31a1c", "#969696", "#969696"),
-                  tooltip = list(headerFormat = "", pointFormat = "{point.weight} patients with {point.from} - diagnostic {point.to}"))
+                  tooltip = list(headerFormat = "", pointFormat = "{point.weight} patients with {point.from} - diagnostic {point.to}")) %>%
+    hc_exporting(enabled = TRUE, buttons = list(contextButton = list(menuItems = hc_export_kind)))
 })
   

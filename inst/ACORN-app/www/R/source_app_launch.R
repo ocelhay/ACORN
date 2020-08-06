@@ -28,3 +28,5 @@ library(vov)  # swivel_vertical()
 
 
 cols_sir <- c("#2166ac", "#fddbc7", "#b2182b")  # resp. S, I, R
+
+hc_export_kind <- c("downloadJPEG", "downloadCSV" )

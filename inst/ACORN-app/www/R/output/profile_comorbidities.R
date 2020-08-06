@@ -35,7 +35,8 @@ output$profile_comorbidities <- renderHighchart({
       hc_colors("#969696") %>%
       hc_tooltip(headerFormat = "",
                  pointFormat = "{point.patients} patients with {point.symptom}") %>%
-      hc_plotOptions(series = list(stacking = 'normal'))
+      hc_plotOptions(series = list(stacking = 'normal')) %>%
+      hc_exporting(enabled = TRUE, buttons = list(contextButton = list(menuItems = hc_export_kind)))
     
   })
   
@@ -61,6 +62,7 @@ output$profile_comorbidities <- renderHighchart({
       hc_colors("#969696") %>%
       hc_tooltip(headerFormat = "",
                  pointFormat = "{point.n} patients with {point.comorbidities}") %>%
-      hc_plotOptions(series = list(stacking = 'normal'))
+      hc_plotOptions(series = list(stacking = 'normal')) %>%
+      hc_exporting(enabled = TRUE, buttons = list(contextButton = list(menuItems = hc_export_kind)))
   })
 })

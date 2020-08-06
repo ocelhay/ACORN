@@ -20,7 +20,8 @@ output$specimens_specimens_type <- renderHighchart({
     hc_yAxis(title = "") %>%
     hc_xAxis(categories = as.list(dta$specimen_type)) %>%
     hc_add_series(data = dta, type = "bar", hcaes(x = specimen_type, y = y, color = color),
-                  showInLegend = FALSE, tooltip = list(pointFormat = "{point.y} specimens collected ({point.freq} %)."))
+                  showInLegend = FALSE, tooltip = list(pointFormat = "{point.y} specimens collected ({point.freq} %).")) %>%
+    hc_exporting(enabled = TRUE, buttons = list(contextButton = list(menuItems = hc_export_kind)))
 })
 
 output$culture_specimen_type <- renderHighchart({
@@ -53,5 +54,6 @@ output$culture_specimen_type <- renderHighchart({
     hc_xAxis(title = "") %>% hc_yAxis(title = "") %>%
     hc_colors(c("#8e44ad", "#7f8c8d", "#d35400")) %>%
     hc_plotOptions(bar = list(stacking = "normal")) %>%
-    hc_tooltip(pointFormat = "{point.culture_result}: {point.y} specimens collected ({point.freq} %).")
+    hc_tooltip(pointFormat = "{point.culture_result}: {point.y} specimens collected ({point.freq} %).") %>%
+    hc_exporting(enabled = TRUE, buttons = list(contextButton = list(menuItems = hc_export_kind)))
 })

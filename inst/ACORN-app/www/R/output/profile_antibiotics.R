@@ -14,5 +14,6 @@ hchart(df, type = "bar", hcaes(x = "antibiotic", y = "n")) %>%
   hc_colors("#a6cee3") %>%
   hc_tooltip(headerFormat = "",
              pointFormat = "{point.n} patients have taken {point.antibiotic}") %>%
-  hc_plotOptions(series = list(stacking = 'normal'))
+  hc_plotOptions(series = list(stacking = 'normal')) %>%
+  hc_exporting(enabled = TRUE, buttons = list(contextButton = list(menuItems = hc_export_kind)))
 })
