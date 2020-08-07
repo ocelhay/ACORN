@@ -9,9 +9,7 @@ Description: This is essentially the source code for the shiny app that has been
 License: GNU General Public License
 Encoding: UTF-8
 LazyData: true
-Depends:
-    R (>= 3.6),
-    bsplus, data.table, DT, flexdashboard, flextable, foreign, grid, gridExtra, highcharter, 
-    knitr, jsonlite, lubridate, markdown, openssl, pushbar, RColorBrewer, readxl, rmarkdown, shiny, 
-    shinyBS, shinyhelper, shinythemes, shinyWidgets, tidyverse, tools, timevis, vov
+Depends: R (>= 3.6), bsplus, data.table, DT, flexdashboard, flextable, foreign, grid, gridExtra, highcharter, 
+    knitr, jsonlite, lubridate, markdown, openssl, pushbar, RColorBrewer, readxl, rmarkdown, 
+    shinyBS, shinyhelper, shinythemes, shinyWidgets, tidyverse, tools, timevis, vov, shiny
 RoxygenNote: 7.1.1
