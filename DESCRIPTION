@@ -1,7 +1,7 @@
 Package: ACORN
 Type: Package
 Title: App for the exploration of ACORN data
-Version: 1.2.1
+Version: 1.3
 Author: Olivier Celhay, Paul Turner
 Maintainer: Olivier Celhay <olivier.celhay@gmail.com>
 Description: This is essentially the source code for the shiny app that has been bundled as a R package for easy deployment. 
@@ -12,6 +12,6 @@ LazyData: true
 Depends:
     R (>= 3.6),
     bsplus, data.table, DT, flexdashboard, flextable, foreign, grid, gridExtra, highcharter, 
-    knitr, jsonlite, lubridate, markdown, openssl, pushbar, RColorBrewer, readxl, shiny, 
+    knitr, jsonlite, lubridate, markdown, openssl, pushbar, RColorBrewer, readxl, rmarkdown, shiny, 
     shinyBS, shinyhelper, shinythemes, shinyWidgets, tidyverse, tools, timevis, vov
 RoxygenNote: 7.1.1
