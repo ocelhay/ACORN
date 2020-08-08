@@ -424,6 +424,7 @@ ui <- fluidPage(
 # Define server logic ----
 server <- function(input, output, session) {
   # stop the shiny app when the browser window is closed
+  # conflicts with standalone app
   # session$onSessionEnded(function() {
   #   stopApp()
   # })
