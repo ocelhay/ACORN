@@ -1,5 +1,5 @@
 source("./www/R/source_app_launch.R", local = TRUE)
-version <- "1.3-beta.3"
+version <- "1.3-beta.5"
 
 # Source all functions
 for(file in list.files("./www/R/fun/"))  source(paste0("./www/R/fun/", file), local = TRUE)
@@ -425,9 +425,9 @@ ui <- fluidPage(
 server <- function(input, output, session) {
   # stop the shiny app when the browser window is closed
   # conflicts with standalone app
-  session$onSessionEnded(function() {
-    stopApp()
-  })
+  # session$onSessionEnded(function() {
+  #   stopApp()
+  # })
   
   # TRUE if App running locally, FALSE if running online (shinyapps.io ...)
   local_server_test <- !nzchar(Sys.getenv("SHINY_PORT"))
