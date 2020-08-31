@@ -18,16 +18,17 @@ print("Data dictionnary read")
 print("Start to read lab data")
 
 path_lab_file <- input$file_lab_data[[1, 'datapath']]
+extension_file_lab_data <- tools::file_ext(path_lab_file)
 
-if(input$whonet_file == "WHONET file") amr.loc <- foreign::read.dbf(path_lab_file, as.is = TRUE)
-
-if(input$whonet_file == "Not WHONET file") {
-  extension_file_lab_codes <- tools::file_ext(path_lab_file)
-  if (extension_file_lab_codes == "csv") { amr.loc <- read_csv(path_lab_file, guess_max = 10000) } else if
-  (extension_file_lab_codes == "txt") { amr.loc <- read_tsv(path_lab_file, guess_max = 10000) } else if
-  (extension_file_lab_codes %in% c("xls", "xlsx")) { amr.loc <- read_excel(path_lab_file, guess_max = 10000) }
+if (extension_file_lab_data == "dbf" | extension_file_lab_data == "DBF")  amr.loc <- foreign::read.dbf(path_lab_file, as.is = TRUE)
+if (extension_file_lab_data == "sqlite") {
+  dta <- DBI::dbConnect(RSQLite::SQLite(), path_lab_file)
+  amr.loc <- as.data.frame(dbReadTable(dta, "Isolates"))
 }
-
+  
+if (extension_file_lab_data == "csv")  amr.loc <- read_csv(path_lab_file, guess_max = 10000)
+if (extension_file_lab_data == "txt")  amr.loc <- read_tsv(path_lab_file, guess_max = 10000)
+if (extension_file_lab_data %in% c("xls", "xlsx")) amr.loc <- read_excel(path_lab_file, guess_max = 10000)
 print("Lab data read")
 
 
