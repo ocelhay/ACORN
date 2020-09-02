@@ -1,5 +1,5 @@
 source("./www/R/source_app_launch.R", local = TRUE)
-version <- "1.3-beta.5"
+version <- "1.3-beta.6"
 
 # Source all functions
 for(file in list.files("./www/R/fun/"))  source(paste0("./www/R/fun/", file), local = TRUE)
