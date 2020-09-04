@@ -12,14 +12,9 @@ list(
                        p(icon("upload"), "Upload Lab Codes - ",  strong(".xlsx"), " format"),
                        fileInput("file_lab_codes", label = NULL, accept = ".xlsx", buttonLabel = "Browse ..."),
                        
-                       # p("Upload Lab Data - either: ", 
-                       #   tags$ul(tags$li(strong("WHONET dBase (.dbf)"), " file"),
-                       #           tags$li(strong("WHONET .SQLite (.sqlite)"), " file"),
-                       #           tags$li("Tabular", strong(".csv, .txt, .xls"), " or ", strong(".xlsx"), " format"))),
-                       # fileInput("file_lab_data", label = NULL, buttonLabel = "Browse ..."),
                        p(icon("upload"), "Upload Lab Data"),
                        pickerInput(inputId = "format_lab_data", label = "Select Format:", 
-                         choices = c("", "WHONET dBase", "WHONET .SQLite", "Tabular (.csv, .txt, .xls(x)"), 
+                         choices = c("", "WHONET .dBase", "WHONET .SQLite", "Tabular (.csv, .txt, .xls(x)"), 
                          multiple = FALSE),
                        
                        conditionalPanel("! input.format_lab_data == ''",
