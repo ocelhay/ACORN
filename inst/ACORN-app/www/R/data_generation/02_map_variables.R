@@ -19,7 +19,7 @@ amr <- as.data.frame(rbind(setDT(amr), setDT(amr.loc), fill = TRUE)) # Converts 
 amr <- subset(amr, select = (!is.na(colnames(amr))))
 
 print("[Log ACORN] guess the format of the specimen date variable")
-amr$specdate <- parse_date_time(amr$specdate, c("dmY", "Ymd", "dbY"))
+amr$specdate <- parse_date_time(amr$specdate, c("dmY", "Ymd", "dbY", "Ymd HMS"))
 
 # Make a new orgnum (do not rely on any orgnum imported as part of the dataset)
 amr$specid.lc <- tolower(amr$specid) # Make all specid lowercase (to avoid splitting specid based on inconsistent use of caps)

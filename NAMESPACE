@@ -2,8 +2,10 @@
 
 export(runACORN)
 export(run_app_standalone)
+import(DBI)
 import(DT)
 import(RColorBrewer)
+import(RSQLite)
 import(bsplus)
 import(data.table)
 import(flexdashboard)

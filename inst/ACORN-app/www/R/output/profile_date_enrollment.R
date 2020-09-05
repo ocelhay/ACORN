@@ -13,7 +13,8 @@ output$profile_date_enrollment <- renderHighchart({
   hchart(df, "line", hcaes(x = date_enrollment, y = n)) %>%
     hc_yAxis(title = "") %>% hc_xAxis(title = "") %>%
     hc_colors("#969696") %>%
-    hc_tooltip(headerFormat = "", pointFormat = "{point.week}: <br>{point.n} patients")
+    hc_tooltip(headerFormat = "", pointFormat = "{point.week}: <br>{point.n} patients") %>%
+    hc_exporting(enabled = TRUE, buttons = list(contextButton = list(menuItems = hc_export_kind)))
   })
   
   if(! input$show_date_week) return({
@@ -26,6 +27,7 @@ output$profile_date_enrollment <- renderHighchart({
     hchart(df, "line", hcaes(x = date_enrollment, y = n)) %>%
       hc_yAxis(title = "") %>% hc_xAxis(title = "") %>%
       hc_colors("#969696") %>%
-      hc_tooltip(headerFormat = "", pointFormat = "{point.month}: <br>{point.n} patients")
+      hc_tooltip(headerFormat = "", pointFormat = "{point.month}: <br>{point.n} patients") %>%
+      hc_exporting(enabled = TRUE, buttons = list(contextButton = list(menuItems = hc_export_kind)))
   })
 })

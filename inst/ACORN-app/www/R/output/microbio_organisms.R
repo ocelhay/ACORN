@@ -60,7 +60,8 @@ output$isolates_organism <- renderHighchart({
     hc_xAxis(categories = as.list(df$organism)) %>%
     hc_add_series(data = df, type = "bar", hcaes(x = organism, y = y),
                   showInLegend = FALSE, tooltip = list(headerFormat = "", 
-                                                       pointFormat = "{point.y} isolates with {point.organism} ({point.freq} %)."))
+                                                       pointFormat = "{point.y} isolates with {point.organism} ({point.freq} %).")) %>%
+    hc_exporting(enabled = TRUE, buttons = list(contextButton = list(menuItems = hc_export_kind)))
 })
 
 output$isolates_organism_table <- renderDT({

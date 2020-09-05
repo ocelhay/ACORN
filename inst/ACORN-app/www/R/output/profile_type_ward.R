@@ -16,7 +16,8 @@ output$profile_type_ward <- renderHighchart({
       hc_yAxis(title = "") %>% hc_xAxis(title = "") %>%
       hc_tooltip(headerFormat = "",
                  pointFormat = "{point.patients} patients in {point.ward_name}") %>%
-      hc_plotOptions(series = list(stacking = 'normal'))
+      hc_plotOptions(series = list(stacking = 'normal')) %>%
+      hc_exporting(enabled = TRUE, buttons = list(contextButton = list(menuItems = hc_export_kind)))
   })
   
   if(! input$show_ward_breakdown) return({
@@ -31,6 +32,7 @@ output$profile_type_ward <- renderHighchart({
       hc_yAxis(title = "") %>% hc_xAxis(title = "") %>%
       hc_tooltip(headerFormat = "",
                  pointFormat = "{point.patients} patients in a {point.ward} ward.") %>%
-      hc_plotOptions(series = list(stacking = 'normal'))
+      hc_plotOptions(series = list(stacking = 'normal')) %>%
+      hc_exporting(enabled = TRUE, buttons = list(contextButton = list(menuItems = hc_export_kind)))
   })
 })

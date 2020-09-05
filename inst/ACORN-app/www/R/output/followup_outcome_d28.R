@@ -48,5 +48,6 @@ output$d28_outcome_status <- renderHighchart({
     hc_tooltip(headerFormat = "", pointFormat = "{point.y} patients ({point.freq} %)") %>%
     hc_plotOptions(pie = list(dataLabels = list(enabled = TRUE, 
                                                 format = '{point.name}: {point.y}',
-                                                style = list(fontSize = 12))))
+                                                style = list(fontSize = 12)))) %>%
+    hc_exporting(enabled = TRUE, buttons = list(contextButton = list(menuItems = hc_export_kind)))
 })

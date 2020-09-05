@@ -1,5 +1,5 @@
 source("./www/R/source_app_launch.R", local = TRUE)
-version <- "1.2.1"
+version <- "1.3"
 
 # Source all functions
 for(file in list.files("./www/R/fun/"))  source(paste0("./www/R/fun/", file), local = TRUE)
@@ -62,7 +62,7 @@ ui <- fluidPage(
                                                 options = list(style = "btn-primary")) %>% 
                                       helper(content = "help_deduplication", colour = "red"),
                                     htmlOutput("feedback_filters"),
-                                    downloadLink("report", label = span(icon("file-word"), "Generate Report (.docx)"))
+                                    uiOutput("report_generation")
                                 )
                             ),
                             source("./www/R/ui/across_pushbar_filters.R", local = TRUE)[1]
@@ -424,6 +424,7 @@ ui <- fluidPage(
 # Define server logic ----
 server <- function(input, output, session) {
   # stop the shiny app when the browser window is closed
+  # should be commented when generating standalone app
   session$onSessionEnded(function() {
     stopApp()
   })
@@ -643,6 +644,13 @@ server <- function(input, output, session) {
   
   # Report generation ----
   feedback_download <- reactiveValues(download_flag = 0)
+  
+  output$report_generation <- renderUI({
+    ifelse(pandoc_available(),
+           tagList(downloadLink("report", label = span(icon("file-word"), "Generate Report (.docx)"))),
+           tagList(span("To generate a report", a("install pandoc", href = "https://pandoc.org/installing.html", target = "_blank"), " and restart the app."))
+    )
+  })
   
   output$report <- downloadHandler(
     filename = "AMR Report.docx",

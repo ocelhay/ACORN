@@ -22,5 +22,6 @@ output$evolution_blood_culture <- renderHighchart({
   
   hchart(dta, type = "column", hcaes(x = "month", y = "percent", color = "color")) %>%
     hc_yAxis(title = list(text = "%", rotation = 0), max = 100) %>% hc_xAxis(title = "Month of Enrollment") %>% 
-    hc_tooltip(pointFormat = "<b>Blood specimens {point.percent}%</b><br> ({point.blood} of {point.all} enrollments)")
+    hc_tooltip(pointFormat = "<b>Blood specimens {point.percent}%</b><br> ({point.blood} of {point.all} enrollments)") %>%
+    hc_exporting(enabled = TRUE, buttons = list(contextButton = list(menuItems = hc_export_kind)))
 })

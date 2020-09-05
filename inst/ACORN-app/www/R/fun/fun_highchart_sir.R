@@ -75,7 +75,8 @@ highchart_sir <- function(data_input, organism_input, corresp, combine_SI, dedup
         hc_tooltip(headerFormat = "",
                    pointFormat = "<b>{point.antibiotic_name}</b><br> {point.resistance}: {point.percent}% <br>({point.n} of {point.total_org} tested.)") %>%
         hc_plotOptions(series = list(stacking = 'percent')) %>%
-        hc_add_dependency("plugins/grouped-categories.js")
+        hc_add_dependency("plugins/grouped-categories.js") %>%
+        hc_exporting(enabled = TRUE, buttons = list(contextButton = list(menuItems = hc_export_kind)))
     )
   }
   
@@ -139,7 +140,8 @@ highchart_sir <- function(data_input, organism_input, corresp, combine_SI, dedup
         hc_tooltip(headerFormat = "",
                    pointFormat = "<b>{point.antibiotic_name}</b><br> {point.resistance}: {point.percent}% <br>({point.n} of {point.total_org} tested.)") %>%
         hc_plotOptions(series = list(stacking = 'percent')) %>%
-        hc_add_dependency("plugins/grouped-categories.js")
+        hc_add_dependency("plugins/grouped-categories.js") %>%
+        hc_exporting(enabled = TRUE, buttons = list(contextButton = list(menuItems = hc_export_kind)))
     )
   }
 }

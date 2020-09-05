@@ -6,18 +6,23 @@ list(
               ),
               fluidRow(
                 column(5,
-                       p("Upload data dictionnary (.xlsx):"),
+                       p(icon("upload"), "Upload Data Dictionnary - ",  strong(".xlsx"), " format"),
                        fileInput("file_data_dic", label = NULL, accept = ".xlsx", buttonLabel = "Browse ..."),
                        
-                       p("Upload lab CODES (.xlsx):"),
+                       p(icon("upload"), "Upload Lab Codes - ",  strong(".xlsx"), " format"),
                        fileInput("file_lab_codes", label = NULL, accept = ".xlsx", buttonLabel = "Browse ..."),
                        
+                       p(icon("upload"), "Upload Lab Data"),
+                       pickerInput(inputId = "format_lab_data", label = "Select Format:", 
+                         choices = c("", "WHONET .dBase", "WHONET .SQLite", "Tabular (.csv, .txt, .xls(x)"), 
+                         multiple = FALSE),
                        
-                       radioButtons("whonet_file", label = "Format of the lab data", choices = c("WHONET file", "Not WHONET file"),
-                                    selected = "Not WHONET file", inline = TRUE),
-                       uiOutput("upload_lab_data"),
+                       conditionalPanel("! input.format_lab_data == ''",
+                                        fileInput("file_lab_data", label = NULL, buttonLabel = "Browse ...")),
                        
-                       p("Upload ODK data (requiring 5 .csv files):"),
+                       conditionalPanel("input.format_lab_data == ''", br(), br()),
+                       
+                       p(icon("upload"), "Upload ODK Data - ", strong("5 files"), " in ", strong(".csv"), " format"),
                        fileInput("file_odk_data", label = NULL, multiple = TRUE, buttonLabel = "Browse ..."),
                        br(),
                        bsButton("launch_generate_data", label = "Generate ACORN Data (Upload Data First)", style = "primary", 

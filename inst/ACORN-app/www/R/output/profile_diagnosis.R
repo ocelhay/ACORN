@@ -13,7 +13,8 @@ output$profile_diagnosis <- renderHighchart({
     hc_xAxis(categories = as.list(df$surveillance_diag)) %>%
     hc_add_series(data = df, type = "bar", hcaes(x = surveillance_diag, y = y, color = color),
                   showInLegend = FALSE, tooltip = list(headerFormat = "", 
-                                                       pointFormat = "Patients with {point.surveillance_diag}: {point.y} ({point.freq} %)"))
+                                                       pointFormat = "Patients with {point.surveillance_diag}: {point.y} ({point.freq} %)")) %>%
+    hc_exporting(enabled = TRUE, buttons = list(contextButton = list(menuItems = hc_export_kind)))
 })
 
 
@@ -35,7 +36,8 @@ output$profile_diagnosis_meningitis <- renderHighchart({
     hc_yAxis(title = "") %>%
     hc_xAxis(title = "") %>%
     hc_title(text = "Meningitis patients with a CSF", style = list(fontSize = "11px")) %>%
-    hc_tooltip(headerFormat = "", pointFormat = "{point.y} of {point.total} ({point.freq} %)")
+    hc_tooltip(headerFormat = "", pointFormat = "{point.y} of {point.total} ({point.freq} %)") %>%
+    hc_exporting(enabled = TRUE, buttons = list(contextButton = list(menuItems = hc_export_kind)))
 })
 
 output$profile_diagnosis_pneumonia <- renderHighchart({
@@ -56,5 +58,6 @@ output$profile_diagnosis_pneumonia <- renderHighchart({
     hc_yAxis(title = "") %>%
     hc_xAxis(title = "") %>%
     hc_title(text = "Pneumonia patients with a sputum", style = list(fontSize = "11px")) %>%
-    hc_tooltip(headerFormat = "", pointFormat = "{point.y} of {point.total} ({point.freq} %)")
+    hc_tooltip(headerFormat = "", pointFormat = "{point.y} of {point.total} ({point.freq} %)") %>%
+    hc_exporting(enabled = TRUE, buttons = list(contextButton = list(menuItems = hc_export_kind)))
 })
