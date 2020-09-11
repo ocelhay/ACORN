@@ -10,7 +10,6 @@ library(grid)
 library(gridExtra)  # grid.arrange(), report.Rmd
 library(highcharter)  # highchartOutput()
 library(knitr)
-library(jsonlite)  # toJSON()
 library(lubridate)  # floor_date()
 library(markdown)
 library(openssl)  # md5()
@@ -32,4 +31,4 @@ library(vov)  # swivel_vertical()
 
 cols_sir <- c("#2166ac", "#fddbc7", "#b2182b")  # resp. S, I, R
 
-hc_export_kind <- c("downloadJPEG", "downloadCSV" )
+hc_export_kind <- c("downloadJPEG", "downloadCSV")
