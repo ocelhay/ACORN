@@ -11,6 +11,6 @@ Encoding: UTF-8
 LazyData: true
 Depends: R (>= 3.6)
 Imports: bsplus, data.table, DBI, DT, flexdashboard, flextable, foreign, grid, gridExtra, highcharter, 
-    knitr, jsonlite, lubridate, markdown, openssl, pushbar, RColorBrewer, readxl, rmarkdown, RSQLite,
+    knitr, lubridate, markdown, openssl, pushbar, RColorBrewer, readxl, rmarkdown, RSQLite,
     shinyBS, shinyhelper, shinythemes, shinyWidgets, tidyverse, tools, timevis, vov, shiny
 RoxygenNote: 7.1.1

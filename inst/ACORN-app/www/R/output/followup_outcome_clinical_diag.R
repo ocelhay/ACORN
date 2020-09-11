@@ -9,14 +9,12 @@ output$profile_outcome_diagnosis <- renderHighchart({
     group_by(surveillance_diag, diag_final) %>%
     count() %>%
     rename(from = surveillance_diag, to = diag_final, weight = n) %>% 
-    mutate(color = NA)
+    mutate(color = NA, id = paste0(from, " - ", to, ": ", weight))
   
   df$color[df$from == "Meningitis"] <- "#1f78b4"
   df$color[df$from == "Pneumonia"] <- "#33a02c"
   df$color[df$from == "Sepsis"] <- "#e31a1c"
   df$color[df$from == "Unknown Initial"] <- "#969696"
-
-  df <- df %>% toJSON()
   
   highchart() %>%
     hc_chart(type = 'sankey') %>%
