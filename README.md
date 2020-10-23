@@ -3,13 +3,6 @@
 [![DOI](https://zenodo.org/badge/232677929.svg)](https://zenodo.org/badge/latestdoi/232677929)
 <!-- GitHub badges: end -->
 
-For informations on the ACORN project,  visit the ACORN Project website: [https://www.acornamr.net](https://www.acornamr.net).
+This is an archive of the ACORN Dashboard developped during the first phase of the ACORN project. 
 
-This is the code repository for the R package `ACORN` that contains the source code of the ACORN App.
-
-To install and use the app locally:
-
-1. (Once) Install and open R.
-2. (Once) Install the package: `devtools::install_github("ocelhay/ACORN")` and quit R.
-3. Open R and run the app: `ACORN::runACORN()`.
-
+For more recent informations on the ACORN project, visit the [ACORN Project website.](https://acornamr.net)
