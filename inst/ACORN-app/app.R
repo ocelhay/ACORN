@@ -1,5 +1,5 @@
 source("./www/R/source_app_launch.R", local = TRUE)
-version <- "1.3.1"
+version <- "1.3.2"
 
 # Source all functions
 for(file in list.files("./www/R/fun/"))  source(paste0("./www/R/fun/", file), local = TRUE)
@@ -79,7 +79,7 @@ ui <- fluidPage(
                                           bs_set_opts(panel_type = "default", use_heading_link = TRUE) %>%
                                           bs_append(title = "What is ACORN?", content = includeMarkdown('www/markdown/faq_1.md')) %>%
                                           bs_append(title = "Why is ACORN needed?", content = includeMarkdown('www/markdown/faq_2.md')) %>%
-                                          bs_append(title = "Where is ACORN surveillance being done?", content = includeMarkdown('www/markdown/faq_3.md')) %>%
+                                          # bs_append(title = "Where is ACORN surveillance being done?", content = includeMarkdown('www/markdown/faq_3.md')) %>%
                                           bs_append(title = "What are target pathogens?", content = includeMarkdown('www/markdown/faq_4.md')) %>%
                                           bs_append(title = "Acknowledgements & Credits", content = includeMarkdown('www/markdown/md_credits.md')),
                                         br(),

@@ -1,1 +1,0 @@
-The ACORN pilot will occur at Angkor Hospital for Children (Siem Reap, Cambodia), Mahosot Hospital (Vientiane, Lao PDR), and the National Hospital for Tropical Diseases (Hanoi, Vietnam).
